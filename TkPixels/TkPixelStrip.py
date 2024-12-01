@@ -1,4 +1,4 @@
-from collections import MutableSequence
+from collections.abc import MutableSequence
 import tkinter as tk
 from time import sleep
 
@@ -70,7 +70,4 @@ class TkPixelStrip(MutableSequence):
     
     def stop(self):
         self.root.destroy()
-    
-    
-    
     
