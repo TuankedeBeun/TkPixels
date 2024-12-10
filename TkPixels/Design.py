@@ -19,7 +19,8 @@ class Design(MutableSequence):
         self.canvas.configure(background='black')
         self.canvas.pack()
         
-        self.pixelradius = self.width / (2 * self.num_pixels)
+        self.pixelradius = 5
+        self.coords = get_coordinates_of_all_leds(self.num_pixels)
         self.draw()
         
         return
@@ -47,19 +48,22 @@ class Design(MutableSequence):
         raise RuntimeError("Insertion not allowed")
     
     def draw(self):
-        # create led strip from current data
-        y0 = (self.height / 2) - self.pixelradius
-        y1 = (self.height / 2) + self.pixelradius
+        # draw LED strip
         
-        for i in range(self.num_pixels):
-            x0 = 2 * i * self.pixelradius
-            x1 = 2 * (i + 1) * self.pixelradius
-            self.canvas.create_oval(x0, y0, x1, y1, 
-                                    width = 1,
-                                    fill = ('#%02x%02x%02x' % self.list[i]),
-                                    outline = 'gray')
+        for (x, y), v in zip(self.coords, self.list):
+            x0 = x - self.pixelradius
+            x1 = x + self.pixelradius
+            y0 = y + self.pixelradius
+            y1 = y - self.pixelradius
+            self.canvas.create_oval(
+                x0, y0, x1, y1, 
+                width = 1,
+                fill = ('#%02x%02x%02x' % v),
+                outline = 'gray'
+            )
+            self.canvas.update()
+            sleep(0.01)
         
-        self.canvas.update()
     
     def show(self):
         pass
@@ -72,15 +76,7 @@ class Design(MutableSequence):
     def stop(self):
         self.root.destroy()
     
-def get_coordinates_of_led(led_nr, total_leds, x_inverse=False):
-    corners = (
-        (-32.0, 0.0),
-        (32.0, 48.0),
-        (32.01, 16.0),
-        (-11.0, 48.0),
-        (-11.01, 100.0)
-    )
-
+def get_coordinates_of_led(corners, led_nr, total_leds, x_inverse=False):
     # compute distances
     distances = list()
     for i in range(len(corners) - 1):
@@ -96,7 +92,7 @@ def get_coordinates_of_led(led_nr, total_leds, x_inverse=False):
         cumulative_total += distances[i]
         cumulative_distances.append(cumulative_total)
 
-    # convert led nr  to distance
+    # convert led nr to distance
     led_dist = led_nr / total_leds * total_distance
 
     # we now have each element in "cumulative_distances" matching where each element in "corners" ends
@@ -131,14 +127,41 @@ def get_coordinate(point1, point2, dist):
     
     return x, y
 
-def get_coordinates_of_all_leds(total_leds, x_inverse=False):
+def get_coordinates_of_all_leds(total_leds, x_inverse=False, x_max = 100, y_max = 60):
+    corners  = get_normalized_corner_coords(x_max, y_max)
+    
     coords_strip1 = list()
 
-    for i in range(20):
-        coord = get_coordinates_of_led(i, total_leds)
+    for i in range(total_leds):
+        coord = get_coordinates_of_led(corners, i, total_leds)
         coords_strip1.append(coord)
 
     return coords_strip1
+
+def get_normalized_corner_coords(x_max, y_max):
+    corners = [
+        [-32.0, 0.0],
+        [31.99, 48.0],
+        [32.0, 16.0],
+        [-10.99, 48.0],
+        [-11.0, 100.0]
+    ]
+
+    x0_min = min([c[0] for c in corners])
+    x0_max = max([c[0] for c in corners])
+    y0_min = min([c[1] for c in corners])
+    y0_max = max([c[1] for c in corners])
+    x_range = x0_max - x0_min
+    y_range = y0_max - y0_min
+
+    for i, coord in enumerate(corners):
+        x0, y0 = coord
+        corners[i][0] = (x0 - x0_min) / x_range * x_max
+        corners[i][1] = (y_range - (y0 - y0_min)) / y_range * y_max
+
+    print('corner coords:', corners)
+
+    return tuple(corners)
 
 def distance(loc1, loc2):
     dy = loc2[1] - loc1[1]
@@ -146,6 +169,6 @@ def distance(loc1, loc2):
     dist = sqrt(dy**2 + dx**2)
     return dist
 
-coords = get_coordinates_of_all_leds(60)
+coords = get_coordinates_of_all_leds(20)
 for coord in coords:
     print(coord)
