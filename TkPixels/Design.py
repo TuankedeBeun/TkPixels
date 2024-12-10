@@ -10,8 +10,8 @@ class Design(MutableSequence):
         self.list = [(0, 0, 0)]*num_pixels
         
         self.root = tk.Tk(screenName='LED strip')
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
+        self.width = 500 #self.root.winfo_screenwidth()
+        self.height = 800 #self.root.winfo_screenheight()
         self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, -10, 0))
         self.canvas = tk.Canvas(master = self.root, 
                                 width = self.width, 
@@ -20,7 +20,10 @@ class Design(MutableSequence):
         self.canvas.pack()
         
         self.pixelradius = 5
-        self.coords = get_coordinates_of_all_leds(self.num_pixels)
+        self.coords = get_coordinates_of_all_leds(self.num_pixels, x_max = (self.width - self.pixelradius), y_max = (self.height - self.pixelradius))
+        for coord in self.coords:
+            print(coord)
+
         self.draw()
         
         return
@@ -76,7 +79,7 @@ class Design(MutableSequence):
     def stop(self):
         self.root.destroy()
     
-def get_coordinates_of_led(corners, led_nr, total_leds, x_inverse=False):
+def get_coordinates_of_led(corners, led_nr, total_leds):
     # compute distances
     distances = list()
     for i in range(len(corners) - 1):
@@ -116,18 +119,21 @@ def get_coordinate(point1, point2, dist):
     a = (y2 - y1) / (x2 - x1)
     b = y1 - a * x1
 
-    # get dx from distance from "d^2 = dx^2 + dy^2 = dx^2 + (a*dx)^2" --> "d^2 = (a + 1)*dx^2"--> "dx = sqrt(d^2 / (a + 1))"
-    dx = sqrt(dist**2 / (a + 1))
+    # get dx from distance from "d^2 = dx^2 + dy^2 = dx^2 + (a*dx)^2" --> "d^2 = (a^2 + 1)*dx^2"--> "dx = sqrt(d^2 / (a^2 + 1))"
+    dx = sqrt(dist**2 / (a**2 + 1))
 
     # get x from "x = x_point1 + dx"
-    x = x1 + dx
+    if x2 > x1:
+        x = x1 + dx
+    else:
+        x = x1 - dx
 
     # get y from "y = a*x + b"
     y = a * x + b
     
     return x, y
 
-def get_coordinates_of_all_leds(total_leds, x_inverse=False, x_max = 100, y_max = 60):
+def get_coordinates_of_all_leds(total_leds, x_max = 1000, y_max = 600, x_inverse=False):
     corners  = get_normalized_corner_coords(x_max, y_max)
     
     coords_strip1 = list()
@@ -138,7 +144,7 @@ def get_coordinates_of_all_leds(total_leds, x_inverse=False, x_max = 100, y_max 
 
     return coords_strip1
 
-def get_normalized_corner_coords(x_max, y_max):
+def get_normalized_corner_coords(x_max, y_max, inverse=False):
     corners = [
         [-32.0, 0.0],
         [31.99, 48.0],
@@ -156,8 +162,16 @@ def get_normalized_corner_coords(x_max, y_max):
 
     for i, coord in enumerate(corners):
         x0, y0 = coord
-        corners[i][0] = (x0 - x0_min) / x_range * x_max
-        corners[i][1] = (y_range - (y0 - y0_min)) / y_range * y_max
+        x1 = (x0 - x0_min) / x_range * x_max
+        y1 = (y_range - (y0 - y0_min)) / y_range * y_max
+
+        if inverse:
+            x1 = x_max - x1
+
+        corners[i][0] = x1
+        corners[i][1] = y1
+
+        
 
     print('corner coords:', corners)
 
@@ -168,7 +182,3 @@ def distance(loc1, loc2):
     dx = loc2[0] - loc1[0]
     dist = sqrt(dy**2 + dx**2)
     return dist
-
-coords = get_coordinates_of_all_leds(20)
-for coord in coords:
-    print(coord)
