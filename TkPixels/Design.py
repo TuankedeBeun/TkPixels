@@ -4,7 +4,7 @@ from time import sleep
 from math import sqrt
 
 class Design(MutableSequence):
-    def __init__(self, num_pixels, brightness):
+    def __init__(self, num_pixels, brightness, x_mirrored=False):
         self.num_pixels = num_pixels
         self.brightness = brightness
         self.list = [(0, 0, 0)]*num_pixels
@@ -20,7 +20,14 @@ class Design(MutableSequence):
         self.canvas.pack()
         
         self.pixelradius = 5
-        self.coords = get_coordinates_of_all_leds(self.num_pixels, x_max = (self.width - self.pixelradius), y_max = (self.height - self.pixelradius))
+        self.coords = get_coordinates_of_all_leds(
+            self.num_pixels, 
+            x_min = self.pixelradius,
+            x_max = (self.width - self.pixelradius),
+            y_min = self.pixelradius,
+            y_max = (self.height - self.pixelradius),
+            x_mirrored = x_mirrored
+        )
         for coord in self.coords:
             print(coord)
 
@@ -133,8 +140,8 @@ def get_coordinate(point1, point2, dist):
     
     return x, y
 
-def get_coordinates_of_all_leds(total_leds, x_max = 1000, y_max = 600, x_inverse=False):
-    corners  = get_normalized_corner_coords(x_max, y_max)
+def get_coordinates_of_all_leds(total_leds, x_min, x_max, y_min, y_max , x_mirrored=False):
+    corners  = get_normalized_corner_coords(x_min, x_max, y_min, y_max, x_mirrored)
     
     coords_strip1 = list()
 
@@ -144,7 +151,7 @@ def get_coordinates_of_all_leds(total_leds, x_max = 1000, y_max = 600, x_inverse
 
     return coords_strip1
 
-def get_normalized_corner_coords(x_max, y_max, inverse=False):
+def get_normalized_corner_coords(x_min, x_max, y_min, y_max, x_mirrored=False):
     corners = [
         [-32.0, 0.0],
         [31.99, 48.0],
@@ -157,16 +164,19 @@ def get_normalized_corner_coords(x_max, y_max, inverse=False):
     x0_max = max([c[0] for c in corners])
     y0_min = min([c[1] for c in corners])
     y0_max = max([c[1] for c in corners])
-    x_range = x0_max - x0_min
-    y_range = y0_max - y0_min
+    x0_range = x0_max - x0_min
+    y0_range = y0_max - y0_min
+
+    x1_range = x_max - x_min
+    y1_range = y_max - y_min
 
     for i, coord in enumerate(corners):
         x0, y0 = coord
-        x1 = (x0 - x0_min) / x_range * x_max
-        y1 = (y_range - (y0 - y0_min)) / y_range * y_max
+        x1 = (x0 - x0_min) / x0_range * x1_range + x_min
+        y1 = (y0_range - (y0 - y0_min)) / y0_range * y1_range + y_min
 
-        if inverse:
-            x1 = x_max - x1
+        if x_mirrored:
+            x1 = x_max - x1 + x_min
 
         corners[i][0] = x1
         corners[i][1] = y1
