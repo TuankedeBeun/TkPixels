@@ -74,11 +74,11 @@ class Design(MutableSequence):
     
 def get_coordinates_of_led(led_nr, total_leds, x_inverse=False):
     corners = (
-        (-32, 0),
-        (32, 48),
-        (32, 16),
-        (-11, 48),
-        (-11, 100)
+        (-32.0, 0.0),
+        (32.0, 48.0),
+        (32.01, 16.0),
+        (-11.0, 48.0),
+        (-11.01, 100.0)
     )
 
     # compute distances
