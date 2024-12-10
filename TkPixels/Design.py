@@ -4,7 +4,7 @@ from time import sleep
 from math import sqrt
 
 class Design(MutableSequence):
-    def __init__(self, num_pixels, brightness, x_mirrored=False):
+    def __init__(self, num_pixels, brightness):
         self.num_pixels = num_pixels
         self.brightness = brightness
         self.list = [(0, 0, 0)]*num_pixels
@@ -20,16 +20,20 @@ class Design(MutableSequence):
         self.canvas.pack()
         
         self.pixelradius = 5
-        self.coords = get_coordinates_of_all_leds(
-            self.num_pixels, 
-            x_min = self.pixelradius,
-            x_max = (self.width - self.pixelradius),
-            y_min = self.pixelradius,
-            y_max = (self.height - self.pixelradius),
-            x_mirrored = x_mirrored
+        x_bounds = (self.pixelradius, self.width - self.pixelradius)
+        y_bounds = (self.pixelradius, self.height - self.pixelradius)
+        self.coords_r = get_coordinates_of_all_leds(
+            self.num_pixels,
+            x_bounds,
+            y_bounds,
+            x_mirrored = False
         )
-        for coord in self.coords:
-            print(coord)
+        self.coords_l = get_coordinates_of_all_leds(
+            self.num_pixels,
+            x_bounds,
+            y_bounds,
+            x_mirrored = True
+        )
 
         self.draw()
         
@@ -60,19 +64,20 @@ class Design(MutableSequence):
     def draw(self):
         # draw LED strip
         
-        for (x, y), v in zip(self.coords, self.list):
-            x0 = x - self.pixelradius
-            x1 = x + self.pixelradius
-            y0 = y + self.pixelradius
-            y1 = y - self.pixelradius
-            self.canvas.create_oval(
-                x0, y0, x1, y1, 
-                width = 1,
-                fill = ('#%02x%02x%02x' % v),
-                outline = 'gray'
-            )
-            self.canvas.update()
-            sleep(0.01)
+        for coord_list in [self.coords_r, self.coords_l]:
+            for (x, y), v in zip(coord_list, self.list):
+                x0 = x - self.pixelradius
+                x1 = x + self.pixelradius
+                y0 = y + self.pixelradius
+                y1 = y - self.pixelradius
+                self.canvas.create_oval(
+                    x0, y0, x1, y1, 
+                    width = 1,
+                    fill = ('#%02x%02x%02x' % v),
+                    outline = 'gray'
+                )
+        
+        self.canvas.update()
         
     
     def show(self):
@@ -140,8 +145,8 @@ def get_coordinate(point1, point2, dist):
     
     return x, y
 
-def get_coordinates_of_all_leds(total_leds, x_min, x_max, y_min, y_max , x_mirrored=False):
-    corners  = get_normalized_corner_coords(x_min, x_max, y_min, y_max, x_mirrored)
+def get_coordinates_of_all_leds(total_leds, x_bounds, y_bounds, x_mirrored=False):
+    corners  = get_normalized_corner_coords(x_bounds, y_bounds, x_mirrored)
     
     coords_strip1 = list()
 
@@ -151,7 +156,7 @@ def get_coordinates_of_all_leds(total_leds, x_min, x_max, y_min, y_max , x_mirro
 
     return coords_strip1
 
-def get_normalized_corner_coords(x_min, x_max, y_min, y_max, x_mirrored=False):
+def get_normalized_corner_coords(x_bounds, y_bounds, x_mirrored=False):
     corners = [
         [-32.0, 0.0],
         [31.99, 48.0],
@@ -167,6 +172,8 @@ def get_normalized_corner_coords(x_min, x_max, y_min, y_max, x_mirrored=False):
     x0_range = x0_max - x0_min
     y0_range = y0_max - y0_min
 
+    x_min, x_max = x_bounds
+    y_min, y_max = y_bounds
     x1_range = x_max - x_min
     y1_range = y_max - y_min
 
