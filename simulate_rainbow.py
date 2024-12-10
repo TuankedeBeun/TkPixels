@@ -1,9 +1,10 @@
-from TkPixels.SimpleStrip import TkPixelStrip
+from TkPixels.Design import Design
 from time import sleep
 
 max_brightness = 0.5
-Npixels = 120
-pixels = TkPixelStrip(Npixels, max_brightness)
+Npixels = 60
+wait_time_seconds = 0
+pixels = Design(Npixels, max_brightness)
 
 def wheel(pos):
     if pos < 0 or pos > 255:
@@ -29,18 +30,17 @@ def rainbow_cycle(wait):
         for i in range(Npixels):
             pixel_index = (i * 256 // Npixels) + j
             pixels[i] = wheel(pixel_index & 255)
-        pixels.show()
         sleep(wait)
         
 Ncycles = 5
-for cycle in range(1, Ncycles + 1):
-    intensity = cycle/Ncycles
-    pixels.brightness = intensity/max_brightness
-    rainbow_cycle(0.0001)
+# for cycle in range(1, Ncycles + 1):
+#     intensity = cycle/Ncycles
+#     pixels.brightness = intensity/max_brightness
+#     rainbow_cycle(wait_time_seconds)
 
 for cycle in range(1, Ncycles + 1):
     intensity = 1 - cycle/Ncycles
     pixels.brightness = intensity/max_brightness
-    rainbow_cycle(0.0001)
+    rainbow_cycle(wait_time_seconds)
     
 pixels.fill((0,0,0))

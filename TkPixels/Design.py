@@ -4,14 +4,14 @@ from time import sleep
 from math import sqrt
 
 class Design(MutableSequence):
-    def __init__(self, num_pixels, brightness):
+    def __init__(self, num_pixels, brightness, pixel_size = 10):
         self.num_pixels = num_pixels
         self.brightness = brightness
         self.list = [(0, 0, 0)]*num_pixels
         
         self.root = tk.Tk(screenName='LED strip')
         self.width = 500 #self.root.winfo_screenwidth()
-        self.height = 800 #self.root.winfo_screenheight()
+        self.height = 750 #self.root.winfo_screenheight()
         self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, -10, 0))
         self.canvas = tk.Canvas(master = self.root, 
                                 width = self.width, 
@@ -19,7 +19,7 @@ class Design(MutableSequence):
         self.canvas.configure(background='black')
         self.canvas.pack()
         
-        self.pixelradius = 5
+        self.pixelradius = pixel_size
         x_bounds = (self.pixelradius, self.width - self.pixelradius)
         y_bounds = (self.pixelradius, self.height - self.pixelradius)
         self.coords_r = get_coordinates_of_all_leds(
@@ -46,7 +46,8 @@ class Design(MutableSequence):
         self.check(v)
         self.list[i] = v
         self.canvas.itemconfig(i + 1, fill = ('#%02x%02x%02x' % v))
-        self.canvas.update()                                          
+        self.canvas.itemconfig(i + self.num_pixels + 1, fill = ('#%02x%02x%02x' % v))
+        self.canvas.update()
     
     def __delitem__(self, i):
         raise RuntimeError("Deletion not allowed")
@@ -81,7 +82,7 @@ class Design(MutableSequence):
         
     
     def show(self):
-        pass
+        self.draw()
     
     def fill(self, v):
         self.check(v)
