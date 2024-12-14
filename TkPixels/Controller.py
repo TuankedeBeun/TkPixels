@@ -15,20 +15,26 @@ class Controller():
         on = False
         while True:
             if on:
-                self.board.strips[0].fill((0, 0, 0))
-                self.board.strips[1].fill((0, 0, 0))
-                self.update_canvas()
+                vectors = [(0,0,0)] * self.board.num_pixels
                 on = False
             else:
                 hue = random()
                 rgb = hsv_to_rgb(hue, 1, 1)
                 rgb = tuple([int(255 * i) for i in rgb])
-                self.board.strips[0].fill(rgb)
-                self.board.strips[1].fill(rgb)
-                self.update_canvas()
+                vectors = [rgb] * self.board.num_pixels
                 on = True
 
+            self.draw_strips(vectors)
             sleep(0.1)
+
+    def draw_strips(self, vectors):
+        for (strip, led), v in zip(self.board.pixeldata['indices'], vectors):
+            self.board.strips[strip][led] = v
+        
+        self.update_canvas()
+
+    def effect_pixel_height(self, hue, height):
+        return 
 
     def update_canvas(self):
         self.board.canvas.update()

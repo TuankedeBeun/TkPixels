@@ -28,7 +28,8 @@ class Board():
         
         # draw pixels
         self.pixeldata = load_pixel_data('data/led_coordinates.json')
-        self.num_pixels_per_strip = int(len(self.pixeldata['indices']) / 2)
+        self.num_pixels = len(self.pixeldata['indices'])
+        self.num_pixels_per_strip = int(self.num_pixels / 2)
         self.draw()
 
         # initialize two led strips
