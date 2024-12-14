@@ -2,8 +2,9 @@ import json
 from TkPixels.LedCoordinates import *
 
 NUM_PIXELS = 60
-X_BOUNDS = (0, 500)
-Y_BOUNDS = (0, 750)
+PIXEL_RADIUS = 10
+X_BOUNDS = (2*PIXEL_RADIUS, 500 - 2*PIXEL_RADIUS)
+Y_BOUNDS = (2*PIXEL_RADIUS, 750 - 2*PIXEL_RADIUS)
 FILE_PATH = "data/led_coordinates.json"
 
 # Get LED indices
@@ -25,7 +26,6 @@ coords_board_l = get_board_coordinates_of_all_leds(
     x_mirrored = True
 )
 coords_board = coords_board_r + coords_board_l
-print(coords_board[:3])
 
 # Get Cartesian coordinates
 coords_cart_r = get_cart_coordinates_of_all_leds(
@@ -37,7 +37,6 @@ coords_cart_l = get_cart_coordinates_of_all_leds(
     x_mirrored = True
 )
 coords_cart = coords_cart_r + coords_cart_l
-print(coords_cart[:3])
 
 # Save coordinates to JSON
 led_coordinates = {

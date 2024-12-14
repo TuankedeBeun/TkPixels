@@ -1,19 +1,19 @@
-# import .\StripDesign
+from TkPixels.StripDesign import Strip
 import json
 import tkinter as tk
 from time import sleep
 from math import sqrt
 
 class Board():
-    def __init__(self, brightness, pixel_size = 10, width = 500, height = 750):
+    def __init__(self, brightness, pixelradius = 10, width = 500, height = 750):
         self.brightness = brightness
         self.width = width
         self.height = height
-        self.pixelradius = pixel_size
+        self.pixelradius = pixelradius
         
         # initialize window
         self.root = tk.Tk(screenName='LED strip')
-        self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, 50, 50))
+        self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, 100, 20))
         self.canvas = tk.Canvas(master = self.root, 
                                 width = self.width, 
                                 height = self.height)
@@ -24,6 +24,11 @@ class Board():
         self.pixeldata = load_pixel_data('data/led_coordinates.json')
         self.num_pixels_per_strip = int(len(self.pixeldata['indices']) / 2)
         self.draw()
+
+        # initialize two led strips
+        strip_r = Strip(self.num_pixels_per_strip, self.brightness, self.canvas, 1)
+        strip_l = Strip(self.num_pixels_per_strip, self.brightness, self.canvas, 1 + self.num_pixels_per_strip)
+        self.strips = [strip_r, strip_l]
         
         return
     
