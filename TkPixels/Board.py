@@ -3,6 +3,7 @@ import json
 import tkinter as tk
 from time import sleep
 from math import sqrt
+import numpy as np
 
 class Board():
     def __init__(self, brightness, pixelradius = 10, width = 500, height = 750):
@@ -60,5 +61,7 @@ class Board():
 def load_pixel_data(file_path):
     with open(file_path, 'r') as file:
         data = json.load(file)
+
+    data['coords_cart'] = np.array(data['coords_cart'])
 
     return data

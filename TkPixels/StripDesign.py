@@ -10,7 +10,7 @@ class Strip(MutableSequence):
 
         return
     
-    def __getitem__(self, i): 
+    def __getitem__(self, i):
         return self.list[i]
     
     def __setitem__(self, i, v):
