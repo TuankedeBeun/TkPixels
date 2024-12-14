@@ -13,11 +13,16 @@ class Board():
         
         # initialize window
         self.root = tk.Tk(screenName='LED strip')
-        self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, 100, 20))
-        self.canvas = tk.Canvas(master = self.root, 
-                                width = self.width, 
-                                height = self.height)
-        self.canvas.configure(background='black')
+        self.root.geometry('%dx%d+%d+%d' % (self.root.winfo_screenwidth(), self.root.winfo_screenwidth(), 0, 0))
+        self.root.configure(background='black')
+        self.canvas = tk.Canvas(
+            master = self.root, 
+            width = self.width, 
+            height = self.height,
+            background = 'black',
+            highlightthickness = 1,
+            highlightbackground = 'gray'
+        )
         self.canvas.pack()
         
         # draw pixels
