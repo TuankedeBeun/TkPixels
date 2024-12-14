@@ -7,7 +7,6 @@ class Strip(MutableSequence):
         self.list = [(0, 0, 0)]*num_pixels
         self.canvas = canvas
         self.offset = canvas_index_offset
-        print('initialize strip with offset', self.offset)
 
         return
     
@@ -18,7 +17,6 @@ class Strip(MutableSequence):
         self.check(v)
         self.list[i] = v
         self.canvas.itemconfig(i + self.offset, fill = ('#%02x%02x%02x' % v))
-        print('callback, setting pixel', i + self.offset, 'to', v)
     
     def __delitem__(self, i):
         raise RuntimeError("Deletion not allowed")
