@@ -1,5 +1,4 @@
-from TkPixels.StripDesign import Design
+from TkPixels.Board import Board
 
-strip = Design(60, 0.8)
-strip.fill((255,0,0))
-strip.root.mainloop()
+board = Board(0.8)
+board.root.mainloop()
