@@ -1,6 +1,5 @@
 from time import sleep, time
-from colorsys import hsv_to_rgb
-from random import random
+from random import random, choice, randint
 from TkPixels.Effects import *
 
 class Controller():
@@ -13,7 +12,12 @@ class Controller():
         self.bar = 0
         self.beat = 0
         self.beat_increment = 0.25
-        self.effects = [Strobe([0.42, 0.83], 16, self.board.num_pixels, self.board.pixeldata)]
+        self.colors = [0.42, 0.83, 0.3]
+        self.max_effects = 2
+        self.num_effects = 1
+        self.chance_effect_per_increment = 0.05
+        self.possible_effects = (Strobe, StrobeColor)
+        self.effects = [Strobe(self.colors, 16, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
@@ -39,6 +43,9 @@ class Controller():
             # check which effects expire
             self.expire_effects()
 
+            # chance to add new effect
+            self.add_effect()
+
     def draw_strips(self, vectors):
         for (strip, led), v in zip(self.board.pixeldata['indices'], vectors):
             self.board.strips[strip][led] = tuple(v)
@@ -47,13 +54,31 @@ class Controller():
 
     def increment_beat(self):
         self.beat += self.beat_increment
+
+        for effect in self.effects:
+            effect.beat += self.beat_increment
+
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
         sleep(time_to_wait)
         self.time = time()
 
     def expire_effects(self):
-        for effect in self.effects:
-            if self.beat >= effect.max_beats:
-                self.effects.remove(effect)
-                del effect
+        for i in range(self.num_effects - 1, -1, -1):
+            effect = self.effects[i]
+            if effect.beat >= effect.max_beats:
+                print('deleting effect', effect)
+                self.effects.pop(i)
+                self.num_effects -= 1
+                print('number of effects is', self.num_effects)
+
+    def add_effect(self):
+        if self.num_effects < self.max_effects:
+            if self.chance_effect_per_increment > random():
+                new_effect = choice(self.possible_effects)
+                max_beats = randint(4,16)
+                new_effect_instance = new_effect(self.colors, max_beats, self.board.num_pixels, self.board.pixeldata)
+                self.effects.append(new_effect_instance)
+                self.num_effects += 1
+                print('added effect', new_effect_instance, 'for', max_beats, 'beats')
+                print('number of effects is', self.num_effects)
