@@ -100,22 +100,48 @@ class SweepLeft(Sweep):
     def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'W', velocity)
 
-class SweepStrip(Effect):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+class SnakeStrip(Effect):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, strip_nr, direction, velocity = 1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.pixel_index = 0
         self.snake_length = randint(1, 7)
         self.pixel_index_increment = int(self.num_pixels / (2 * max_beats / self.beat_increment)) + 1
-        print(self.pixel_index_increment)
+        
+        self.strip_nr = strip_nr
+        if direction == 'up':
+            self.reversed = False
+        elif direction == 'down':
+            self.reversed = True
 
     def increment(self):
         self.beat += self.beat_increment
         self.pixel_index += self.pixel_index_increment
 
     def get_rgb(self):
+        strip_nr = self.pixeldata['indices'][:, 0] == self.strip_nr
         indices = self.pixeldata['indices'][:, 1]
-        on = (self.pixel_index <= indices) * (indices < self.pixel_index + self.snake_length)
+        on = strip_nr * (self.pixel_index <= indices) * (indices < self.pixel_index + self.snake_length)
+
+        if self.reversed:
+            on = np.flip(on)
+
         self.pixels = np.outer(255 * on, self.rgb)
         return self.pixels
+    
+class SnakeStripLeftUp(SnakeStrip):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 0, 'up', velocity)
+        
+class SnakeStripLeftDown(SnakeStrip):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 1, 'down', velocity)
+    
+class SnakeStripRightUp(SnakeStrip):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 1, 'up', velocity)
+        
+class SnakeStripRightDown(SnakeStrip):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 0, 'down', velocity)
