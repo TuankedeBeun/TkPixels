@@ -15,9 +15,9 @@ class Controller():
         self.colors = [0.42, 0.83, 0.3]
         self.max_effects = 2
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.05
-        self.possible_effects = (Strobe, StrobeColor)
-        self.effects = [StrobeColor(self.colors, 16, self.board.num_pixels, self.board.pixeldata)]
+        self.chance_effect_per_increment = 0.0
+        self.possible_effects = (Strobe, StrobeColor, SweepUp)
+        self.effects = [SweepUp(self.colors, 4, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
