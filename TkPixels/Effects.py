@@ -44,8 +44,8 @@ class SweepUp(Effect):
     def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
         super().__init__(colors, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
-        self.t_scale = 3
-        self.width = 2, #randint(2, 30)
+        self.t_scale = randint(3, 5)
+        self.width = randint(2, 30)
         self.y_max = np.max(self.pixeldata['coords_cart'][:,1])
 
     def get_rgb(self):
