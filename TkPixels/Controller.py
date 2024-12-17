@@ -17,7 +17,7 @@ class Controller():
         self.num_effects = 1
         self.chance_effect_per_increment = 0.05
         self.possible_effects = (Strobe, StrobeColor)
-        self.effects = [Strobe(self.colors, 16, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [StrobeColor(self.colors, 16, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
@@ -28,7 +28,7 @@ class Controller():
 
             # Get individual effects
             for i, effect in enumerate(self.effects):
-                effect_value = effect.get_rgb(self.beat)
+                effect_value = effect.get_rgb()
                 effect_values[i,:,:] = effect_value
 
             # combine effects
@@ -56,7 +56,7 @@ class Controller():
         self.beat += self.beat_increment
 
         for effect in self.effects:
-            effect.beat += self.beat_increment
+            effect.increment(self.beat_increment)
 
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
