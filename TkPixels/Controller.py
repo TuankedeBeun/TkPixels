@@ -11,23 +11,23 @@ class Controller():
         self.phrase = 0
         self.bar = 0
         self.beat = 0
-        self.beat_increment = 0.25
+        self.beat_increments = 0
+        self.beat_increment = 0.2
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 3
+        self.max_effects = 8
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.0
-        self.possible_effects = (Strobe, StrobeColor, SweepUp, SweepRight, SweepDown, SweepUp, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        self.chance_effect_per_increment = 0.25
+        self.possible_effects = (SweepUp, SweepRight, SweepDown, SweepUp, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
 
         self.choose_colors()
-        self.effects = [SnakeStripLeftDown(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [SweepUp(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
 
         while True:
-            num_effects = len(self.effects)
-            effect_values = np.zeros((num_effects, self.board.num_pixels, 3))
+            effect_values = np.zeros((self.num_effects, self.board.num_pixels, 3))
 
             # Get individual effects
             for i, effect in enumerate(self.effects):
@@ -56,28 +56,40 @@ class Controller():
         self.board.canvas.update()
 
     def increment_beat(self):
-        self.beat += self.beat_increment
+        self.beat_increments += self.beat_increment
+
+        if (self.beat_increments % 2) > 0.98:
+            self.beat += 1
+            self.beat_increments = self.beat
+
+            if self.beat % 4 == 0:
+                self.bar += 1
+                
+                if self.bar % 4 == 0:
+                    self.phrase += 1
+                    self.choose_colors()
 
         for effect in self.effects:
             effect.increment()
 
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
+        # print('time to sleep:', time_to_wait)
         sleep(time_to_wait)
         self.time = time()
 
     def choose_colors(self):
-        self.num_colors = randint(3, 5)
+        self.num_colors = randint(2, 4)
         self.colors = [random() for i in range(self.num_colors)]
+        print('number of colors', self.num_colors)
 
     def expire_effects(self):
         for i in range(self.num_effects - 1, -1, -1):
             effect = self.effects[i]
             if effect.beat >= effect.max_beats:
-                print('deleting effect', effect)
                 self.effects.pop(i)
                 self.num_effects -= 1
-                print('number of effects is', self.num_effects)
+                # print('number of effects is', self.num_effects)
 
     def add_effect(self):
         if self.num_effects < self.max_effects:
@@ -87,5 +99,5 @@ class Controller():
                 new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
                 self.effects.append(new_effect_instance)
                 self.num_effects += 1
-                print('added effect', new_effect_instance, 'for', max_beats, 'beats')
-                print('number of effects is', self.num_effects)
+                # print('added effect', new_effect_instance, 'for', max_beats, 'beats')
+                # print('number of effects is', self.num_effects)
