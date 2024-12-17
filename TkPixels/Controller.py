@@ -12,11 +12,14 @@ class Controller():
         self.bar = 0
         self.beat = 0
         self.beat_increment = 0.25
-        self.colors = [0.42, 0.83, 0.3]
+        self.num_colors = 3
+        self.colors = [0, 0, 0]
         self.max_effects = 3
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.0
+        self.chance_effect_per_increment = 0.1
         self.possible_effects = (Strobe, StrobeColor, SweepUp, SweepRight, SweepDown, SweepUp)
+
+        self.choose_colors()
         self.effects = [SweepLeft(self.colors, 4, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
@@ -62,6 +65,10 @@ class Controller():
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
         sleep(time_to_wait)
         self.time = time()
+
+    def choose_colors(self):
+        self.num_colors = randint(3, 5)
+        self.colors = [random() for i in range(self.num_colors)]
 
     def expire_effects(self):
         for i in range(self.num_effects - 1, -1, -1):
