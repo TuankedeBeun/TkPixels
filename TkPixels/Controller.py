@@ -16,11 +16,11 @@ class Controller():
         self.colors = [0, 0, 0]
         self.max_effects = 3
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.1
+        self.chance_effect_per_increment = 0.0
         self.possible_effects = (Strobe, StrobeColor, SweepUp, SweepRight, SweepDown, SweepUp)
 
         self.choose_colors()
-        self.effects = [SweepLeft(self.colors, 4, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [SweepStrip(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
@@ -59,7 +59,7 @@ class Controller():
         self.beat += self.beat_increment
 
         for effect in self.effects:
-            effect.increment(self.beat_increment)
+            effect.increment()
 
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
@@ -84,7 +84,7 @@ class Controller():
             if self.chance_effect_per_increment > random():
                 new_effect = choice(self.possible_effects)
                 max_beats = randint(4,16)
-                new_effect_instance = new_effect(self.colors, max_beats, self.board.num_pixels, self.board.pixeldata)
+                new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
                 self.effects.append(new_effect_instance)
                 self.num_effects += 1
                 print('added effect', new_effect_instance, 'for', max_beats, 'beats')

@@ -3,9 +3,10 @@ from colorsys import hsv_to_rgb
 from random import choice, randint
 
 class Effect():
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
         self.colors = colors
         self.beat = 0
+        self.beat_increment = beat_increment
         self.max_beats = max_beats
         self.num_pixels = num_pixels
         self.pixeldata = pixeldata
@@ -14,8 +15,8 @@ class Effect():
     def get_rgb(self):
         return self.pixels
     
-    def increment(self, beat_increment):
-        self.beat += beat_increment
+    def increment(self):
+        self.beat += self.beat_increment
 
 class Strobe(Effect):
     def get_rgb(self):
@@ -27,8 +28,8 @@ class Strobe(Effect):
         return self.pixels
     
 class StrobeColor(Effect):
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, max_beats, num_pixels, pixeldata, velocity)
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
 
     def get_rgb(self):
@@ -41,9 +42,10 @@ class StrobeColor(Effect):
         return self.pixels
     
 class Sweep(Effect):
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, direction, velocity = 1):
-        super().__init__(colors, max_beats, num_pixels, pixeldata, velocity)
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, direction, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.t_scale = randint(3, 5)
 
         if direction in ('N', 'S'):
@@ -78,24 +80,42 @@ class Sweep(Effect):
         # ensure positive values
         I[I < 0] = 0
 
-        rgb = hsv_to_rgb(self.color, 1, 1)
-        pixels = np.outer(I, np.array(rgb))
-        self.pixels = pixels
+        self.pixels = np.outer(I, self.rgb)
 
         return self.pixels
     
 class SweepUp(Sweep):
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, max_beats, num_pixels, pixeldata, 'N', velocity)
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'N', velocity)
 
 class SweepRight(Sweep):
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, max_beats, num_pixels, pixeldata, 'E', velocity)
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'E', velocity)
 
 class SweepDown(Sweep):
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, max_beats, num_pixels, pixeldata, 'S', velocity)
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'S', velocity)
 
 class SweepLeft(Sweep):
-    def __init__(self, colors, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, max_beats, num_pixels, pixeldata, 'W', velocity)
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'W', velocity)
+
+class SweepStrip(Effect):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.pixel_index = 0
+        self.snake_length = randint(1, 7)
+        self.pixel_index_increment = int(self.num_pixels / (2 * max_beats / self.beat_increment)) + 1
+        print(self.pixel_index_increment)
+
+    def increment(self):
+        self.beat += self.beat_increment
+        self.pixel_index += self.pixel_index_increment
+
+    def get_rgb(self):
+        indices = self.pixeldata['indices'][:, 1]
+        on = (self.pixel_index <= indices) * (indices < self.pixel_index + self.snake_length)
+        self.pixels = np.outer(255 * on, self.rgb)
+        return self.pixels
