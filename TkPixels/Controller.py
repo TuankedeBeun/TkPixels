@@ -53,7 +53,7 @@ class Controller():
         for (strip, led), v in zip(self.board.pixeldata['indices'], vectors):
             self.board.strips[strip][led] = tuple(v)
         
-        self.board.canvas.update()
+        self.board.update()
 
     def increment_beat(self):
         self.beat_increments += self.beat_increment
