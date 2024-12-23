@@ -1,6 +1,7 @@
+from os import path
 from TkPixels.StripDesign import Strip
-import board
-import neopixel
+# import board
+# import neopixel
 import json
 import tkinter as tk
 from time import sleep
@@ -16,7 +17,9 @@ class Board():
         self.simulate = simulate
         
         # load pixel data
-        self.pixeldata = load_pixel_data('data/led_coordinates.json')
+        script_dir = path.dirname(path.abspath(__file__))
+        file_path = path.join(script_dir, '..\\data\\led_coordinates.json')
+        self.pixeldata = load_pixel_data(file_path)
         self.num_pixels = len(self.pixeldata['indices'])
         self.num_pixels_per_strip = int(self.num_pixels / 2)
 
