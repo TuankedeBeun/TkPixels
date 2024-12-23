@@ -17,11 +17,11 @@ class Controller():
         self.colors = [0, 0, 0]
         self.max_effects = 6
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.15
-        self.possible_effects = (StrobeColor, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        self.chance_effect_per_increment = 0.0
+        self.possible_effects = (Spherical_Sweep, Spherical_Sweep) #(StrobeColor, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
 
         self.choose_colors()
-        self.effects = [SweepUp(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [Spherical_Sweep(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()

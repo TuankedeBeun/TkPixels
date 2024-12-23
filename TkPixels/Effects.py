@@ -145,3 +145,27 @@ class SnakeStripRightUp(SnakeStrip):
 class SnakeStripRightDown(SnakeStrip):
     def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 0, 'down', velocity)
+
+class Spherical_Sweep(Effect):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.t_scale = randint(1, 5)
+        self.narrowness = randint(10, 100) / self.t_scale
+        r = self.pixeldata['coords_spherical'][:, 0]
+        r_max = np.max(r)
+        self.r_norm = r / r_max # goes from 0 to 1
+    
+    def get_rgb(self):
+        t_norm = self.beat / self.max_beats # goes from 0 to 1
+        t_scaled = self.t_scale * (t_norm - 0.5) + 0.5
+        
+        I = 255 * (1 - self.narrowness * (self.r_norm - t_scaled) ** 2)
+
+        # ensure positive values
+        I[I < 0] = 0
+
+        self.pixels = np.outer(I, self.rgb)
+
+        return self.pixels
