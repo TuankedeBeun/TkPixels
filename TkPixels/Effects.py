@@ -106,7 +106,7 @@ class SnakeStrip(Effect):
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.pixel_index = 0
-        self.snake_length = randint(1, 7)
+        self.snake_length = randint(4, 20)
         self.pixel_index_increment = int(self.num_pixels / (2 * max_beats / self.beat_increment)) + 1
         
         self.strip_nr = strip_nr
