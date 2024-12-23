@@ -1,4 +1,4 @@
-from collections import MutableSequence
+from collections.abc import MutableSequence
 import tkinter as tk
 from time import sleep
 
@@ -23,10 +23,6 @@ class TkPixelStrip(MutableSequence):
         
         return
     
-    def check(self, v):
-        if not isinstance(v, tuple):
-            raise TypeError("Value must be a tuple")
-    
     def __getitem__(self, i): 
         return self.list[i]
     
@@ -41,6 +37,10 @@ class TkPixelStrip(MutableSequence):
     
     def __len__(self): 
         return len(self.list)
+    
+    def check(self, v):
+        if not isinstance(v, tuple):
+            raise TypeError("Value must be a tuple")
     
     def insert(self):
         raise RuntimeError("Insertion not allowed")
@@ -70,7 +70,4 @@ class TkPixelStrip(MutableSequence):
     
     def stop(self):
         self.root.destroy()
-    
-    
-    
     
