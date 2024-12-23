@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, atan2
 from copy import deepcopy
 
 CORNERS = [
@@ -94,6 +94,20 @@ def get_board_coordinates_of_all_leds(total_leds, x_bounds, y_bounds, x_mirrored
         coords_strip.append(coord)
 
     return coords_strip
+
+def get_spherical_coordinates_of_all_leds(cartesian_coordinates):
+    
+    spherical_coords = list()
+    y_offset = (CORNERS[1][1] + CORNERS[2][1]) / 2
+
+    for x, y in cartesian_coordinates:
+        y -= y_offset
+
+        r = sqrt(x**2 + y**2)
+        theta = atan2(y, x)
+        spherical_coords.append([r, theta])
+
+    return spherical_coords
 
 def get_normalized_corner_coords(corners, x_bounds, y_bounds):
     x0_min = min([c[0] for c in corners])

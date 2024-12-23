@@ -38,11 +38,15 @@ coords_cart_l = get_cart_coordinates_of_all_leds(
 )
 coords_cart = coords_cart_r + coords_cart_l
 
+# Get Spherical coordinates
+coords_spherical = get_spherical_coordinates_of_all_leds(coords_cart)
+
 # Save coordinates to JSON
 led_coordinates = {
     'indices': led_indices,
     'coords_board': coords_board,
-    'coords_cart': coords_cart
+    'coords_cart': coords_cart,
+    'coords_spherical': coords_spherical
 }
 
 with open(FILE_PATH, "w") as outfile: 
