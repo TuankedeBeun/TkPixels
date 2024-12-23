@@ -62,20 +62,20 @@ class Sweep(Effect):
         elif direction in ('S', 'W'):
             self.reversed = True
 
-        self.xy_max = np.max(self.pixeldata['coords_cart'][:, self.xy_index])
+        xy = self.pixeldata['coords_cart'][:,self.xy_index]
+        xy_max = np.max(xy)
+        self.xy_norm = xy / xy_max # goes from 0 to 1
 
     def get_rgb(self):
         # I = 255 * (1 - (y - t)^2)
         # I, y, t are the intensity, height and time
-        xy = self.pixeldata['coords_cart'][:,self.xy_index]
-        xy_norm = xy / self.xy_max # goes from 0 to 1
         t_norm = self.beat / self.max_beats # goes from 0 to 1
 
         if self.reversed:
             t_norm = 1 - t_norm
 
         t_scaled = self.t_scale * (t_norm - 0.5) + 0.5
-        I = 255 * (1 - self.narrowness * (xy_norm - t_scaled) ** 2)
+        I = 255 * (1 - self.narrowness * (self.xy_norm - t_scaled) ** 2)
 
         # ensure positive values
         I[I < 0] = 0
