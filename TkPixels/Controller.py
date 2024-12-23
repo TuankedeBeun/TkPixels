@@ -15,10 +15,10 @@ class Controller():
         self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 3
+        self.max_effects = 8
         self.num_effects = 1
         self.chance_effect_per_increment = 0.1
-        self.possible_effects = (SphericalSweepOutward, SphericalSweepInward) #(StrobeColor, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        self.possible_effects = (SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
 
         self.choose_colors()
         self.effects = [SphericalSweepInward(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
@@ -35,7 +35,8 @@ class Controller():
                 effect_values[i,:,:] = effect_value
 
             # combine effects
-            effects_combined = np.sum(effect_values, axis=0, dtype=np.uint8)
+            effects_combined = np.sum(effect_values, axis=0, dtype=int)
+            effects_combined[effects_combined > 255] = 255
 
             # draw
             self.draw_strips(effects_combined)
