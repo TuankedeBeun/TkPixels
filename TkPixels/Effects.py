@@ -183,3 +183,29 @@ class SphericalSweepInward(SphericalSweep):
 class SphericalSweepOutward(SphericalSweep):
     def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity=1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, False, velocity)
+
+class RetractingSpiral(Effect):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity=1):
+        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.num_rounds = randint(2, 10)
+        self.max_spiral_width = randint(5, 25)
+        self.line_width = self.max_spiral_width / randint(2, 5)
+        self.r = self.pixeldata['coords_spherical'][:, 0]
+        self.theta = self.pixeldata['coords_spherical'][:, 1]
+
+    def get_rgb(self):
+        t_norm = self.beat / self.max_beats
+        spiral_width = self.max_spiral_width * (1 - t_norm)
+        starting_angle = self.num_rounds * 2 * np.pi * t_norm
+
+        r_mod = np.mod(self.r, spiral_width * 2 * np.pi)
+        theta_mod = np.mod(self.theta + starting_angle, 2 * np.pi)
+        close_to_spiral = np.abs(r_mod - spiral_width * theta_mod) < self.line_width
+        retracting_circle = self.r < 8 * spiral_width * 2 * np.pi
+        I = 255 * close_to_spiral * retracting_circle
+
+        self.pixels = np.outer(I, self.rgb)
+
+        return self.pixels

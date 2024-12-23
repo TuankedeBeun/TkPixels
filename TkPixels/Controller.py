@@ -17,11 +17,11 @@ class Controller():
         self.colors = [0, 0, 0]
         self.max_effects = 8
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.1
-        self.possible_effects = (SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        self.chance_effect_per_increment = 0.0
+        self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
 
         self.choose_colors()
-        self.effects = [SphericalSweepInward(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [RetractingSpiral(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
@@ -66,7 +66,7 @@ class Controller():
             if self.beat % 4 == 0:
                 self.bar += 1
                 
-                if self.bar % 4 == 0:
+                if self.bar % 16 == 0:
                     self.phrase += 1
                     self.choose_colors()
 
