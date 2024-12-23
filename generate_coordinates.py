@@ -1,7 +1,7 @@
 import json
 from TkPixels.LedCoordinates import *
 
-NUM_PIXELS = 60
+NUM_PIXELS = 120
 PIXEL_RADIUS = 10
 X_BOUNDS = (2*PIXEL_RADIUS, 500 - 2*PIXEL_RADIUS)
 Y_BOUNDS = (2*PIXEL_RADIUS, 750 - 2*PIXEL_RADIUS)
