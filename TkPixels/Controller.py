@@ -15,13 +15,15 @@ class Controller():
         self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 8
+        self.max_effects = 10
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.0
-        self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        self.chance_effect_per_increment = 0.12
+        # self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, RetractingSpiral)
+        # self.possible_effects = (SphericalSweepInward, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, RetractingSpiral)
+        self.possible_effects = (SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft, RetractingSpiral)
 
         self.choose_colors()
-        self.effects = [RetractingSpiral(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [SweepUp(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()

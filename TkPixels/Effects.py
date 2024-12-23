@@ -201,7 +201,7 @@ class RetractingSpiral(Effect):
         starting_angle = self.num_rounds * 2 * np.pi * t_norm
 
         r_mod = np.mod(self.r, spiral_width * 2 * np.pi)
-        theta_mod = np.mod(self.theta + starting_angle, 2 * np.pi)
+        theta_mod = np.mod(self.theta + starting_angle, 2 * np.pi) # TODO: make separate effect for a anticlockwise spiral
         close_to_spiral = np.abs(r_mod - spiral_width * theta_mod) < self.line_width
         retracting_circle = self.r < 8 * spiral_width * 2 * np.pi
         I = 255 * close_to_spiral * retracting_circle
