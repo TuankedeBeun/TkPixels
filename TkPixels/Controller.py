@@ -12,13 +12,13 @@ class Controller():
         self.bar = 0
         self.beat = 0
         self.beat_increments = 0
-        self.beat_increment = 0.2
+        self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 8
+        self.max_effects = 6
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.25
-        self.possible_effects = (SweepUp, SweepRight, SweepDown, SweepUp, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        self.chance_effect_per_increment = 0.15
+        self.possible_effects = (StrobeColor, SweepUp, SweepRight, SweepDown, SweepLeft, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
 
         self.choose_colors()
         self.effects = [SweepUp(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
