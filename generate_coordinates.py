@@ -22,7 +22,7 @@ section_ids_l = get_section_ids_of_all_leds(
     x_mirrored = True
 )
 section_ids_r = [[0, id_r] for id_r in section_ids_r]
-section_ids_l = [[0, id_l] for id_l in section_ids_l]
+section_ids_l = [[1, id_l] for id_l in section_ids_l]
 section_ids = section_ids_r + section_ids_l
 
 # Get Board coordinates
