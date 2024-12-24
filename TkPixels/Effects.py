@@ -271,3 +271,48 @@ class SectionBuzz(Effect):
 
         return self.pixels
 
+class SectionPairsSnake(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        self.reverse = getattr(self, 'reverse', False)
+        self.section_ids = self.pixeldata['section_ids']
+        section_pairs = np.array([
+            [[0, 0], [1, 2]],
+            [[0, 2], [1, 0]],
+            [[0, 1], [1, 1]],
+            [[0, 3], [1, 3]],
+        ])
+        self.pair = choice(section_pairs)
+        self.snake_length = randint(2,4)
+
+        strip_r = (self.section_ids[:,0] == self.pair[0,0]) * (self.section_ids[:,1] == self.pair[0,1])
+        strip_l =(self.section_ids[:,0] == self.pair[1,0]) * (self.section_ids[:,1] == self.pair[1,1])
+        series_r = np.cumsum(strip_r)
+        series_l = np.cumsum(strip_l)
+
+        if self.reverse:
+            series_r = series_r.max() - series_r
+            series_l = series_l.max() - series_l
+
+        series_r[series_r == series_r.max()] = 0
+        series_l[series_l == series_l.max()] = 0
+        series = series_r + series_l
+
+        self.series = (series / self.snake_length).astype(int)
+
+        self.max_beats = self.beat_increment * self.series.max()
+
+    def get_rgb(self):
+        index = int(self.beat / self.beat_increment) + 1
+        on = self.series == index
+        self.pixels = np.outer(255 * on, self.rgb)
+
+        return self.pixels
+    
+class SectionPairsSnakeUp(SectionPairsSnake):
+    reverse = False
+    
+class SectionPairsSnakeDown(SectionPairsSnake):
+    reverse = True

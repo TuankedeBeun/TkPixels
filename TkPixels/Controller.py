@@ -15,19 +15,19 @@ class Controller():
         self.beat_increment = 0.25
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 3
+        self.max_effects = 10
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.0
+        self.chance_effect_per_increment = 0.5
         # self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade)
         # self.possible_effects = (SphericalSweepInward, SphericalSweepOutward)
         # self.possible_effects = (SweepUp, SweepRight, SweepDown, SweepLeft)
         # self.possible_effects = (SphericalSweepInward, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
         # self.possible_effects = (SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft)
         # self.possible_effects = (ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral)
-        self.possible_effects = (SectionBuzz, FlashFade)
+        self.possible_effects = (SectionPairsSnakeUp, SectionPairsSnakeDown)
 
         self.choose_colors()
-        self.effects = [SectionBuzz(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [SectionPairsSnakeDown(self.colors, self.beat_increment, 4, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
