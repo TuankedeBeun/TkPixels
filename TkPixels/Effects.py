@@ -246,3 +246,28 @@ class FlashFade(Effect):
         self.pixels = np.outer(I, self.rgb)
 
         return self.pixels
+    
+class SectionBuzz(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        self.section_ids = self.pixeldata['section_ids']
+        self.unique_sections = np.unique(self.section_ids, axis=0)
+        self.shuffled = np.random.permutation(self.unique_sections)
+        self.section = 0
+
+    def get_rgb(self):
+
+        if (self.beat * 2) % 1 == 0: # do every off-beat
+
+            chosen_section = self.shuffled[self.section]
+
+            on = (self.section_ids == chosen_section)
+            on = np.prod(on, axis=1)
+
+            self.pixels = np.outer(255 * on, self.rgb)
+            self.section = (self.section + 1) % len(self.shuffled)
+
+        return self.pixels
+
