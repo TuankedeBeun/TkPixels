@@ -15,15 +15,19 @@ class Controller():
         self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 10
+        self.max_effects = 2
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.12
-        # self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, RetractingSpiral)
-        # self.possible_effects = (SphericalSweepInward, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, RetractingSpiral)
-        self.possible_effects = (SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft, RetractingSpiral)
+        self.chance_effect_per_increment = 0.2
+        # self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade)
+        # self.possible_effects = (SphericalSweepInward, SphericalSweepOutward)
+        # self.possible_effects = (SweepUp, SweepRight, SweepDown, SweepLeft)
+        # self.possible_effects = (SphericalSweepInward, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
+        # self.possible_effects = (SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft)
+        # self.possible_effects = (ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral)
+        self.possible_effects = (FlashFade, FlashFade)
 
         self.choose_colors()
-        self.effects = [SweepUp(self.colors, self.beat_increment, 6, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [FlashFade(self.colors, self.beat_increment, 3, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()

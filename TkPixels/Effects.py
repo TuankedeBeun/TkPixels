@@ -1,6 +1,6 @@
 import numpy as np
 from colorsys import hsv_to_rgb
-from random import choice, randint
+from random import random, choice, randint
 
 class Effect():
     def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
@@ -226,3 +226,23 @@ class ClockwiseRetractingSpiral(RetractingSpiral):
         
 class AnticlockwiseRetractingSpiral(RetractingSpiral):
     clockwise = False
+
+class FlashFade(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        saturation = 0.5 + random() / 2
+        self.rgb = hsv_to_rgb(color, saturation, 1)
+        self.decay_coef = 4
+        self.max_beats = randint(1, 6)
+
+        r = self.pixeldata['coords_spherical'][:, 0]
+        r_max = np.max(r)
+        self.r_norm = r / r_max + 0.3 # goes from 0.2 to 1.2
+
+    def get_rgb(self):
+        t_norm = self.beat / self.max_beats
+        I = 255 * np.exp(-self.decay_coef / self.r_norm * t_norm)
+        self.pixels = np.outer(I, self.rgb)
+
+        return self.pixels
