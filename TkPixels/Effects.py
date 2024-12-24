@@ -42,24 +42,25 @@ class StrobeColor(Effect):
         return self.pixels
     
 class Sweep(Effect):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, direction, velocity = 1):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.t_scale = randint(3, 5)
 
-        if direction in ('N', 'S'):
+        self.direction = getattr(self, 'direction', 'N')
+        if self.direction in ('N', 'S'):
             self.xy_index = 1
             self.t_scale = randint(3, 5)
             self.narrowness = randint(2, 30)
-        elif direction in ('E', 'W'):
+        elif self.direction in ('E', 'W'):
             self.xy_index = 0
             self.t_scale = randint(4, 6)
             self.narrowness = randint(2, 20)
 
-        if direction in ('N', 'E'):
+        if self.direction in ('N', 'E'):
             self.reversed = False
-        elif direction in ('S', 'W'):
+        elif self.direction in ('S', 'W'):
             self.reversed = True
 
         xy = self.pixeldata['coords_cart'][:,self.xy_index]
@@ -85,23 +86,19 @@ class Sweep(Effect):
         return self.pixels
     
 class SweepUp(Sweep):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'N', velocity)
+    direction = 'N'
 
 class SweepRight(Sweep):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'E', velocity)
+    direction = 'E'
 
 class SweepDown(Sweep):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'S', velocity)
+    direction = 'S'
 
 class SweepLeft(Sweep):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 'W', velocity)
+    direction = 'W'
 
 class SnakeStrip(Effect):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, strip_nr, direction, velocity = 1):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
@@ -109,10 +106,11 @@ class SnakeStrip(Effect):
         self.snake_length = randint(4, 20)
         self.pixel_index_increment = int(self.num_pixels / (2 * max_beats / self.beat_increment)) + 1
         
-        self.strip_nr = strip_nr
-        if direction == 'up':
+        self.strip_nr = getattr(self, 'strip_nr', 0)
+        self.direction = getattr(self, 'direction', 'up')
+        if self.direction == 'up':
             self.reversed = False
-        elif direction == 'down':
+        elif self.direction == 'down':
             self.reversed = True
 
     def increment(self):
@@ -131,29 +129,29 @@ class SnakeStrip(Effect):
         return self.pixels
     
 class SnakeStripLeftUp(SnakeStrip):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 0, 'up', velocity)
+    strip_nr = 0
+    direction = 'up'
         
 class SnakeStripLeftDown(SnakeStrip):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 1, 'down', velocity)
+    strip_nr = 1
+    direction = 'down'
     
 class SnakeStripRightUp(SnakeStrip):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 1, 'up', velocity)
+    strip_nr = 1
+    direction = 'up'
         
 class SnakeStripRightDown(SnakeStrip):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, 0, 'down', velocity)
+    strip_nr = 0
+    direction = 'down'
 
 class SphericalSweep(Effect):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, inward, velocity = 1):
+    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
-        self.inward = inward
+        self.inward = getattr(self, 'inward', True)
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
@@ -177,35 +175,54 @@ class SphericalSweep(Effect):
         return self.pixels
     
 class SphericalSweepInward(SphericalSweep):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity=1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, True, velocity)
+    inward = True
     
 class SphericalSweepOutward(SphericalSweep):
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity=1):
-        super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, False, velocity)
+    inward = False
 
 class RetractingSpiral(Effect):
     def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity=1):
         super().__init__(colors, beat_increment, max_beats, num_pixels, pixeldata, velocity)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.num_rounds = randint(2, 10)
+        self.num_rounds = randint(2, 8)
         self.max_spiral_width = randint(5, 25)
         self.line_width = self.max_spiral_width / randint(2, 5)
+        self.clockwise = getattr(self, 'clockwise', True)
         self.r = self.pixeldata['coords_spherical'][:, 0]
         self.theta = self.pixeldata['coords_spherical'][:, 1]
 
     def get_rgb(self):
+        # Formula: r(theta, c) = a*theta + c
+        # a = spiral_width
+        # c = starting_angle
         t_norm = self.beat / self.max_beats
         spiral_width = self.max_spiral_width * (1 - t_norm)
         starting_angle = self.num_rounds * 2 * np.pi * t_norm
 
-        r_mod = np.mod(self.r, spiral_width * 2 * np.pi)
-        theta_mod = np.mod(self.theta + starting_angle, 2 * np.pi) # TODO: make separate effect for a anticlockwise spiral
-        close_to_spiral = np.abs(r_mod - spiral_width * theta_mod) < self.line_width
-        retracting_circle = self.r < 8 * spiral_width * 2 * np.pi
-        I = 255 * close_to_spiral * retracting_circle
+        if self.clockwise:
+            theta = self.theta + starting_angle
+            theta_mod = np.mod(theta, 2 * np.pi)
+        else:
+            theta = self.theta - starting_angle
+            theta_mod = np.mod(2 * np.pi - theta, 2 * np.pi)
 
+        r_mod = np.mod(self.r, spiral_width * 2 * np.pi)
+
+        # Search all LEDs close enough to the spiral
+        close_to_spiral = np.abs(r_mod - spiral_width * theta_mod) < self.line_width
+
+        # Create a retracting circle
+        retracting_circle = self.r < 8 * spiral_width * 2 * np.pi
+
+        # Combine effects
+        I = 255 * close_to_spiral * retracting_circle
         self.pixels = np.outer(I, self.rgb)
 
         return self.pixels
+    
+class ClockwiseRetractingSpiral(RetractingSpiral):
+    clockwise = True
+        
+class AnticlockwiseRetractingSpiral(RetractingSpiral):
+    clockwise = False
