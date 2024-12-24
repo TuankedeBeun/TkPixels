@@ -86,6 +86,7 @@ def load_pixel_data(file_path):
         data = json.load(file)
 
     data['indices'] = np.array(data['indices'])
+    data['section_ids'] = np.array(data['section_ids'])
     data['coords_cart'] = np.array(data['coords_cart'])
     data['coords_spherical'] = np.array(data['coords_spherical'])
 
