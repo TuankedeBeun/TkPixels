@@ -12,22 +12,20 @@ class Controller():
         self.bar = 0
         self.beat = 0
         self.beat_increments = 0
-        self.beat_increment = 0.25
+        self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 10
+        self.max_effects = 6
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.5
-        # self.possible_effects = (StrobeColor, SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade)
-        # self.possible_effects = (SphericalSweepInward, SphericalSweepOutward)
-        # self.possible_effects = (SweepUp, SweepRight, SweepDown, SweepLeft)
-        # self.possible_effects = (SphericalSweepInward, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown)
-        # self.possible_effects = (SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft)
-        # self.possible_effects = (ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral)
-        self.possible_effects = (SectionPairsSnakeUp, SectionPairsSnakeDown)
+        self.chance_effect_per_increment = 0.15
+        # self.possible_effects = (SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown) # all effects
+        # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft) # soft effects
+        # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral) # radial effects
+        # self.possible_effects = (FlashFade, ClockwiseRetractingSpiral, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown) # intense effects
+        self.possible_effects = (FlashFade, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown) # test set
 
         self.choose_colors()
-        self.effects = [SectionPairsSnakeDown(self.colors, self.beat_increment, 4, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [FlashFade(self.colors, self.beat_increment, 4, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
