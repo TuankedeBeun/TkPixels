@@ -353,10 +353,10 @@ class Shower(Effect):
         self.x = self.pixeldata['coords_cart'][:,0]
         self.y = self.pixeldata['coords_cart'][:,1]
 
-        self.drop_width = randint(5, 100)
-        self.drop_speed = randint(2, 5)
+        self.drop_speed = randint(3, 6)
+        self.drop_width = randint(6, 30) / self.drop_speed
         self.fade = 1.2 / self.drop_speed # which is "a" in the formulas below
-        self.fade_norm = np.exp(-1 / self.fade) / self.fade
+        self.fade_norm = np.exp(-1 / self.fade) / self.fade # normalization coefficient for "a"
 
         self.x_min = int(self.x.min())
         self.x_max = int(self.x.max())
@@ -387,7 +387,7 @@ class Shower(Effect):
         self.pixels = np.outer(summed_intensities, self.rgb)
 
         # lower drops
-        self.drop_coords[:,1] -= self.drop_speed
+        self.drop_coords[:,1] -= self.drop_speed #TODO: should be increment size independent
 
         # generate new droplets
         if (self.beat * 2) % 1 == 0: # do every off-beat

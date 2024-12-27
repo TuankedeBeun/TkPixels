@@ -15,9 +15,9 @@ class Controller():
         self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 10
+        self.max_effects = 3
         self.num_effects = 1
-        self.chance_effect_per_beat = 0.0
+        self.chance_effect_per_beat = 0.2
         # self.possible_effects = (SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown) # all effects
         # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft) # soft effects
         # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral) # radial effects
@@ -25,7 +25,7 @@ class Controller():
         self.possible_effects = (Shower, Shower) # test set
 
         self.choose_colors()
-        self.effects = [Shower(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [Shower(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
