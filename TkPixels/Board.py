@@ -114,6 +114,9 @@ class Board():
             elif val < 60:
                 self.effect_set_nr = 5
             
+            elif val < 70:
+                self.effect_set_nr = 6
+            
             else:
                 # value is too high
                 self.canvas.itemconfig(self.led_red, fill='black')
@@ -139,47 +142,6 @@ class Board():
                 self.getting_effect = False
 
         return self.effect_set_nr
-
-    def set_effect_nr(self, val):
-        if self.effect_start_time == 0 or time() - self.effect_start_time < 1:
-            self.effect_start_time = time()
-            self.canvas.itemconfig(self.led_red, fill='red')
-
-        elif time() - self.effect_start_time > 5:
-            self.canvas.itemconfig(self.led_red, fill='black')
-            self.effect_start_time = 0
-
-        else:
-            val = int(self.effect_slider.get())
-            if val < 10:
-                self.effect_set_nr = 0
-
-            elif val < 20:
-                self.effect_set_nr = 1
-
-            elif val < 30:
-                self.effect_set_nr = 2
-
-            elif val < 40:
-                self.effect_set_nr = 3
-
-            elif val < 50:
-                self.effect_set_nr = 5
-            
-            else:
-                # value is too high
-                self.canvas.itemconfig(self.led_red, fill='black')
-                self.canvas.update()
-                self.effect_start_time = 0
-                return
-
-            print('effect set number', self.effect_set_nr)
-            self.canvas.itemconfig(self.led_red, fill='black')
-            self.canvas.itemconfig(self.led_green, fill='green')
-            self.effect_start_time = 0
-
-        
-        
     
 def load_pixel_data(file_path):
     with open(file_path, 'r') as file:
