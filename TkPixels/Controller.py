@@ -1,5 +1,6 @@
 from time import sleep, time
-from random import random, choice, randint
+from random import random, randint
+import numpy as np
 from TkPixels.Effects import *
 
 class Controller():
@@ -96,7 +97,7 @@ class Controller():
     def add_effect(self):
         if self.beat_increments % 1 == 0 and self.num_effects < self.max_effects:
             if self.chance_effect_per_beat > random():
-                new_effect = choice(self.possible_effects)
+                new_effect = np.random.choice(self.possible_effects, p = self.effect_weights)
                 max_beats = randint(4, 16)
                 new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
                 self.effects.append(new_effect_instance)
@@ -120,6 +121,17 @@ class Controller():
                     SectionPairsSnakeUp, SectionPairsSnakeDown,
                     Shower
                 )
+                effect_weights = (
+                    10, 10,
+                    10, 10, 10, 10,
+                    5, 5, 5, 5,
+                    3, 3,
+                    40,
+                    20,
+                    10,
+                    30, 30,
+                    15
+                )
                 self.max_effects = 5
                 self.chance_effect_per_beat = 0.7
 
@@ -131,6 +143,13 @@ class Controller():
                     SweepRight, SweepUp, SweepDown, SweepLeft, 
                     SectionPairsSnakeUp, SectionPairsSnakeDown,
                     Shower
+                )
+                effect_weights = (
+                    10,
+                    12, 12,
+                    7, 7, 7, 7,
+                    20, 20,
+                    30
                 )
                 self.max_effects = 6
                 self.chance_effect_per_beat = 0.8
@@ -145,7 +164,15 @@ class Controller():
                     SectionPairsSnakeUp, SectionPairsSnakeDown, 
                     SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown
                 )
-                self.max_effects = 6
+                effect_weights = (
+                    20,
+                    7,
+                    10,
+                    12,
+                    20, 20,
+                    4, 4, 4, 4
+                )
+                self.max_effects = 7
                 self.chance_effect_per_beat = 0.8
 
             case 3: 
@@ -154,6 +181,11 @@ class Controller():
                     FlashFade, 
                     SphericalSweepInward, SphericalSweepOutward, 
                     ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral
+                )
+                effect_weights = (
+                    20,
+                    10, 10,
+                    6, 6
                 )
                 self.max_effects = 6
                 self.chance_effect_per_beat = 0.8
@@ -165,6 +197,12 @@ class Controller():
                     SnakeStripLeftDown, SnakeStripRightDown, 
                     SectionPairsSnakeDown,
                     Shower
+                )
+                effect_weights = (
+                    20,
+                    8, 8,
+                    20,
+                    30
                 )
                 self.max_effects = 8
                 self.chance_effect_per_beat = .95
@@ -178,5 +216,15 @@ class Controller():
                     SectionPairsSnakeUp, SectionPairsSnakeDown,
                     Shower
                 )
+                effect_weights = (
+                    10, 10,
+                    8, 8, 8, 8,
+                    10, 10, 10, 10,
+                    25, 25,
+                    20
+                )
                 self.max_effects = 10
                 self.chance_effect_per_beat = 0.9
+
+        effect_weights = np.array(effect_weights)
+        self.effect_weights = effect_weights / effect_weights.sum() # normalize probabilities
