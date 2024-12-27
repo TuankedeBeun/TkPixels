@@ -121,33 +121,15 @@ class Controller():
                 self.chance_effect_per_beat = 0
 
             case 0:
-                # all effects
+                # low effects
                 self.possible_effects = (
-                    SphericalSweepOutward, SphericalSweepInward, 
-                    SweepUp, SweepRight, SweepDown, SweepLeft, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
-                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
-                    FlashFade, 
-                    SectionBuzz, 
-                    UnitBuzz,
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower,
-                    Sparkles
+                    FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
                 )
                 effect_weights = (
-                    10, 10,
-                    10, 10, 10, 10,
-                    5, 5, 5, 5,
-                    3, 3,
-                    40,
-                    20,
-                    10,
-                    30, 30,
-                    15,
-                    30
+                    10, 10, 10
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = 0.7
+                self.max_effects = 3
+                self.chance_effect_per_beat = 0.3
 
             case 1:
                 # soft effects
@@ -243,6 +225,35 @@ class Controller():
                 )
                 self.max_effects = 10
                 self.chance_effect_per_beat = 0.9
+
+            case 6:
+                # all effects
+                self.possible_effects = (
+                    SphericalSweepOutward, SphericalSweepInward, 
+                    SweepUp, SweepRight, SweepDown, SweepLeft, 
+                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
+                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
+                    FlashFade, 
+                    SectionBuzz, 
+                    UnitBuzz,
+                    SectionPairsSnakeUp, SectionPairsSnakeDown,
+                    Shower,
+                    Sparkles
+                )
+                effect_weights = (
+                    10, 10,
+                    10, 10, 10, 10,
+                    5, 5, 5, 5,
+                    3, 3,
+                    40,
+                    20,
+                    10,
+                    30, 30,
+                    15,
+                    30
+                )
+                self.max_effects = 5
+                self.chance_effect_per_beat = 0.7
 
         effect_weights = np.array(effect_weights)
         self.effect_weights = effect_weights / effect_weights.sum() # normalize probabilities
