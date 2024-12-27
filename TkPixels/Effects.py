@@ -343,3 +343,58 @@ class UnitBuzz(Effect):
             self.unit_id = (self.unit_id + 1) % int(len(self.shuffled_units) / self.num_units)
 
         return self.pixels
+    
+class Shower(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        saturation = 0.5 + random() / 2
+        self.rgb = hsv_to_rgb(color, saturation, 1)
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+
+        self.drop_width = randint(5, 100)
+        self.drop_speed = randint(2, 5)
+        self.fade = 1.2 / self.drop_speed # which is "a" in the formulas below
+        self.fade_norm = np.exp(-1 / self.fade) / self.fade
+
+        self.x_min = int(self.x.min())
+        self.x_max = int(self.x.max())
+        self.y_max = self.y.max()
+
+        self.drop_coords = np.array([[randint(self.x_min, self.x_max), self.y_max]])
+
+    def get_rgb(self):
+        # Using formula for a single droplet:
+        # I = ye^(-ay) * e^-x^2
+        # which needs to be normalized
+        # dI/dy = e^-ay - ay*e^-ay = 0
+        # 1 = ay => y = 1/a
+        # I(1/a) = 1/a*e(-1/a)
+
+        num_drops = len(self.drop_coords)
+        drop_intensities = np.zeros((num_drops, self.num_pixels))
+
+        for i, drop in enumerate(self.drop_coords):
+            x = self.x - drop[0]
+            y = self.y - drop[1]
+            drop_intensity = np.exp(-(x**2 / self.drop_width)) * y * np.exp(-self.fade * y) / self.fade_norm
+            drop_intensity[drop_intensity < 0] = 0
+
+            drop_intensities[i] = drop_intensity
+
+        summed_intensities = 255 * np.sum(drop_intensities, axis=0)
+        self.pixels = np.outer(summed_intensities, self.rgb)
+
+        # lower drops
+        self.drop_coords[:,1] -= self.drop_speed
+
+        # generate new droplets
+        if (self.beat * 2) % 1 == 0: # do every off-beat
+            increments_left = (self.max_beats - self.beat) / self.beat_increment
+            if ((increments_left - 1) * self.drop_speed > self.y_max):
+                new_drop = np.array([[randint(self.x_min, self.x_max), self.y_max]])
+                self.drop_coords = np.append(self.drop_coords, new_drop, axis=0)
+
+        return self.pixels
+        

@@ -15,17 +15,17 @@ class Controller():
         self.beat_increment = 0.125
         self.num_colors = 3
         self.colors = [0, 0, 0]
-        self.max_effects = 3
+        self.max_effects = 10
         self.num_effects = 1
-        self.chance_effect_per_increment = 0.5
+        self.chance_effect_per_beat = 0.0
         # self.possible_effects = (SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown) # all effects
         # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft) # soft effects
         # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral) # radial effects
-        # self.possible_effects = (FlashFade, ClockwiseRetractingSpiral, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown) # intense effects
-        self.possible_effects = (UnitBuzz, UnitBuzz) # test set
+        # self.possible_effects = (FlashFade, FlashFade, ClockwiseRetractingSpiral, SectionBuzz, UnitBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown) # intense effects
+        self.possible_effects = (Shower, Shower) # test set
 
         self.choose_colors()
-        self.effects = [UnitBuzz(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = [Shower(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
 
     def play(self):
         self.time = time()
@@ -98,7 +98,7 @@ class Controller():
 
     def add_effect(self):
         if self.beat_increments % 1 == 0 and self.num_effects < self.max_effects:
-            if self.chance_effect_per_increment > random():
+            if self.chance_effect_per_beat > random():
                 new_effect = choice(self.possible_effects)
                 max_beats = randint(4, 16)
                 new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
