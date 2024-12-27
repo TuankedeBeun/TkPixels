@@ -13,7 +13,7 @@ class Controller():
         self.bar = 0
         self.beat = 0
         self.beat_increments = 0
-        
+
         if bpm < 150:
             self.beat_increment = 0.0625
         else:
@@ -27,8 +27,8 @@ class Controller():
         self.choose_colors()
 
         self.num_effects = 1
-        self.effects = [FlashFade(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
-        self.set_effect_set(1)
+        self.effects = [Sparkles(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
+        self.set_effect_set(2)
 
     def play(self):
         self.time = time()
@@ -113,6 +113,13 @@ class Controller():
     def set_effect_set(self, effect_set_nr):
         match effect_set_nr:
 
+            case -1:
+                # test set
+                self.possible_effects = (SweepUp, SweepUp)
+                effect_weights = (10, 10)
+                self.max_effects = 1
+                self.chance_effect_per_beat = 0
+
             case 0:
                 # all effects
                 self.possible_effects = (
@@ -124,7 +131,8 @@ class Controller():
                     SectionBuzz, 
                     UnitBuzz,
                     SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower
+                    Shower,
+                    Sparkles
                 )
                 effect_weights = (
                     10, 10,
@@ -167,7 +175,8 @@ class Controller():
                     SectionBuzz, 
                     UnitBuzz, 
                     SectionPairsSnakeUp, SectionPairsSnakeDown, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown
+                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown,
+                    Sparkles
                 )
                 effect_weights = (
                     20,
@@ -175,7 +184,8 @@ class Controller():
                     10,
                     12,
                     20, 20,
-                    4, 4, 4, 4
+                    4, 4, 4, 4,
+                    10
                 )
                 self.max_effects = 7
                 self.chance_effect_per_beat = 0.8

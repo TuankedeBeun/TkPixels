@@ -398,3 +398,40 @@ class Shower(Effect):
 
         return self.pixels
         
+class Sparkles(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        saturation = random()
+        self.rgb = hsv_to_rgb(color, saturation, 1)
+        self.indices = np.arange(self.num_pixels)
+        self.num_sparkles = randint(25, 75)
+        self.on_count = randint(1, 7) / 2
+        self.off_count = 0
+
+    def get_rgb(self):
+
+        if (self.beat * 8) % 1 == 0: # sparkle frequency is 8 per beat
+            if self.on_count > 0:
+                indices_sparkles = np.random.choice(self.indices, self.num_sparkles, replace=False)
+                on = np.isin(self.indices, indices_sparkles)
+                self.pixels = np.outer(255 * on, self.rgb)
+
+                if (self.beat * 2) % 1 == 0:
+                    self.on_count -= 0.5
+
+                    if self.on_count == 0:
+                        self.off_count = randint(1, 7) / 2
+
+            elif self.off_count > 0:
+                self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
+
+                if (self.beat * 2) % 1 == 0:
+                    self.off_count -= 0.5
+
+                    # when the off count has finished, determine the new on duration
+                    if self.off_count == 0:
+                        self.on_count = randint(1, 4) / 2
+
+        return self.pixels
+    
