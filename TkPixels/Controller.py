@@ -14,18 +14,15 @@ class Controller():
         self.beat_increments = 0
         self.beat_increment = 0.125
         self.num_colors = 3
+        self.max_effects = 0
+        self.chance_effect_per_beat = 0.0
+        
         self.colors = [0, 0, 0]
-        self.max_effects = 3
-        self.num_effects = 1
-        self.chance_effect_per_beat = 0.2
-        # self.possible_effects = (SphericalSweepOutward, SphericalSweepInward, SweepUp, SweepRight, SweepRight, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, FlashFade, SectionBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown) # all effects
-        # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, SweepRight, SweepUp, SweepDown, SweepLeft) # soft effects
-        # self.possible_effects = (FlashFade, SphericalSweepInward, SphericalSweepOutward, ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral) # radial effects
-        # self.possible_effects = (FlashFade, FlashFade, ClockwiseRetractingSpiral, SectionBuzz, UnitBuzz, SectionPairsSnakeUp, SectionPairsSnakeDown, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown) # intense effects
-        self.possible_effects = (Shower, Shower) # test set
-
         self.choose_colors()
-        self.effects = [Shower(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
+
+        self.num_effects = 1
+        self.effects = [FlashFade(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
+        self.set_effect_set(5)
 
     def play(self):
         self.time = time()
@@ -106,3 +103,80 @@ class Controller():
                 self.num_effects += 1
                 # print('added effect', new_effect_instance, 'for', max_beats, 'beats')
                 # print('number of effects is', self.num_effects)
+
+    def set_effect_set(self, effect_set_nr):
+        match effect_set_nr:
+
+            case 0:
+                # all effects
+                self.possible_effects = (
+                    SphericalSweepOutward, SphericalSweepInward, 
+                    SweepUp, SweepRight, SweepDown, SweepLeft, 
+                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
+                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
+                    FlashFade, 
+                    SectionBuzz, 
+                    UnitBuzz,
+                    SectionPairsSnakeUp, SectionPairsSnakeDown,
+                    Shower
+                )
+                self.max_effects = 5
+                self.chance_effect_per_beat = 0.7
+
+            case 1:
+                # soft effects
+                self.possible_effects = (
+                    FlashFade, 
+                    SphericalSweepInward, SphericalSweepOutward, 
+                    SweepRight, SweepUp, SweepDown, SweepLeft, 
+                    SectionPairsSnakeUp, SectionPairsSnakeDown,
+                    Shower
+                )
+                self.max_effects = 6
+                self.chance_effect_per_beat = 0.8
+
+            case 2:
+                # flashy effects
+                self.possible_effects = (
+                    FlashFade,
+                    ClockwiseRetractingSpiral, 
+                    SectionBuzz, 
+                    UnitBuzz, 
+                    SectionPairsSnakeUp, SectionPairsSnakeDown, 
+                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown
+                )
+                self.max_effects = 6
+                self.chance_effect_per_beat = 0.8
+
+            case 3: 
+                # radial effects
+                self.possible_effects = (
+                    FlashFade, 
+                    SphericalSweepInward, SphericalSweepOutward, 
+                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral
+                )
+                self.max_effects = 6
+                self.chance_effect_per_beat = 0.8
+
+            case 4: 
+                # downward effects
+                self.possible_effects = (
+                    SweepDown,
+                    SnakeStripLeftDown, SnakeStripRightDown, 
+                    SectionPairsSnakeDown,
+                    Shower
+                )
+                self.max_effects = 8
+                self.chance_effect_per_beat = .95
+
+            case 5: 
+                # trippy effects
+                self.possible_effects = (
+                    SphericalSweepOutward, SphericalSweepInward, 
+                    SweepUp, SweepRight, SweepDown, SweepLeft, 
+                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
+                    SectionPairsSnakeUp, SectionPairsSnakeDown,
+                    Shower
+                )
+                self.max_effects = 10
+                self.chance_effect_per_beat = 0.9

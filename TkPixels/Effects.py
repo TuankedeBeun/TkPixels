@@ -271,6 +271,33 @@ class SectionBuzz(Effect):
 
         return self.pixels
 
+class UnitBuzz(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        indices = np.arange(self.num_pixels)
+        unit_length = randint(5, 16)
+        self.num_units = randint(2, 4)
+        self.units = np.floor_divide(indices, unit_length)
+        self.unique_units = np.unique(self.units, axis=0)
+        self.shuffled_units = np.random.permutation(self.unique_units)
+        self.unit_id = 0
+
+    def get_rgb(self):
+
+        if (self.beat * 4) % 1 == 0: # do every off-beat
+
+            start_unit_id = self.num_units * self.unit_id
+            chosen_units = self.shuffled_units[start_unit_id : start_unit_id + self.num_units]
+
+            on = np.isin(self.units, chosen_units)
+
+            self.pixels = np.outer(255 * on, self.rgb)
+            self.unit_id = (self.unit_id + 1) % int(len(self.shuffled_units) / self.num_units)
+
+        return self.pixels
+    
 class SectionPairsSnake(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -317,33 +344,6 @@ class SectionPairsSnakeUp(SectionPairsSnake):
 class SectionPairsSnakeDown(SectionPairsSnake):
     reverse = True
 
-class UnitBuzz(Effect):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        color = choice(self.colors)
-        self.rgb = hsv_to_rgb(color, 1, 1)
-        indices = np.arange(self.num_pixels)
-        unit_length = randint(5, 16)
-        self.num_units = randint(2, 4)
-        self.units = np.floor_divide(indices, unit_length)
-        self.unique_units = np.unique(self.units, axis=0)
-        self.shuffled_units = np.random.permutation(self.unique_units)
-        self.unit_id = 0
-
-    def get_rgb(self):
-
-        if (self.beat * 2) % 1 == 0: # do every off-beat
-
-            start_unit_id = self.num_units * self.unit_id
-            chosen_units = self.shuffled_units[start_unit_id : start_unit_id + self.num_units]
-
-            on = np.isin(self.units, chosen_units)
-
-            self.pixels = np.outer(255 * on, self.rgb)
-            self.unit_id = (self.unit_id + 1) % int(len(self.shuffled_units) / self.num_units)
-
-        return self.pixels
-    
 class Shower(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
