@@ -13,7 +13,12 @@ class Controller():
         self.bar = 0
         self.beat = 0
         self.beat_increments = 0
-        self.beat_increment = 0.125
+        
+        if bpm < 150:
+            self.beat_increment = 0.0625
+        else:
+            self.beat_increment = 0.125
+        
         self.num_colors = 3
         self.max_effects = 0
         self.chance_effect_per_beat = 0.0
@@ -23,7 +28,7 @@ class Controller():
 
         self.num_effects = 1
         self.effects = [FlashFade(self.colors, self.beat_increment, 8, self.board.num_pixels, self.board.pixeldata)]
-        self.set_effect_set(5)
+        self.set_effect_set(1)
 
     def play(self):
         self.time = time()
@@ -77,7 +82,7 @@ class Controller():
 
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
-        # print('time to sleep:', time_to_wait)
+        print('time to sleep:', time_to_wait)
         sleep(time_to_wait)
         self.time = time()
 
