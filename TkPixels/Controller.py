@@ -4,7 +4,7 @@ import numpy as np
 from TkPixels.Effects import *
 
 class Controller():
-    def __init__(self, board, bpm):
+    def __init__(self, board, bpm, initial_effect_set):
         self.board = board
         self.bpm = bpm
         self.time_per_beat = 60 / self.bpm
@@ -28,7 +28,7 @@ class Controller():
 
         self.num_effects = 0
         self.effects = [] #[Sparkles(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
-        self.set_effect_set(5)
+        self.set_effect_set(initial_effect_set)
 
     def play(self):
         self.time = time()
