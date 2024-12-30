@@ -4,7 +4,7 @@ import numpy as np
 from TkPixels.Effects import *
 
 class Controller():
-    def __init__(self, board, bpm, initial_effect_set):
+    def __init__(self, board, bpm, initial_effect_set = None):
         self.board = board
         self.bpm = bpm
         self.time_per_beat = 60 / self.bpm
@@ -27,7 +27,11 @@ class Controller():
         self.choose_colors()
 
         self.num_effects = 0
-        self.effects = [] #[Sparkles(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
+        self.effects = []
+
+        if initial_effect_set is None:
+            initial_effect_set = self.random_effect_set()
+
         self.set_effect_set(initial_effect_set)
 
     def play(self):
@@ -72,6 +76,10 @@ class Controller():
 
             if self.beat % 4 == 0:
                 self.bar += 1
+
+                if self.bar == 32:
+                    new_effect_set_nr = self.random_effect_set()
+                    self.set_effect_set(new_effect_set_nr)
                 
                 if self.bar % 16 == 0:
                     self.phrase += 1
@@ -109,6 +117,15 @@ class Controller():
                 self.num_effects += 1
                 # print('added effect', new_effect_instance, 'for', max_beats, 'beats')
                 # print('number of effects is', self.num_effects)
+
+    def random_effect_set(self):
+        possible_sets = list(range(7))
+        weights = [1, 3, 5, 2, 3, 2, 2]
+        sum_weights = sum(weights)
+        weights = [i/sum_weights for i in weights]
+
+        effect_set_nr = np.random.choice(possible_sets, p = weights)
+        return effect_set_nr
 
     def set_effect_set(self, effect_set_nr):
         match effect_set_nr:
@@ -168,10 +185,10 @@ class Controller():
                     12,
                     20, 20,
                     4, 4, 4, 4,
-                    10
+                    6
                 )
-                self.max_effects = 7
-                self.chance_effect_per_beat = 0.8
+                self.max_effects = 5
+                self.chance_effect_per_beat = 0.7
 
             case 3: 
                 # radial effects

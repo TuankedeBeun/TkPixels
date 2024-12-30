@@ -9,7 +9,7 @@ from math import sqrt
 import numpy as np
 
 class Board():
-    def __init__(self, brightness, pixelradius = 8, width = 500, height = 750, simulate = True):
+    def __init__(self, brightness = 1, pixelradius = 8, width = 500, height = 750, simulate = True):
         self.brightness = brightness
         self.width = width
         self.height = height
