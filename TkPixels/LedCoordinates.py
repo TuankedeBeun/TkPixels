@@ -2,11 +2,11 @@ from math import sqrt
 from copy import deepcopy
 
 CORNERS = [
-    [-32.0, 0.0],
-    [31.99, 48.0],
-    [32.0, 16.0],
-    [-10.99, 48.0],
-    [-11.0, 100.0]
+    [-27.0, 5.0],
+    [26.99, 45.0],
+    [27.0, 18.5],
+    [-9.49, 45.0],
+    [-9.5, 106.21]
 ]
 
 def get_coordinates_of_led(corners, led_nr, total_leds):
