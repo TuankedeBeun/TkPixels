@@ -1,7 +1,7 @@
 from os import path
 from TkPixels.StripDesign import Strip
-# import board
-# import neopixel
+import board
+import neopixel
 import json
 import tkinter as tk
 from time import sleep
