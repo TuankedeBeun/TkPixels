@@ -76,14 +76,14 @@ class Controller():
 
             if self.beat % 4 == 0:
                 self.bar += 1
-
-                if self.bar == 32:
-                    new_effect_set_nr = self.random_effect_set()
-                    self.set_effect_set(new_effect_set_nr)
                 
                 if self.bar % 16 == 0:
                     self.phrase += 1
                     self.choose_colors()
+
+                if self.bar % 32 == 0:
+                    new_effect_set_nr = self.random_effect_set()
+                    self.set_effect_set(new_effect_set_nr)
 
         for effect in self.effects:
             effect.increment()
