@@ -18,7 +18,7 @@ class Board():
         
         # load pixel data
         script_dir = path.dirname(path.abspath(__file__))
-        file_path = path.join(script_dir, '..\\data\\led_coordinates.json')
+        file_path = path.join(script_dir, '../data/led_coordinates.json')
         self.pixeldata = load_pixel_data(file_path)
         self.num_pixels = len(self.pixeldata['indices'])
         self.num_pixels_per_strip = int(self.num_pixels / 2)
