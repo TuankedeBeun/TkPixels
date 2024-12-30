@@ -1,6 +1,8 @@
 from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 
-board = Board(0.8, simulate=False)
-controller = Controller(board, 174)
+EFFECT_SET_NR = 0
+BPM = 87
+board = Board(1, EFFECT_SET_NR, simulate = False)
+controller = Controller(board, BPM, EFFECT_SET_NR)
 controller.play()

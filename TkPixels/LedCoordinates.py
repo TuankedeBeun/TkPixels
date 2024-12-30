@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, atan2
 from copy import deepcopy
 
 CORNERS = [
@@ -8,6 +8,40 @@ CORNERS = [
     [-9.49, 45.0],
     [-9.5, 106.21]
 ]
+
+
+def get_section_id_of_led(corners, led_nr, total_leds):
+    # compute distances
+    distances = list()
+    for i in range(len(corners) - 1):
+        dist = distance(corners[i], corners[i + 1])
+        distances.append(dist)
+
+    total_distance = sum(distances)
+
+    # cumulative distances
+    cumulative_total = 0
+    cumulative_distances = list()
+    for i in range(len(distances)):
+        cumulative_total += distances[i]
+        cumulative_distances.append(cumulative_total)
+
+    # convert led nr to distance
+    led_dist = led_nr / total_leds * total_distance
+
+    # we now have each element in "cumulative_distances" matching where each element in "corners" ends
+    if led_dist < cumulative_distances[0]:
+        section_id = 0
+    elif led_dist < cumulative_distances[1]:
+        section_id = 1
+    elif led_dist < cumulative_distances[2]:
+        section_id = 2
+    elif led_dist < cumulative_distances[3]:
+        section_id = 3
+    else:
+        raise ValueError('LED nr out of bounds')
+
+    return section_id
 
 def get_coordinates_of_led(corners, led_nr, total_leds):
     # compute distances
@@ -63,6 +97,21 @@ def get_coordinate(point1, point2, dist):
     
     return x, y
 
+def get_section_ids_of_all_leds(total_leds, x_mirrored=False):
+    
+    if x_mirrored:
+        corners = flip_corners(CORNERS.copy())
+    else:
+        corners = CORNERS.copy()
+
+    section_ids_strip = list()
+
+    for i in range(total_leds):
+        coord = get_section_id_of_led(corners, i, total_leds)
+        section_ids_strip.append(coord)
+
+    return section_ids_strip
+
 def get_cart_coordinates_of_all_leds(total_leds, x_mirrored=False):
     
     if x_mirrored:
@@ -94,6 +143,20 @@ def get_board_coordinates_of_all_leds(total_leds, x_bounds, y_bounds, x_mirrored
         coords_strip.append(coord)
 
     return coords_strip
+
+def get_spherical_coordinates_of_all_leds(cartesian_coordinates):
+    
+    spherical_coords = list()
+    y_offset = (CORNERS[1][1] + CORNERS[2][1]) / 2
+
+    for x, y in cartesian_coordinates:
+        y -= y_offset
+
+        r = sqrt(x**2 + y**2)
+        theta = atan2(y, x)
+        spherical_coords.append([r, theta])
+
+    return spherical_coords
 
 def get_normalized_corner_coords(corners, x_bounds, y_bounds):
     x0_min = min([c[0] for c in corners])
