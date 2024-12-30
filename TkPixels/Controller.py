@@ -97,7 +97,6 @@ class Controller():
     def choose_colors(self):
         self.num_colors = randint(2, 4)
         self.colors = [random() for i in range(self.num_colors)]
-        # print('number of colors', self.num_colors)
 
     def expire_effects(self):
         for i in range(self.num_effects - 1, -1, -1):
@@ -105,7 +104,6 @@ class Controller():
             if effect.beat >= effect.max_beats:
                 self.effects.pop(i)
                 self.num_effects -= 1
-                # print('number of effects is', self.num_effects)
 
     def add_effect(self):
         if self.beat_increments % 1 == 0 and self.num_effects < self.max_effects:
@@ -115,8 +113,6 @@ class Controller():
                 new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
                 self.effects.append(new_effect_instance)
                 self.num_effects += 1
-                # print('added effect', new_effect_instance, 'for', max_beats, 'beats')
-                # print('number of effects is', self.num_effects)
 
     def random_effect_set(self):
         possible_sets = list(range(7))
@@ -125,6 +121,7 @@ class Controller():
         weights = [i/sum_weights for i in weights]
 
         effect_set_nr = np.random.choice(possible_sets, p = weights)
+        print('effect set', effect_set_nr)
         return effect_set_nr
 
     def set_effect_set(self, effect_set_nr):
