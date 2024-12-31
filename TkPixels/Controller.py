@@ -14,7 +14,7 @@ class Controller():
         self.beat = 0
         self.beat_increments = 0
 
-        if bpm < 150:
+        if bpm < 125:
             self.beat_increment = 0.0625
         else:
             self.beat_increment = 0.125
@@ -178,10 +178,10 @@ class Controller():
                 effect_weights = (
                     20,
                     5,
-                    20,
-                    25,
+                    15,
+                    15,
                     20, 20,
-                    4, 4, 4, 4,
+                    10, 10, 10, 10,
                     6
                 )
                 self.max_effects = 5
@@ -264,7 +264,7 @@ class Controller():
                     10,
                     30, 30,
                     15,
-                    12
+                    10
                 )
                 self.max_effects = 5
                 self.chance_effect_per_beat = 0.7
