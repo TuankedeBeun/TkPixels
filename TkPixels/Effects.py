@@ -31,6 +31,7 @@ class StrobeColor(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
+        self.max_beats = randint(4,7)
 
     def get_rgb(self):
         if self.beat % 1 == 0:
@@ -105,6 +106,7 @@ class SnakeStrip(Effect):
         self.pixel_index = 0
         self.snake_length = randint(4, 20)
         self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1
+        self.max_beats = round(self.max_beats / 2)
         
         self.strip_nr = getattr(self, 'strip_nr', 0)
         self.direction = getattr(self, 'direction', 'up')
@@ -185,9 +187,9 @@ class RetractingSpiral(Effect):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.num_rounds = randint(2, 8)
-        self.max_spiral_width = randint(5, 25)
-        self.line_width = self.max_spiral_width / randint(2, 5)
+        self.num_rounds = randint(4, 9)
+        self.max_spiral_width = randint(8, 25)
+        self.line_width = self.max_spiral_width / randint(4, 6)
         self.clockwise = getattr(self, 'clockwise', True)
         self.r = self.pixeldata['coords_spherical'][:, 0]
         self.theta = self.pixeldata['coords_spherical'][:, 1]
@@ -233,12 +235,12 @@ class FlashFade(Effect):
         color = choice(self.colors)
         saturation = 0.5 + random() / 2
         self.rgb = hsv_to_rgb(color, saturation, 1)
-        self.decay_coef = 4
-        self.max_beats = randint(1, 6)
+        self.decay_coef = 7
+        self.max_beats = randint(1, 4)
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
-        self.r_norm = r / r_max + 0.3 # goes from 0.2 to 1.2
+        self.r_norm = r / r_max + 0.1 # goes from 0.2 to 1.2
 
     def get_rgb(self):
         t_norm = self.beat / self.max_beats
@@ -353,9 +355,9 @@ class Shower(Effect):
         self.x = self.pixeldata['coords_cart'][:,0]
         self.y = self.pixeldata['coords_cart'][:,1]
 
-        self.drop_speed = randint(24, 48) # cm / beat
-        self.drop_width = randint(48, 240) / self.drop_speed
-        self.fade = 8 / self.drop_speed # which is "a" in the formulas below
+        self.drop_speed = randint(32, 50) # cm / beat
+        self.drop_width = randint(25, 100) / self.drop_speed
+        self.fade = 7 / self.drop_speed # which is "a" in the formulas below
         self.fade_norm = np.exp(-1 / self.fade) / self.fade # normalization coefficient for "a"
 
         self.x_min = int(self.x.min())
@@ -405,7 +407,7 @@ class Sparkles(Effect):
         saturation = random()
         self.rgb = hsv_to_rgb(color, saturation, 1)
         self.indices = np.arange(self.num_pixels)
-        self.num_sparkles = randint(25, 75)
+        self.num_sparkles = randint(10, 25)
         self.on_count = randint(1, 7) / 2
         self.off_count = 0
 
