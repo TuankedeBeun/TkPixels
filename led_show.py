@@ -1,7 +1,7 @@
 from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 
-BPM = 130
+BPM = 100
 
 board = Board()
 controller = Controller(board, BPM)
