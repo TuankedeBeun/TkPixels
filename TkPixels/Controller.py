@@ -140,10 +140,10 @@ class Controller():
                     FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
                 )
                 effect_weights = (
-                    10, 10, 10
+                    10, 15, 15
                 )
                 self.max_effects = 3
-                self.chance_effect_per_beat = 0.3
+                self.chance_effect_per_beat = 0.25
 
             case 1:
                 # soft effects
@@ -159,10 +159,10 @@ class Controller():
                     12, 12,
                     7, 7, 7, 7,
                     20, 20,
-                    30
+                    15
                 )
                 self.max_effects = 6
-                self.chance_effect_per_beat = 0.8
+                self.chance_effect_per_beat = 0.7
 
             case 2:
                 # flashy effects
@@ -177,15 +177,15 @@ class Controller():
                 )
                 effect_weights = (
                     20,
-                    7,
-                    10,
-                    12,
+                    5,
+                    20,
+                    25,
                     20, 20,
                     4, 4, 4, 4,
                     6
                 )
                 self.max_effects = 5
-                self.chance_effect_per_beat = 0.7
+                self.chance_effect_per_beat = 0.6
 
             case 3: 
                 # radial effects
@@ -214,10 +214,10 @@ class Controller():
                     20,
                     8, 8,
                     20,
-                    30
+                    25
                 )
-                self.max_effects = 8
-                self.chance_effect_per_beat = .95
+                self.max_effects = 5
+                self.chance_effect_per_beat = .8
 
             case 5: 
                 # trippy effects
@@ -235,7 +235,7 @@ class Controller():
                     10, 10, 10, 10,
                     25, 25,
                     20,
-                    5
+                    6
                 )
                 self.max_effects = 10
                 self.chance_effect_per_beat = 0.9
@@ -255,8 +255,8 @@ class Controller():
                     Sparkles
                 )
                 effect_weights = (
-                    10, 10,
-                    10, 10, 10, 10,
+                    8, 8,
+                    8, 8, 8, 8,
                     5, 5, 5, 5,
                     3, 3,
                     40,
@@ -264,7 +264,7 @@ class Controller():
                     10,
                     30, 30,
                     15,
-                    30
+                    12
                 )
                 self.max_effects = 5
                 self.chance_effect_per_beat = 0.7
