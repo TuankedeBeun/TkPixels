@@ -101,12 +101,12 @@ class SweepLeft(Sweep):
 class SnakeStrip(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.max_beats = round(self.max_beats / 4)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.pixel_index = 0
         self.snake_length = randint(4, 20)
         self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1
-        self.max_beats = round(self.max_beats / 2)
         
         self.strip_nr = getattr(self, 'strip_nr', 0)
         self.direction = getattr(self, 'direction', 'up')
@@ -235,7 +235,7 @@ class FlashFade(Effect):
         color = choice(self.colors)
         saturation = 0.5 + random() / 2
         self.rgb = hsv_to_rgb(color, saturation, 1)
-        self.decay_coef = 7
+        self.decay_coef = 6
         self.max_beats = randint(1, 4)
 
         r = self.pixeldata['coords_spherical'][:, 0]
