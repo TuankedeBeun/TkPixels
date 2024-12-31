@@ -101,7 +101,7 @@ class SweepLeft(Sweep):
 class SnakeStrip(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.max_beats = round(self.max_beats / 4)
+        self.max_beats = randint(3, 6)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.pixel_index = 0
@@ -236,7 +236,7 @@ class FlashFade(Effect):
         saturation = 0.5 + random() / 2
         self.rgb = hsv_to_rgb(color, saturation, 1)
         self.decay_coef = 6
-        self.max_beats = randint(1, 4)
+        self.max_beats = randint(2, 4)
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
