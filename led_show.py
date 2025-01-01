@@ -2,7 +2,8 @@ from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 
 BPM = 143
+BRIGHTNESS = 0.7
 
-board = Board()
+board = Board(brightness=BRIGHTNESS)
 controller = Controller(board, BPM)
 controller.play()
