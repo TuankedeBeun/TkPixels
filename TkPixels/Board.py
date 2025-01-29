@@ -1,7 +1,7 @@
 from os import path
 from TkPixels.StripDesign import Strip
-# import board
-# import neopixel
+import board
+import neopixel
 import json
 import tkinter as tk
 from time import sleep
@@ -9,7 +9,7 @@ from math import sqrt
 import numpy as np
 
 class Board():
-    def __init__(self, brightness, pixelradius = 10, width = 500, height = 750, simulate = True):
+    def __init__(self, brightness = 1, pixelradius = 8, width = 500, height = 750, simulate = False):
         self.brightness = brightness
         self.width = width
         self.height = height
@@ -18,7 +18,7 @@ class Board():
         
         # load pixel data
         script_dir = path.dirname(path.abspath(__file__))
-        file_path = path.join(script_dir, '..\\data\\led_coordinates.json')
+        file_path = path.join(script_dir, '../data/led_coordinates.json')
         self.pixeldata = load_pixel_data(file_path)
         self.num_pixels = len(self.pixeldata['indices'])
         self.num_pixels_per_strip = int(self.num_pixels / 2)

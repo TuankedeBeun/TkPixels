@@ -4,7 +4,7 @@ import numpy as np
 from TkPixels.Effects import *
 
 class Controller():
-    def __init__(self, board, bpm):
+    def __init__(self, board, bpm, initial_effect_set = None):
         self.board = board
         self.bpm = bpm
         self.time_per_beat = 60 / self.bpm
@@ -14,7 +14,7 @@ class Controller():
         self.beat = 0
         self.beat_increments = 0
 
-        if bpm < 150:
+        if bpm < 125:
             self.beat_increment = 0.0625
         else:
             self.beat_increment = 0.125
@@ -27,8 +27,12 @@ class Controller():
         self.choose_colors()
 
         self.num_effects = 0
-        self.effects = [] #[Sparkles(self.colors, self.beat_increment, 16, self.board.num_pixels, self.board.pixeldata)]
-        self.set_effect_set(5)
+        self.effects = []
+
+        if initial_effect_set is None:
+            initial_effect_set = self.random_effect_set()
+
+        self.set_effect_set(initial_effect_set)
 
     def play(self):
         self.time = time()
@@ -77,6 +81,10 @@ class Controller():
                     self.phrase += 1
                     self.choose_colors()
 
+                if self.bar % 32 == 0:
+                    new_effect_set_nr = self.random_effect_set()
+                    self.set_effect_set(new_effect_set_nr)
+
         for effect in self.effects:
             effect.increment()
 
@@ -89,7 +97,6 @@ class Controller():
     def choose_colors(self):
         self.num_colors = randint(2, 4)
         self.colors = [random() for i in range(self.num_colors)]
-        # print('number of colors', self.num_colors)
 
     def expire_effects(self):
         for i in range(self.num_effects - 1, -1, -1):
@@ -97,7 +104,6 @@ class Controller():
             if effect.beat >= effect.max_beats:
                 self.effects.pop(i)
                 self.num_effects -= 1
-                # print('number of effects is', self.num_effects)
 
     def add_effect(self):
         if self.beat_increments % 1 == 0 and self.num_effects < self.max_effects:
@@ -107,8 +113,16 @@ class Controller():
                 new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
                 self.effects.append(new_effect_instance)
                 self.num_effects += 1
-                # print('added effect', new_effect_instance, 'for', max_beats, 'beats')
-                # print('number of effects is', self.num_effects)
+
+    def random_effect_set(self):
+        possible_sets = list(range(7))
+        weights = [1, 3, 5, 2, 3, 2, 2]
+        sum_weights = sum(weights)
+        weights = [i/sum_weights for i in weights]
+
+        effect_set_nr = np.random.choice(possible_sets, p = weights)
+        print('effect set', effect_set_nr)
+        return effect_set_nr
 
     def set_effect_set(self, effect_set_nr):
         match effect_set_nr:
@@ -126,10 +140,10 @@ class Controller():
                     FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
                 )
                 effect_weights = (
-                    10, 10, 10
+                    10, 15, 15
                 )
                 self.max_effects = 3
-                self.chance_effect_per_beat = 0.3
+                self.chance_effect_per_beat = 0.25
 
             case 1:
                 # soft effects
@@ -145,10 +159,10 @@ class Controller():
                     12, 12,
                     7, 7, 7, 7,
                     20, 20,
-                    30
+                    15
                 )
                 self.max_effects = 6
-                self.chance_effect_per_beat = 0.8
+                self.chance_effect_per_beat = 0.7
 
             case 2:
                 # flashy effects
@@ -163,15 +177,15 @@ class Controller():
                 )
                 effect_weights = (
                     20,
-                    7,
-                    10,
-                    12,
+                    5,
+                    15,
+                    15,
                     20, 20,
-                    4, 4, 4, 4,
-                    10
+                    10, 10, 10, 10,
+                    6
                 )
-                self.max_effects = 7
-                self.chance_effect_per_beat = 0.8
+                self.max_effects = 5
+                self.chance_effect_per_beat = 0.6
 
             case 3: 
                 # radial effects
@@ -200,10 +214,10 @@ class Controller():
                     20,
                     8, 8,
                     20,
-                    30
+                    25
                 )
-                self.max_effects = 8
-                self.chance_effect_per_beat = .95
+                self.max_effects = 5
+                self.chance_effect_per_beat = .8
 
             case 5: 
                 # trippy effects
@@ -221,7 +235,7 @@ class Controller():
                     10, 10, 10, 10,
                     25, 25,
                     20,
-                    5
+                    6
                 )
                 self.max_effects = 10
                 self.chance_effect_per_beat = 0.9
@@ -241,8 +255,8 @@ class Controller():
                     Sparkles
                 )
                 effect_weights = (
-                    10, 10,
-                    10, 10, 10, 10,
+                    8, 8,
+                    8, 8, 8, 8,
                     5, 5, 5, 5,
                     3, 3,
                     40,
@@ -250,7 +264,7 @@ class Controller():
                     10,
                     30, 30,
                     15,
-                    30
+                    10
                 )
                 self.max_effects = 5
                 self.chance_effect_per_beat = 0.7
