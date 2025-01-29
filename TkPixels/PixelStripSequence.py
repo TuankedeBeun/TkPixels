@@ -17,7 +17,7 @@ class Strip(MutableSequence):
     
     def __setitem__(self, i, v):
         self.check(v)
-        self._strip.setPixelColor(i, Color(*v))
+        self._strip.setPixelColor(int(i), Color(*v))
     
     def __delitem__(self, i):
         raise RuntimeError("Deletion not allowed")
