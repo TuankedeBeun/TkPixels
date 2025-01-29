@@ -1,7 +1,4 @@
 from os import path
-from TkPixels.StripDesign import Strip
-import board
-import neopixel
 import json
 import tkinter as tk
 from time import sleep
@@ -9,12 +6,9 @@ from math import sqrt
 import numpy as np
 
 class Board():
-    def __init__(self, brightness = 1, pixelradius = 8, width = 500, height = 750, simulate = False):
-        self.brightness = brightness
-        self.width = width
-        self.height = height
-        self.pixelradius = pixelradius
+    def __init__(self, strip_right, strip_left, simulate = False, canvas = None):
         self.simulate = simulate
+        self.strips = [strip_right, strip_left]
         
         # load pixel data
         script_dir = path.dirname(path.abspath(__file__))
@@ -23,45 +17,19 @@ class Board():
         self.num_pixels = len(self.pixeldata['indices'])
         self.num_pixels_per_strip = int(self.num_pixels / 2)
 
-        # initialize window
+        # Draw tkinter LED strips when simulating
         if self.simulate:
-            self.root = tk.Tk(screenName='LED strip')
-            self.root.geometry('%dx%d+%d+%d' % (self.root.winfo_screenwidth(), self.root.winfo_screenwidth(), 0, 0))
-            self.root.configure(background='black')
-            self.canvas = tk.Canvas(
-                master = self.root, 
-                width = self.width, 
-                height = self.height,
-                background = 'black',
-                highlightthickness = 1,
-                highlightbackground = 'gray'
-            )
-            self.canvas.pack()
-            
-            # draw pixels
+            self.canvas = canvas
             self.draw()
-
-            # initialize two led strips
-            strip_r = Strip(self.num_pixels_per_strip, self.brightness, self.canvas, 1)
-            strip_l = Strip(self.num_pixels_per_strip, self.brightness, self.canvas, 1 + self.num_pixels_per_strip)
-            self.strips = [strip_r, strip_l]
-
-        else:
-            strip_r = neopixel.NeoPixel(board.D18, self.num_pixels_per_strip, brightness=self.brightness, auto_write=False)
-            strip_l = neopixel.NeoPixel(board.D21, self.num_pixels_per_strip, brightness=self.brightness, auto_write=False)
-
-        self.strips = [strip_r, strip_l]
-        
-        return
     
-    def draw(self):
+    def draw(self, pixel_radius = 8):
         coords = self.pixeldata['coords_board']
 
         for (x, y) in coords:
-            x0 = x - self.pixelradius
-            x1 = x + self.pixelradius
-            y0 = y - self.pixelradius
-            y1 = y + self.pixelradius
+            x0 = x - pixel_radius
+            x1 = x + pixel_radius
+            y0 = y - pixel_radius
+            y1 = y + pixel_radius
             self.canvas.create_oval(
                 x0, y0, x1, y1, 
                 width = 1,
@@ -77,9 +45,6 @@ class Board():
         else:
             self.strips[0].show()
             self.strips[1].show()
-    
-    def stop(self):
-        self.root.destroy()
     
 def load_pixel_data(file_path):
     with open(file_path, 'r') as file:
