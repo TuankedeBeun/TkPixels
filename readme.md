@@ -17,5 +17,3 @@ Install Raspberry OS using Imager:
 
 Install required Python modules:
 - Install neopixel and board modules by running `sudo pip3 install adafruit-circuitpython-neopixel --break-system-packages`
-
-Test
