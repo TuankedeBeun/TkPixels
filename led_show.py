@@ -3,7 +3,7 @@ from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 from TkPixels.PixelStripSequence import Strip
 
-BPM = 150
+BPM = 140
 BRIGHTNESS = 128
 
 LED_1_PIN = 18
