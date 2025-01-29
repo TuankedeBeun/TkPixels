@@ -1,6 +1,6 @@
 from TkPixels.Board import Board
 from TkPixels.Controller import Controller
-from TkPixels.StripDesign import Strip
+from TkPixels.TkStripSequence import Strip
 import tkinter as tk
 
 EFFECT_SET_NR = 1

@@ -44,6 +44,7 @@ class Board():
             self.canvas.update()
         else:
             self.strips[0].show()
+            sleep(0.007)
             self.strips[1].show()
     
 def load_pixel_data(file_path):

@@ -2,6 +2,7 @@ from time import sleep, time
 from random import random, randint
 import numpy as np
 from TkPixels.Effects import *
+from TkPixels.Color import Color
 
 class Controller():
     def __init__(self, board, bpm, initial_effect_set = None):
@@ -63,7 +64,7 @@ class Controller():
 
     def draw_strips(self, vectors):
         for (strip, led), v in zip(self.board.pixeldata['indices'], vectors):
-            self.board.strips[strip][led] = tuple(v)
+            self.board.strips[strip].setPixelColor(led, Color(*v))
         
         self.board.update()
 
