@@ -1,3 +1,4 @@
+from time import sleep
 from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 from TkPixels.PixelStripSequence import Strip
@@ -19,4 +20,13 @@ strip_left = Strip(LED_2_PIN, LED_2_DMA, LED_2_CHANNEL, BRIGHTNESS)
 
 board = Board(strip_right, strip_left)
 controller = Controller(board, BPM)
-controller.play()
+
+try:
+	controller.play()
+except KeyboardInterrupt:
+	strip_right.fill((0,0,0))
+	strip_right.show()
+	sleep(0.01)
+	strip_left.fill((0,0,0))
+	strip_left.show()
+	sleep(0.01)
