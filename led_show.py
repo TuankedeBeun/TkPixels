@@ -30,10 +30,3 @@ except KeyboardInterrupt:
 	strip_left.fill((0,0,0))
 	strip_left.show()
 	sleep(0.01)
-
-BPM = 150
-BRIGHTNESS = 0.6
-
-board = Board(brightness=BRIGHTNESS)
-controller = Controller(board, BPM)
-controller.play()
