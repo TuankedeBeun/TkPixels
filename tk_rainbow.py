@@ -1,4 +1,4 @@
-from TkPixels.StripDesign import Design
+from TkPixels.TkStripSequence import Design
 from time import sleep
 
 max_brightness = 0.5
