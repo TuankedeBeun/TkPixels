@@ -5,13 +5,15 @@ ADC_CS  = 8
 ADC_CLK = 11
 ADC_DIO = 9
 
+TIME_LAST_CHECK = time.time()
+
 def setup():
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(ADC_CS, GPIO.OUT)
 	GPIO.setup(ADC_CLK, GPIO.OUT)
 	GPIO.setup(ADC_DIO, GPIO.IN)
 
-def getResult(channel = 0):
+def get_result(channel = 0):
 	
 	GPIO.output(ADC_CS, 0) # Activate ADC by setting CS to LOW
 	GPIO.setup(ADC_DIO, GPIO.OUT) # Change DATA to OUT
@@ -42,12 +44,14 @@ def getResult(channel = 0):
 def write_value(file_path, value):
 	pass
 
-def loop(interval=1):
-	while True:
-		t = getResult()
-		write_value('data.txt', t)
-		vol = 5.0/255 * t
-		vol = round(vol, 2)
-		print('Original', t, 'Voltage', vol)
-		time.sleep(interval)
+def check_time(interval=3):
+	global TIME_LAST_CHECK
+	current_time = time.time()
+	
+	if current_time - TIME_LAST_CHECK > interval:
+		TIME_LAST_CHECK = current_time
+		return True
+	else:
+		return False
+	
 
