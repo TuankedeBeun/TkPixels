@@ -140,7 +140,7 @@ def write_to_file(file_path, setting, value):
 	### Write a specific setting to the settings file
 	
 	# validate setting name
-	settings = {'brightness':0, 'bpm':1, 'mode':2, 'effect_intensity':3}
+	settings = {'bpm':0, 'mode':1, 'brightness':2, 'effect_intensity':3}
 	if setting not in settings.keys():
 		raise ValueError('Setting %s is not valid' % setting)
 	
