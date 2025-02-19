@@ -1,8 +1,6 @@
 import RPi.GPIO as GPIO
 import time
 
-TIME_LAST_CHECK = time.time()
-
 def setup(cs, clk, dio):
 	GPIO.setup(cs, GPIO.OUT)
 	GPIO.setup(clk, GPIO.OUT)
@@ -40,15 +38,3 @@ def get_result(cs, clk, dio, channel = 0):
 	GPIO.output(cs, 1)
 	
 	return value
-
-def check_time(interval=3):
-	global TIME_LAST_CHECK
-	current_time = time.time()
-	
-	if current_time - TIME_LAST_CHECK > interval:
-		TIME_LAST_CHECK = current_time
-		return True
-	else:
-		return False
-	
-
