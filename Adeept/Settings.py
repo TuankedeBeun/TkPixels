@@ -8,6 +8,7 @@ CS_PIN = None
 CLK_PIN = None
 DIO_PIN = None
 
+NUMBER_OF_SETTINGS = 4
 SETTING = -1
 TIME_LAST_PRESS = 0
 BPM_MEASUREMENTS = []
@@ -32,7 +33,7 @@ def setup_pins(setting, measurement, cs, clk, dio):
 def shift_setting(ev=None):
 	global SETTING
 	
-	SETTING = (SETTING + 1) % 3
+	SETTING = (SETTING + 1) % NUMBER_OF_SETTINGS
 	
 	GPIO.remove_event_detect(MEASUREMENT_PIN)
 	match SETTING:
@@ -45,8 +46,12 @@ def shift_setting(ev=None):
 			print('Select mode. Use the red button to shift through modes')
 			
 		case 2:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=brightness_select, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
 			print('Configure brightness. Use the slider and select the brightness by pressing th red button.')
+			
+		case 3:
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
+			print('Configure effect intensity. Use the slider and select the instensity by pressing th red button.')
 
 def activate_buttons(settings_pin, measurement_pin):
 	global MEASUREMENT_PIN
@@ -79,6 +84,11 @@ def get_setting():
 			
 		case 2:
 			setting = 'brightness'
+			if (check_time(0)):
+				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
+			
+		case 3:
+			setting = 'effect_intensity'
 			if (check_time(0)):
 				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 	
@@ -122,7 +132,7 @@ def mode_select(ev=None):
 	MODE = (MODE + 1) % 10
 	TIME_LAST_PRESS = time.time()
 	
-def brightness_select(ev=None):
+def slider_select(ev=None):
 	global TIME_LAST_PRESS
 	TIME_LAST_PRESS = time.time()
 	
@@ -130,7 +140,7 @@ def write_to_file(file_path, setting, value):
 	### Write a specific setting to the settings file
 	
 	# validate setting name
-	settings = {'brightness':0, 'bpm':1, 'mode':2}
+	settings = {'brightness':0, 'bpm':1, 'mode':2, 'effect_intensity':3}
 	if setting not in settings.keys():
 		raise ValueError('Setting %s is not valid' % setting)
 	
@@ -144,7 +154,6 @@ def write_to_file(file_path, setting, value):
 	
 	# Change one setting
 	line_number = settings[setting]
-	value = round(value, 2)
 	lines[line_number] = f'{setting},{value}\n'
 	
 	# Write modified settings

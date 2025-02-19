@@ -37,4 +37,7 @@ def get_result(cs, clk, dio, channel = 0):
 	# Deactivate ADC
 	GPIO.output(cs, 1)
 	
+	# Normalize value
+	value = round(value / 255, 2)
+	
 	return value
