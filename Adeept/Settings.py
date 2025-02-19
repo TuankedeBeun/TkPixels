@@ -8,7 +8,7 @@ CS_PIN = None
 CLK_PIN = None
 DIO_PIN = None
 
-NUMBER_OF_SETTINGS = 4
+NUMBER_OF_SETTINGS = 5
 SETTING = -1
 TIME_LAST_PRESS = 0
 BPM_MEASUREMENTS = []
@@ -47,11 +47,15 @@ def shift_setting(ev=None):
 			
 		case 2:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
-			print('Configure brightness. Use the slider and select the brightness by pressing th red button.')
+			print('Configure brightness. Use the slider and select the brightness by pressing the red button.')
 			
 		case 3:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
-			print('Configure effect intensity. Use the slider and select the instensity by pressing th red button.')
+			print('Configure effect intensity. Use the slider and select the instensity by pressing th ered button.')
+			
+		case 4:
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
+			print('Configure number of colors. Use the slider and select the number by pressing the red button.')
 
 def activate_buttons(settings_pin, measurement_pin):
 	global MEASUREMENT_PIN
@@ -91,6 +95,12 @@ def get_setting():
 			setting = 'effect_intensity'
 			if (check_time(0)):
 				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
+			
+		case 4:
+			setting = 'number_of_colors'
+			if (check_time(0)):
+				raw = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
+				value = int(raw * 5) + 1
 	
 	if value != -1:
 		TIME_LAST_PRESS = 0
@@ -140,7 +150,7 @@ def write_to_file(file_path, setting, value):
 	### Write a specific setting to the settings file
 	
 	# validate setting name
-	settings = {'bpm':0, 'mode':1, 'brightness':2, 'effect_intensity':3}
+	settings = {'bpm':0, 'mode':1, 'brightness':2, 'effect_intensity':3, 'number_of_colors':4}
 	if setting not in settings.keys():
 		raise ValueError('Setting %s is not valid' % setting)
 	
