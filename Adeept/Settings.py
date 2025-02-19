@@ -8,8 +8,8 @@ CS_PIN = None
 CLK_PIN = None
 DIO_PIN = None
 
-NUMBER_OF_SETTINGS = 5
-SETTING = -1
+SETTINGS = ['bpm', 'mode', 'brightness', 'effect_intensity', 'number_of_colors']
+SETTING_NR = -1
 TIME_LAST_PRESS = 0
 BPM_MEASUREMENTS = []
 MODE = 0
@@ -31,12 +31,12 @@ def setup_pins(setting, measurement, cs, clk, dio):
 	DIO_PIN = dio
 	
 def shift_setting(ev=None):
-	global SETTING
+	global SETTING_NR
 	
-	SETTING = (SETTING + 1) % NUMBER_OF_SETTINGS
+	SETTING_NR = (SETTING_NR + 1) % len(SETTINGS)
 	
 	GPIO.remove_event_detect(MEASUREMENT_PIN)
-	match SETTING:
+	match SETTING_NR:
 		case 0:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=150)
 			print('Configure BPM. Use the red button to tap the tempo.')
@@ -70,34 +70,29 @@ def check_time(wait_time_seconds):
 	else:
 		return (now - TIME_LAST_PRESS > wait_time_seconds)
 
-def get_setting():
+def get_setting_value():
 	global TIME_LAST_PRESS
 	
 	value = -1
 	
-	match SETTING:
+	match SETTING_NR:
 		case 0:
-			setting = 'bpm'
 			if (check_time(2)):
 				value = compute_bpm()
 			
 		case 1:
-			setting = 'mode'
 			if (check_time(2)):
 				value = MODE
 			
 		case 2:
-			setting = 'brightness'
 			if (check_time(0)):
 				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 			
 		case 3:
-			setting = 'effect_intensity'
 			if (check_time(0)):
 				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 			
 		case 4:
-			setting = 'number_of_colors'
 			if (check_time(0)):
 				raw = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 				value = int(raw * 5) + 1
@@ -105,7 +100,7 @@ def get_setting():
 	if value != -1:
 		TIME_LAST_PRESS = 0
 	
-	return setting, value
+	return value
 
 def bpm_measurement(ev=None):
 	global BPM_MEASUREMENTS, TIME_LAST_PRESS
@@ -146,13 +141,12 @@ def slider_select(ev=None):
 	global TIME_LAST_PRESS
 	TIME_LAST_PRESS = time.time()
 	
-def write_to_file(file_path, setting, value):
+def write_to_file(file_path, value):
 	### Write a specific setting to the settings file
 	
 	# validate setting name
-	settings = {'bpm':0, 'mode':1, 'brightness':2, 'effect_intensity':3, 'number_of_colors':4}
-	if setting not in settings.keys():
-		raise ValueError('Setting %s is not valid' % setting)
+	if SETTING_NR > len(SETTINGS):
+		raise ValueError('Setting number %d is not valid' % SETTING_NR)
 	
 	# Read current settings
 	lines = []
@@ -163,9 +157,12 @@ def write_to_file(file_path, setting, value):
 		pass
 	
 	# Change one setting
-	line_number = settings[setting]
-	lines[line_number] = f'{setting},{value}\n'
+	line_number = SETTING_NR
+	setting_name = SETTINGS[SETTING_NR]
+	lines[line_number] = f'{setting_name},{value}\n'
 	
 	# Write modified settings
 	with open(file_path, 'w') as file:
 		file.writelines(lines)
+	
+	print(f'Saved setting {setting_name} = {value}\n')

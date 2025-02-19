@@ -22,11 +22,10 @@ if __name__ == '__main__':
 		Settings.activate_buttons(BUTTON_PIN_WHITE, BUTTON_PIN_RED)
 		
 		while True:
-			setting, value = Settings.get_setting()
+			value = Settings.get_setting_value()
 			
 			if value != -1:
-				Settings.write_to_file(DATA_PATH, setting, value)
-				print(f'Saved setting {setting} = {value}\n')
+				Settings.write_to_file(DATA_PATH, value)
 	
 	except KeyboardInterrupt:
 		GPIO.cleanup()
