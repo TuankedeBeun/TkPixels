@@ -39,16 +39,6 @@ def check_time(wait_time_seconds=2):
 	else:
 		return (now - TIME_LAST_PRESS > wait_time_seconds)
 
-def bpm_measurement(ev=None):
-	global BPM_MEASUREMENTS, TIME_LAST_PRESS
-	now = time.time()
-	
-	if len(BPM_MEASUREMENTS) == 0:
-		print('starting measurement...')
-	
-	BPM_MEASUREMENTS.append(now)
-	TIME_LAST_PRESS = time.time()
-
 def get_setting():
 	global TIME_LAST_PRESS
 	match SETTING:
@@ -62,7 +52,16 @@ def get_setting():
 	TIME_LAST_PRESS = 0
 	
 	return setting, value
+
+def bpm_measurement(ev=None):
+	global BPM_MEASUREMENTS, TIME_LAST_PRESS
+	now = time.time()
 	
+	if len(BPM_MEASUREMENTS) == 0:
+		print('starting measurement...')
+	
+	BPM_MEASUREMENTS.append(now)
+	TIME_LAST_PRESS = time.time()
 
 def compute_bpm():
 	global BPM_MEASUREMENTS
@@ -86,5 +85,5 @@ def compute_bpm():
 
 def mode_select(ev=None):
 	global MODE, TIME_LAST_PRESS
-	MODE = (MODE + 1) % 10
+	MODE = MODE + 1) % 10
 	TIME_LAST_PRESS = time.time()
