@@ -3,8 +3,7 @@ from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 from TkPixels.PixelStripSequence import Strip
 
-BPM = 140
-BRIGHTNESS = 128
+BRIGHTNESS = 128 # TODO: settable using settings.csv
 
 LED_1_PIN = 18
 LED_1_DMA = 10
@@ -19,7 +18,7 @@ strip_right = Strip(LED_1_PIN, LED_1_DMA, LED_1_CHANNEL, BRIGHTNESS)
 strip_left = Strip(LED_2_PIN, LED_2_DMA, LED_2_CHANNEL, BRIGHTNESS)
 
 board = Board(strip_right, strip_left)
-controller = Controller(board, BPM)
+controller = Controller(board)
 
 try:
 	controller.play()

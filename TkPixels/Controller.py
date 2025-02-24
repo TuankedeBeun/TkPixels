@@ -1,43 +1,64 @@
 from time import sleep, time
 from random import random, randint
 import numpy as np
+import csv
 from TkPixels.Effects import *
 
+DATA_PATH = './data/settings.csv'
+
 class Controller():
-    def __init__(self, board, bpm, initial_effect_set = None):
+    def __init__(self, board):
         self.board = board
-        self.bpm = bpm
-        self.time_per_beat = 60 / self.bpm
+        
+        # set state, bpm, effect_set_nr, brightness, effect_intensity, num_colors
+        # It also sets time_per_beat, beat_increment
+        self.load_settings()
+        
+        # determine time properties
         self.time = 0
         self.phrase = 0
         self.bar = 0
         self.beat = 0
         self.beat_increments = 0
-
-        if bpm < 125:
+        
+        # color settings
+        self.colors = [0, 0, 0]
+        self.choose_colors()
+        
+        # effect settings
+        self.max_effects = 0
+        self.chance_effect_per_beat = 0.0
+        self.num_effects = 0
+        self.effects = []
+        
+        self.set_effect_set(self.effect_set_nr)
+    
+    def load_settings(self):
+        
+        with open(DATA_PATH, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            settings = dict(reader)
+        
+        self.state = int(settings['state'])
+        self.bpm = float(settings['bpm'])
+        self.effect_set_nr = int(settings['mode'])
+        self.brightness = float(settings['brightness'])
+        self.effect_intensity = float(settings['effect_intensity'])
+        self.num_colors = int(settings['number_of_colors'])
+        
+        # Adjust BPM settings
+        self.time_per_beat = 60 / self.bpm
+        if self.bpm < 125:
             self.beat_increment = 0.0625
         else:
             self.beat_increment = 0.125
         
-        self.num_colors = 3
-        self.max_effects = 0
-        self.chance_effect_per_beat = 0.0
-        
-        self.colors = [0, 0, 0]
-        self.choose_colors()
-
-        self.num_effects = 0
-        self.effects = []
-
-        if initial_effect_set is None:
-            initial_effect_set = self.random_effect_set()
-
-        self.set_effect_set(initial_effect_set)
+        print(settings)
 
     def play(self):
         self.time = time()
 
-        while True:
+        while True: #TODO: implement stopping using self.state
             effect_values = np.zeros((self.num_effects, self.board.num_pixels, 3))
 
             # Get individual effects
@@ -76,14 +97,12 @@ class Controller():
 
             if self.beat % 4 == 0:
                 self.bar += 1
+                self.load_settings()
+                self.set_effect_set(self.effect_set_nr)
                 
-                if self.bar % 16 == 0:
+                if self.bar % 32 == 0:
                     self.phrase += 1
                     self.choose_colors()
-
-                if self.bar % 32 == 0:
-                    new_effect_set_nr = self.random_effect_set()
-                    self.set_effect_set(new_effect_set_nr)
 
         for effect in self.effects:
             effect.increment()
@@ -95,7 +114,6 @@ class Controller():
         self.time = time()
 
     def choose_colors(self):
-        self.num_colors = randint(2, 4)
         self.colors = [random() for i in range(self.num_colors)]
 
     def expire_effects(self):
@@ -124,7 +142,7 @@ class Controller():
         print('effect set', effect_set_nr)
         return effect_set_nr
 
-    def set_effect_set(self, effect_set_nr):
+    def set_effect_set(self, effect_set_nr): #TODO: effect set to separate class
         match effect_set_nr:
 
             case -1:

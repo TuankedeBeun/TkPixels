@@ -8,10 +8,11 @@ CS_PIN = None
 CLK_PIN = None
 DIO_PIN = None
 
-SETTINGS = ['bpm', 'mode', 'brightness', 'effect_intensity', 'number_of_colors']
+SETTINGS = ['state', 'bpm', 'mode', 'brightness', 'effect_intensity', 'number_of_colors']
 SETTING_NR = -1
 TIME_LAST_PRESS = 0
 BPM_MEASUREMENTS = []
+STATE = 0
 MODE = 0
 
 def setup_pins(setting, measurement, cs, clk, dio):
@@ -38,22 +39,26 @@ def shift_setting(ev=None):
 	GPIO.remove_event_detect(MEASUREMENT_PIN)
 	match SETTING_NR:
 		case 0:
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=toggle_state, bouncetime=150)
+			print('Toggle state. Press the red button.')
+			
+		case 1:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=150)
 			print('Configure BPM. Use the red button to tap the tempo.')
 			
-		case 1:
+		case 2:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=mode_select, bouncetime=150)
 			print('Select mode. Use the red button to shift through modes')
 			
-		case 2:
+		case 3:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
 			print('Configure brightness. Use the slider and select the brightness by pressing the red button.')
 			
-		case 3:
+		case 4:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
 			print('Configure effect intensity. Use the slider and select the instensity by pressing th ered button.')
 			
-		case 4:
+		case 5:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
 			print('Configure number of colors. Use the slider and select the number by pressing the red button.')
 
@@ -78,21 +83,25 @@ def get_setting_value():
 	match SETTING_NR:
 		case 0:
 			if (check_time(2)):
-				value = compute_bpm()
-			
+				value = STATE
+		
 		case 1:
 			if (check_time(2)):
-				value = MODE
-			
+				value = compute_bpm()
+		
 		case 2:
-			if (check_time(0)):
-				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
-			
+			if (check_time(2)):
+				value = MODE
+		
 		case 3:
 			if (check_time(0)):
 				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
-			
+		
 		case 4:
+			if (check_time(0)):
+				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
+		
+		case 5:
 			if (check_time(0)):
 				raw = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 				value = int(raw * 5) + 1
@@ -131,6 +140,11 @@ def compute_bpm():
 	
 	BPM_MEASUREMENTS = []
 	return bpm
+
+def toggle_state(ev=None):
+	global STATE, TIME_LAST_PRESS
+	STATE = int(not STATE)
+	TIME_LAST_PRESS = time.time()
 
 def mode_select(ev=None):
 	global MODE, TIME_LAST_PRESS
