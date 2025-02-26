@@ -43,35 +43,35 @@ def shift_setting(ev=None):
 	match SETTING_NR:
 		case 0:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=toggle_state, bouncetime=150)
-			print('Toggle state. Press the red button.')
+			print('\nToggle state. Press the red button.')
 			
 		case 1:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=150)
-			print('Configure BPM. Use the red button to tap the tempo.')
+			print('\nConfigure BPM. Use the red button to tap the tempo.')
 			
 		case 2:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=mode_select, bouncetime=150)
-			print('Select mode. Use the red button to shift through modes')
+			print('\nSelect mode. Use the red button to shift through modes')
 			
 		case 3:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
-			print('Configure brightness. Use the slider and select the brightness by pressing the red button.')
+			print('\nConfigure brightness. Use the slider and select the brightness by pressing the red button.')
 			
 		case 4:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
-			print('Configure effect intensity. Use the slider and select the instensity by pressing the red button.')
+			print('\nConfigure effect intensity. Use the slider and select the instensity by pressing the red button.')
 			
 		case 5:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
-			print('Configure number of colors. Use the slider and select the number by pressing the red button.')
+			print('\nConfigure number of colors. Use the slider and select the number by pressing the red button.')
 			
 	# read current setting from file
 	with open(DATA_PATH, 'r') as file:
 		lines = file.readlines()
-		line = lines[SETTING_NR]
+		line = lines[SETTING_NR].strip()
 		splitted = line.split(',')
 		print(f'Current setting: {splitted[0]} = {splitted[1]}')
-		SETTING_VALUE = splitted[1]
+		SETTING_VALUE = float(splitted[1])
 
 def activate_buttons(settings_pin, measurement_pin):
 	global MEASUREMENT_PIN
@@ -92,8 +92,6 @@ def get_setting_value():
 	match SETTING_NR:
 		case 0:
 			setting_change = check_time(0)
-			if setting_change:
-				SETTING_VALUE = SETTING_VALUE
 		
 		case 1:
 			setting_change = check_time(2)
@@ -102,8 +100,6 @@ def get_setting_value():
 		
 		case 2:
 			setting_change = check_time(2)
-			if setting_change:
-				SETTING_VALUE = SETTING_VALUE
 		
 		case 3:
 			setting_change = check_time(0)
@@ -164,7 +160,7 @@ def toggle_state(ev=None):
 
 def mode_select(ev=None):
 	global SETTING_VALUE, TIME_LAST_PRESS
-	SETTING_VALUE = (SETTING_VALUE + 1) % 10
+	SETTING_VALUE = int((SETTING_VALUE + 1) % 7)
 	TIME_LAST_PRESS = time.time()
 	
 def slider_select(ev=None):
@@ -195,4 +191,4 @@ def write_to_file(value, setting_nr=None):
 	with open(DATA_PATH, 'w') as file:
 		file.writelines(lines)
 	
-	print(f'Saved setting: {setting_name} = {value}\n')
+	print(f'Saved setting: {setting_name} = {value}')
