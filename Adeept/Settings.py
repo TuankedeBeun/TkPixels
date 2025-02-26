@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import Adeept.ADC0832 as adc
+import os
 import time
 
 SETTING_PIN = None
@@ -8,12 +9,14 @@ CS_PIN = None
 CLK_PIN = None
 DIO_PIN = None
 
+DATA_PATH = './data/settings.csv'
+os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+
 SETTINGS = ['state', 'bpm', 'mode', 'brightness', 'effect_intensity', 'number_of_colors']
 SETTING_NR = -1
+SETTING_VALUE = 0
 TIME_LAST_PRESS = 0
 BPM_MEASUREMENTS = []
-STATE = 0
-MODE = 0
 
 def setup_pins(setting, measurement, cs, clk, dio):
 	global SETTING_PIN, MEASUREMENT_PIN, CS_PIN, CLK_PIN, DIO_PIN
@@ -32,7 +35,7 @@ def setup_pins(setting, measurement, cs, clk, dio):
 	DIO_PIN = dio
 	
 def shift_setting(ev=None):
-	global SETTING_NR
+	global SETTING_NR, SETTING_VALUE
 	
 	SETTING_NR = (SETTING_NR + 1) % len(SETTINGS)
 	
@@ -56,11 +59,19 @@ def shift_setting(ev=None):
 			
 		case 4:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
-			print('Configure effect intensity. Use the slider and select the instensity by pressing th ered button.')
+			print('Configure effect intensity. Use the slider and select the instensity by pressing the red button.')
 			
 		case 5:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
 			print('Configure number of colors. Use the slider and select the number by pressing the red button.')
+			
+	# read current setting from file
+	with open(DATA_PATH, 'r') as file:
+		lines = file.readlines()
+		line = lines[SETTING_NR]
+		splitted = line.split(',')
+		print(f'Current setting: {splitted[0]} = {splitted[1]}')
+		SETTING_VALUE = splitted[1]
 
 def activate_buttons(settings_pin, measurement_pin):
 	global MEASUREMENT_PIN
@@ -76,40 +87,45 @@ def check_time(wait_time_seconds):
 		return (now - TIME_LAST_PRESS > wait_time_seconds)
 
 def get_setting_value():
-	global TIME_LAST_PRESS
-	
-	value = -1
+	global TIME_LAST_PRESS, SETTING_VALUE
 	
 	match SETTING_NR:
 		case 0:
-			if (check_time(0)):
-				value = STATE
+			setting_change = check_time(0)
+			if setting_change:
+				SETTING_VALUE = SETTING_VALUE
 		
 		case 1:
-			if (check_time(2)):
-				value = compute_bpm()
+			setting_change = check_time(2)
+			if setting_change:
+				SETTING_VALUE = compute_bpm()
 		
 		case 2:
-			if (check_time(2)):
-				value = MODE
+			setting_change = check_time(2)
+			if setting_change:
+				SETTING_VALUE = SETTING_VALUE
 		
 		case 3:
-			if (check_time(0)):
-				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
+			setting_change = check_time(0)
+			if setting_change:
+				SETTING_VALUE = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 		
 		case 4:
-			if (check_time(0)):
-				value = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
+			setting_change = check_time(0)
+			if setting_change:
+				SETTING_VALUE = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
 		
 		case 5:
-			if (check_time(0)):
+			setting_change = check_time(0)
+			if setting_change:
 				raw = adc.get_result(CS_PIN, CLK_PIN, DIO_PIN)
-				value = int(raw * 5) + 1
+				SETTING_VALUE = int(raw * 5) + 1
 	
-	if value != -1:
+	if setting_change:
 		TIME_LAST_PRESS = 0
-	
-	return value
+		return SETTING_VALUE
+	else:
+		return -1
 
 def bpm_measurement(ev=None):
 	global BPM_MEASUREMENTS, TIME_LAST_PRESS
@@ -142,21 +158,24 @@ def compute_bpm():
 	return bpm
 
 def toggle_state(ev=None):
-	global STATE, TIME_LAST_PRESS
-	STATE = int(not STATE)
+	global SETTING_VALUE, TIME_LAST_PRESS
+	SETTING_VALUE = int(not SETTING_VALUE)
 	TIME_LAST_PRESS = time.time()
 
 def mode_select(ev=None):
-	global MODE, TIME_LAST_PRESS
-	MODE = (MODE + 1) % 10
+	global SETTING_VALUE, TIME_LAST_PRESS
+	SETTING_VALUE = (SETTING_VALUE + 1) % 10
 	TIME_LAST_PRESS = time.time()
 	
 def slider_select(ev=None):
 	global TIME_LAST_PRESS
 	TIME_LAST_PRESS = time.time()
-	
-def write_to_file(file_path, value, setting_nr=SETTING_NR):
+
+def write_to_file(value, setting_nr=None):
 	### Write a specific setting to the settings file
+	
+	if setting_nr == None:
+		setting_nr = SETTING_NR
 	
 	# validate setting name
 	if setting_nr > len(SETTINGS):
@@ -164,11 +183,8 @@ def write_to_file(file_path, value, setting_nr=SETTING_NR):
 	
 	# Read current settings
 	lines = []
-	try:
-		with open(file_path, 'r') as file:
-			lines = file.readlines()
-	except FileNotFoundError:
-		pass
+	with open(DATA_PATH, 'r') as file:
+		lines = file.readlines()
 	
 	# Change one setting
 	line_number = setting_nr
@@ -176,7 +192,7 @@ def write_to_file(file_path, value, setting_nr=SETTING_NR):
 	lines[line_number] = f'{setting_name},{value}\n'
 	
 	# Write modified settings
-	with open(file_path, 'w') as file:
+	with open(DATA_PATH, 'w') as file:
 		file.writelines(lines)
 	
 	print(f'Saved setting: {setting_name} = {value}\n')

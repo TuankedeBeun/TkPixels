@@ -2,10 +2,6 @@ import RPi.GPIO as GPIO
 import Adeept.ADC0832 as adc
 from Adeept import Settings
 import time
-import os
-
-DATA_PATH = './data/settings.csv'
-os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
 
 # GPIO pins
 BUTTON_PIN_RED = 5
@@ -25,10 +21,10 @@ if __name__ == '__main__':
 			value = Settings.get_setting_value()
 			
 			if value != -1:
-				Settings.write_to_file(DATA_PATH, value)
+				Settings.write_to_file(value)
 	
 	except KeyboardInterrupt:
 		print('')
-		Settings.write_to_file(DATA_PATH, 0, setting_nr=0) # always turn off state
+		Settings.write_to_file(0, setting_nr=0) # always turn off state
 		GPIO.cleanup()
 		print('pins are free')
