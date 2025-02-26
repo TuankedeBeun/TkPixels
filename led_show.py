@@ -3,7 +3,7 @@ from TkPixels.Board import Board
 from TkPixels.Controller import Controller
 from TkPixels.PixelStripSequence import Strip
 
-BRIGHTNESS = 128 # TODO: settable using settings.csv
+BRIGHTNESS = 0 # will be adjusted according to settings file
 
 LED_1_PIN = 18
 LED_1_DMA = 10

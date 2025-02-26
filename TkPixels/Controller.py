@@ -46,7 +46,7 @@ class Controller():
         self.effect_intensity = float(settings['effect_intensity'])
         self.num_colors = int(settings['number_of_colors'])
         
-        # Adjust BPM settings
+        # adjust BPM settings
         self.time_per_beat = 60 / self.bpm
         if self.bpm < 125:
             self.beat_increment = 0.0625
@@ -61,7 +61,7 @@ class Controller():
         while True:
             effect_values = np.zeros((self.num_effects, self.board.num_pixels, 3))
 
-            # Get individual effects
+            # get individual effects
             for i, effect in enumerate(self.effects):
                 effect_value = effect.get_rgb()
                 effect_values[i,:,:] = effect_value
@@ -99,6 +99,7 @@ class Controller():
             if self.beat % 4 == 0:
                 self.bar += 1
                 self.load_settings()
+                self.board.set_brightness(self.brightness)
                 self.set_effect_set(self.effect_set_nr)
                 
                 if self.bar % 32 == 0:
