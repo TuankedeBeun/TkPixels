@@ -43,7 +43,7 @@ class Controller():
         self.bpm = float(settings['bpm'])
         self.effect_set_nr = int(settings['mode'])
         self.brightness = float(settings['brightness'])
-        self.effect_intensity = float(settings['effect_intensity'])
+        effect_intensity = float(settings['effect_intensity'])
         self.num_colors = int(settings['number_of_colors'])
         
         # adjust BPM settings
@@ -52,6 +52,9 @@ class Controller():
             self.beat_increment = 0.0625
         else:
             self.beat_increment = 0.125
+            
+        # adjust effect instensity
+        self.chance_effect_per_beat = 0.3 + (0.6 * effect_intensity) # range 0.3 - 0.9
         
         print(settings)
 
@@ -152,7 +155,6 @@ class Controller():
                 self.possible_effects = (SweepUp, SweepUp)
                 effect_weights = (10, 10)
                 self.max_effects = 1
-                self.chance_effect_per_beat = 0
 
             case 0:
                 # low effects
@@ -163,7 +165,6 @@ class Controller():
                     10, 15, 15
                 )
                 self.max_effects = 3
-                self.chance_effect_per_beat = 0.25
 
             case 1:
                 # soft effects
@@ -181,8 +182,7 @@ class Controller():
                     20, 20,
                     15
                 )
-                self.max_effects = 6
-                self.chance_effect_per_beat = 0.7
+                self.max_effects = 8
 
             case 2:
                 # flashy effects
@@ -204,8 +204,7 @@ class Controller():
                     10, 10, 10, 10,
                     6
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = 0.6
+                self.max_effects = 6
 
             case 3: 
                 # radial effects
@@ -219,8 +218,7 @@ class Controller():
                     10, 10,
                     6, 6
                 )
-                self.max_effects = 6
-                self.chance_effect_per_beat = 0.8
+                self.max_effects = 8
 
             case 4: 
                 # downward effects
@@ -236,8 +234,7 @@ class Controller():
                     20,
                     25
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = .8
+                self.max_effects = 8
 
             case 5: 
                 # trippy effects
@@ -257,8 +254,7 @@ class Controller():
                     20,
                     6
                 )
-                self.max_effects = 10
-                self.chance_effect_per_beat = 0.9
+                self.max_effects = 12
 
             case 6:
                 # all effects
@@ -286,8 +282,7 @@ class Controller():
                     15,
                     10
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = 0.7
+                self.max_effects = 8
 
         effect_weights = np.array(effect_weights)
         self.effect_weights = effect_weights / effect_weights.sum() # normalize probabilities
