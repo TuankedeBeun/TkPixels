@@ -82,7 +82,7 @@ def get_setting_value():
 	
 	match SETTING_NR:
 		case 0:
-			if (check_time(2)):
+			if (check_time(0)):
 				value = STATE
 		
 		case 1:
@@ -155,12 +155,12 @@ def slider_select(ev=None):
 	global TIME_LAST_PRESS
 	TIME_LAST_PRESS = time.time()
 	
-def write_to_file(file_path, value):
+def write_to_file(file_path, value, setting_nr=SETTING_NR):
 	### Write a specific setting to the settings file
 	
 	# validate setting name
-	if SETTING_NR > len(SETTINGS):
-		raise ValueError('Setting number %d is not valid' % SETTING_NR)
+	if setting_nr > len(SETTINGS):
+		raise ValueError('Setting number %d is not valid' % setting_nr)
 	
 	# Read current settings
 	lines = []
@@ -171,12 +171,12 @@ def write_to_file(file_path, value):
 		pass
 	
 	# Change one setting
-	line_number = SETTING_NR
-	setting_name = SETTINGS[SETTING_NR]
+	line_number = setting_nr
+	setting_name = SETTINGS[setting_nr]
 	lines[line_number] = f'{setting_name},{value}\n'
 	
 	# Write modified settings
 	with open(file_path, 'w') as file:
 		file.writelines(lines)
 	
-	print(f'Saved setting {setting_name} = {value}\n')
+	print(f'Saved setting: {setting_name} = {value}\n')

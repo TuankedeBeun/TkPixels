@@ -58,7 +58,7 @@ class Controller():
     def play(self):
         self.time = time()
 
-        while True: #TODO: implement stopping using self.state
+        while True:
             effect_values = np.zeros((self.num_effects, self.board.num_pixels, 3))
 
             # Get individual effects
@@ -80,7 +80,8 @@ class Controller():
             self.expire_effects()
 
             # chance to add new effect
-            self.add_effect()
+            if self.state:
+                self.add_effect()
 
     def draw_strips(self, vectors):
         for (strip, led), v in zip(self.board.pixeldata['indices'], vectors):

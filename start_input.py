@@ -28,5 +28,7 @@ if __name__ == '__main__':
 				Settings.write_to_file(DATA_PATH, value)
 	
 	except KeyboardInterrupt:
+		print('')
+		Settings.write_to_file(DATA_PATH, 0, setting_nr=0) # always turn off state
 		GPIO.cleanup()
-		print('\npins are free')
+		print('pins are free')
