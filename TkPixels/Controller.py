@@ -1,38 +1,62 @@
 from time import sleep, time
 from random import random, randint
 import numpy as np
+import csv
 from TkPixels.Effects import *
 
+DATA_PATH = './data/settings.csv'
+
 class Controller():
-    def __init__(self, board, bpm, initial_effect_set = None):
+    def __init__(self, board):
         self.board = board
-        self.bpm = bpm
-        self.time_per_beat = 60 / self.bpm
+        
+        # set state, bpm, effect_set_nr, brightness, effect_intensity, num_colors
+        # It also sets time_per_beat, beat_increment
+        self.load_settings()
+        
+        # determine time properties
         self.time = 0
         self.phrase = 0
         self.bar = 0
         self.beat = 0
         self.beat_increments = 0
-
-        if bpm < 125:
+        
+        # color settings
+        self.colors = [0, 0, 0]
+        self.choose_colors()
+        
+        # effect settings
+        self.max_effects = 0
+        self.chance_effect_per_beat = 0.0
+        self.num_effects = 0
+        self.effects = []
+        
+        self.set_effect_set(self.effect_set_nr)
+    
+    def load_settings(self):
+        
+        with open(DATA_PATH, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            settings = dict(reader)
+        
+        self.state = int(settings['state'])
+        self.bpm = float(settings['bpm'])
+        self.effect_set_nr = int(settings['mode'])
+        self.brightness = float(settings['brightness'])
+        effect_intensity = float(settings['effect_intensity'])
+        self.num_colors = int(settings['number_of_colors'])
+        
+        # adjust BPM settings
+        self.time_per_beat = 60 / self.bpm
+        if self.bpm < 125:
             self.beat_increment = 0.0625
         else:
             self.beat_increment = 0.125
+            
+        # adjust effect instensity
+        self.chance_effect_per_beat = 0.3 + (0.6 * effect_intensity) # range 0.3 - 0.9
         
-        self.num_colors = 3
-        self.max_effects = 0
-        self.chance_effect_per_beat = 0.0
-        
-        self.colors = [0, 0, 0]
-        self.choose_colors()
-
-        self.num_effects = 0
-        self.effects = []
-
-        if initial_effect_set is None:
-            initial_effect_set = self.random_effect_set()
-
-        self.set_effect_set(initial_effect_set)
+        print(settings)
 
     def play(self):
         self.time = time()
@@ -40,7 +64,7 @@ class Controller():
         while True:
             effect_values = np.zeros((self.num_effects, self.board.num_pixels, 3))
 
-            # Get individual effects
+            # get individual effects
             for i, effect in enumerate(self.effects):
                 effect_value = effect.get_rgb()
                 effect_values[i,:,:] = effect_value
@@ -59,7 +83,8 @@ class Controller():
             self.expire_effects()
 
             # chance to add new effect
-            self.add_effect()
+            if self.state:
+                self.add_effect()
 
     def draw_strips(self, vectors):
         for (strip, led), v in zip(self.board.pixeldata['indices'], vectors):
@@ -76,14 +101,13 @@ class Controller():
 
             if self.beat % 4 == 0:
                 self.bar += 1
+                self.load_settings()
+                self.board.set_brightness(self.brightness)
+                self.set_effect_set(self.effect_set_nr)
                 
-                if self.bar % 16 == 0:
+                if self.bar % 32 == 0:
                     self.phrase += 1
                     self.choose_colors()
-
-                if self.bar % 32 == 0:
-                    new_effect_set_nr = self.random_effect_set()
-                    self.set_effect_set(new_effect_set_nr)
 
         for effect in self.effects:
             effect.increment()
@@ -95,7 +119,6 @@ class Controller():
         self.time = time()
 
     def choose_colors(self):
-        self.num_colors = randint(2, 4)
         self.colors = [random() for i in range(self.num_colors)]
 
     def expire_effects(self):
@@ -124,7 +147,7 @@ class Controller():
         print('effect set', effect_set_nr)
         return effect_set_nr
 
-    def set_effect_set(self, effect_set_nr):
+    def set_effect_set(self, effect_set_nr): #TODO: effect set to separate class
         match effect_set_nr:
 
             case -1:
@@ -132,7 +155,6 @@ class Controller():
                 self.possible_effects = (SweepUp, SweepUp)
                 effect_weights = (10, 10)
                 self.max_effects = 1
-                self.chance_effect_per_beat = 0
 
             case 0:
                 # low effects
@@ -143,7 +165,6 @@ class Controller():
                     10, 15, 15
                 )
                 self.max_effects = 3
-                self.chance_effect_per_beat = 0.25
 
             case 1:
                 # soft effects
@@ -161,8 +182,7 @@ class Controller():
                     20, 20,
                     15
                 )
-                self.max_effects = 6
-                self.chance_effect_per_beat = 0.7
+                self.max_effects = 8
 
             case 2:
                 # flashy effects
@@ -184,8 +204,7 @@ class Controller():
                     10, 10, 10, 10,
                     6
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = 0.6
+                self.max_effects = 6
 
             case 3: 
                 # radial effects
@@ -199,8 +218,7 @@ class Controller():
                     10, 10,
                     6, 6
                 )
-                self.max_effects = 6
-                self.chance_effect_per_beat = 0.8
+                self.max_effects = 8
 
             case 4: 
                 # downward effects
@@ -216,8 +234,7 @@ class Controller():
                     20,
                     25
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = .8
+                self.max_effects = 8
 
             case 5: 
                 # trippy effects
@@ -237,8 +254,7 @@ class Controller():
                     20,
                     6
                 )
-                self.max_effects = 10
-                self.chance_effect_per_beat = 0.9
+                self.max_effects = 12
 
             case 6:
                 # all effects
@@ -266,8 +282,7 @@ class Controller():
                     15,
                     10
                 )
-                self.max_effects = 5
-                self.chance_effect_per_beat = 0.7
+                self.max_effects = 8
 
         effect_weights = np.array(effect_weights)
         self.effect_weights = effect_weights / effect_weights.sum() # normalize probabilities

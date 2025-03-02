@@ -46,6 +46,11 @@ class Board():
             self.strips[0].show()
             sleep(0.007)
             self.strips[1].show()
+            
+    def set_brightness(self, value):
+        brightness = int(value * 128)
+        for strip in self.strips:
+            strip.set_brightness(brightness)
     
 def load_pixel_data(file_path):
     with open(file_path, 'r') as file:

@@ -40,3 +40,9 @@ class Strip(MutableSequence):
         self.check(v)
         for i in range(self.num_pixels):
             self.__setitem__(i, v)
+            
+    def set_brightness(self, value):
+        if value < 0 or value > 128:
+            raise ValueError("Brightness must be a value between 0 and 128")
+        
+        self._strip.setBrightness(value)
