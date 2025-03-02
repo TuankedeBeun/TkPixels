@@ -48,28 +48,38 @@ def latch_data(data_pin):
 		
 		GPIO.output(data_pin, data_state)
   
-def set_bar_state(bar_state, data_pin, clk_pin):
+def send_bar_data(bar_state, data_pin, clk_pin):
 	for i in range(0, 12):
 		if bar_state & 1:
 			send_16bit_data(LED_ON, data_pin, clk_pin)
 		else:
 			send_16bit_data(LED_OFF, data_pin, clk_pin)
 		bar_state >>= 1
+		
+def set_bar_state(bar_state, data_pin, clk_pin):
+	send_16bit_data(CMD_MODE, data_pin, clk_pin)
+	send_bar_data(bar_state, data_pin, clk_pin)
+	latch_data(data_pin)
+
+def set_single_led(led_nr, data_pin, clk_pin):
+	bar_state = 2**(led_nr - 1)
+	set_bar_state(bar_state, data_pin, clk_pin)
+
+def set_cumulative_led(led_nr, data_pin, clk_pin):
+	bar_state = 2**led_nr - 1
+	set_bar_state(bar_state, data_pin, clk_pin)
 
 def loop(data_pin, clk_pin):
 	while True:
 		led_state = 0x0000
 		while led_state <= 0x03ff:
-			send_16bit_data(CMD_MODE, data_pin, clk_pin)
-			set_bar_state(led_state, data_pin, clk_pin)
-			latch_data(data_pin)
+			#set_bar_state(led_state, data_pin, clk_pin)
+			set_cumulative_led(4, data_pin, clk_pin)
 			led_state = led_state*2+1
 			time.sleep(0.05)
 
 def blackout(data_pin, clk_pin):
-	send_16bit_data(CMD_MODE, data_pin, clk_pin)
-	set_bar_state(0x0000, data_pin, clk_pin)
-	latch_data(data_pin)
+	set_bar_state(0, data_pin, clk_pin)
 
 def destroy():
 	GPIO.cleanup()
