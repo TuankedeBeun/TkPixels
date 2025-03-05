@@ -54,7 +54,7 @@ class Controller():
             self.beat_increment = 0.125
             
         # adjust effect instensity
-        self.chance_effect_per_beat = 0.3 + (0.6 * effect_intensity) # range 0.3 - 0.9
+        self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
         
         print(settings)
 
@@ -129,13 +129,17 @@ class Controller():
                 self.num_effects -= 1
 
     def add_effect(self):
-        if self.beat_increments % 1 == 0 and self.num_effects < self.effect_set.max_effects:
-            if self.chance_effect_per_beat > random():
-                new_effect = self.effect_set.new_effect()
-                max_beats = randint(4, 16)
-                new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
-                self.effects.append(new_effect_instance)
-                self.num_effects += 1
+
+        if self.num_effects >= self.effect_set.max_effects:
+            return
+        
+        chance_per_increment = self.beat_increment * self.chance_effect_per_beat * self.effect_set.chance_multiplier
+        if chance_per_increment > random():
+            new_effect = self.effect_set.new_effect()
+            max_beats = randint(4, 16)
+            new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
+            self.effects.append(new_effect_instance)
+            self.num_effects += 1
 
     def random_effect_set(self):
         possible_sets = list(range(7))

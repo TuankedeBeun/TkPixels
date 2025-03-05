@@ -2,12 +2,13 @@ import numpy as np
 from TkPixels.Effects import *
 
 class EffectSet():
-    def __init__(self, effects, weights, max_effects):
+    def __init__(self, effects, weights, max_effects, chance_multiplier=1):
         if len(effects) != len(weights):
             raise ValueError("The number of effects is different from the number of weights.")
 
         self.effects = effects
         self.max_effects = max_effects
+        self.chance_multiplier = chance_multiplier
 
         # normalize probabilities
         weights = np.array(weights)
@@ -137,7 +138,8 @@ class BeatAndZip(EffectSet):
             (
                 10, 15, 15
             ),
-            5
+            5,
+            chance_multiplier = 2
         )
 
 class Snakes(EffectSet):
@@ -151,7 +153,8 @@ class Snakes(EffectSet):
                 5, 5, 5, 5,
                 8, 8
             ),
-            10
+            15,
+            chance_multiplier = 4
         )
 
 
