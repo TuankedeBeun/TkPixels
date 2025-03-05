@@ -7,7 +7,6 @@ class Strip(MutableSequence):
         self.list = [(0, 0, 0)]*num_pixels
         self.canvas = canvas
         self.offset = canvas_index_offset
-
         return
     
     def __getitem__(self, i):
@@ -23,6 +22,9 @@ class Strip(MutableSequence):
     
     def __len__(self): 
         return len(self.list)
+    
+    def set_brightness(self, brightness):
+        pass
     
     def check(self, v):
         if not isinstance(v, tuple):

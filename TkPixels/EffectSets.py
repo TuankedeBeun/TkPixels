@@ -1,0 +1,158 @@
+import numpy as np
+from TkPixels.Effects import *
+
+class EffectSet():
+    def __init__(self, effects, weights, max_effects):
+        if len(effects) != len(weights):
+            raise ValueError("The number of effects is different from the number of weights.")
+
+        self.effects = effects
+        self.max_effects = max_effects
+
+        # normalize probabilities
+        weights = np.array(weights)
+        self.effect_weights = weights / weights.sum() 
+
+    def new_effect(self):
+        return np.random.choice(self.effects, p = self.effect_weights)
+    
+class All(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                SphericalSweepOutward, SphericalSweepInward, 
+                SweepUp, SweepRight, SweepDown, SweepLeft, 
+                SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
+                ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
+                FlashFade, 
+                SectionBuzz, 
+                UnitBuzz,
+                SectionPairsSnakeUp, SectionPairsSnakeDown,
+                Shower,
+                Sparkles
+            ),
+            (
+                8, 8,
+                8, 8, 8, 8,
+                5, 5, 5, 5,
+                3, 3,
+                40,
+                20,
+                10,
+                30, 30,
+                15,
+                10
+            ),
+            8
+        )
+
+class Soft(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                FlashFade, 
+                SphericalSweepInward, SphericalSweepOutward, 
+                SweepRight, SweepUp, SweepDown, SweepLeft, 
+                SectionPairsSnakeUp, SectionPairsSnakeDown,
+                Shower
+            ),
+            (
+                10,
+                12, 12,
+                7, 7, 7, 7,
+                20, 20,
+                15
+            ),
+            8
+        )
+
+class Downward(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                SweepDown,
+                SnakeStripLeftDown, SnakeStripRightDown, 
+                SectionPairsSnakeDown,
+                Shower
+            ),
+            (
+                20,
+                8, 8,
+                20,
+                25
+            ),
+            8
+        )
+
+class Trippy(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                SphericalSweepOutward, SphericalSweepInward, 
+                SweepUp, SweepRight, SweepDown, SweepLeft, 
+                SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
+                SectionPairsSnakeUp, SectionPairsSnakeDown,
+                Shower,
+                AnticlockwiseRetractingSpiral
+            ),
+            (
+                10, 10,
+                8, 8, 8, 8,
+                10, 10, 10, 10,
+                25, 25,
+                20,
+                6
+            ),
+            12
+        )
+
+class Flashy(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                FlashFade,
+                ClockwiseRetractingSpiral, 
+                SectionBuzz, 
+                UnitBuzz, 
+                SectionPairsSnakeUp, SectionPairsSnakeDown, 
+                Sparkles
+            )
+            (
+                20,
+                5,
+                15,
+                15,
+                20, 20,
+                6
+            ),
+            6
+        )
+
+class BeatAndZip(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
+            ),
+            (
+                10, 15, 15
+            ),
+            5
+        )
+
+class Snakes(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightDown,
+                SectionPairsSnakeDown, SectionPairsSnakeUp
+            ),
+            (
+                5, 5, 5, 5,
+                8, 8
+            ),
+            10
+        )
+
+
+EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes)

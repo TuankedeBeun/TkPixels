@@ -2,7 +2,7 @@ from time import sleep, time
 from random import random, randint
 import numpy as np
 import csv
-from TkPixels.Effects import *
+from TkPixels.EffectSets import EffectSets
 
 DATA_PATH = './data/settings.csv'
 
@@ -31,7 +31,7 @@ class Controller():
         self.num_effects = 0
         self.effects = []
         
-        self.set_effect_set(self.effect_set_nr)
+        self.effect_set = self.set_effect_set(self.effect_set_nr)
     
     def load_settings(self):
         
@@ -103,7 +103,7 @@ class Controller():
                 self.bar += 1
                 self.load_settings()
                 self.board.set_brightness(self.brightness)
-                self.set_effect_set(self.effect_set_nr)
+                self.effect_set = self.set_effect_set(self.effect_set_nr)
                 
                 if self.bar % 32 == 0:
                     self.phrase += 1
@@ -129,9 +129,9 @@ class Controller():
                 self.num_effects -= 1
 
     def add_effect(self):
-        if self.beat_increments % 1 == 0 and self.num_effects < self.max_effects:
+        if self.beat_increments % 1 == 0 and self.num_effects < self.effect_set.max_effects:
             if self.chance_effect_per_beat > random():
-                new_effect = np.random.choice(self.possible_effects, p = self.effect_weights)
+                new_effect = self.effect_set.new_effect()
                 max_beats = randint(4, 16)
                 new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
                 self.effects.append(new_effect_instance)
@@ -147,142 +147,6 @@ class Controller():
         print('effect set', effect_set_nr)
         return effect_set_nr
 
-    def set_effect_set(self, effect_set_nr): #TODO: effect set to separate class
-        match effect_set_nr:
-
-            case -1:
-                # test set
-                self.possible_effects = (SweepUp, SweepUp)
-                effect_weights = (10, 10)
-                self.max_effects = 1
-
-            case 0:
-                # low effects
-                self.possible_effects = (
-                    FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
-                )
-                effect_weights = (
-                    10, 15, 15
-                )
-                self.max_effects = 3
-
-            case 1:
-                # soft effects
-                self.possible_effects = (
-                    FlashFade, 
-                    SphericalSweepInward, SphericalSweepOutward, 
-                    SweepRight, SweepUp, SweepDown, SweepLeft, 
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower
-                )
-                effect_weights = (
-                    10,
-                    12, 12,
-                    7, 7, 7, 7,
-                    20, 20,
-                    15
-                )
-                self.max_effects = 8
-
-            case 2:
-                # flashy effects
-                self.possible_effects = (
-                    FlashFade,
-                    ClockwiseRetractingSpiral, 
-                    SectionBuzz, 
-                    UnitBuzz, 
-                    SectionPairsSnakeUp, SectionPairsSnakeDown, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown,
-                    Sparkles
-                )
-                effect_weights = (
-                    20,
-                    5,
-                    15,
-                    15,
-                    20, 20,
-                    10, 10, 10, 10,
-                    6
-                )
-                self.max_effects = 6
-
-            case 3: 
-                # radial effects
-                self.possible_effects = (
-                    FlashFade, 
-                    SphericalSweepInward, SphericalSweepOutward, 
-                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral
-                )
-                effect_weights = (
-                    20,
-                    10, 10,
-                    6, 6
-                )
-                self.max_effects = 8
-
-            case 4: 
-                # downward effects
-                self.possible_effects = (
-                    SweepDown,
-                    SnakeStripLeftDown, SnakeStripRightDown, 
-                    SectionPairsSnakeDown,
-                    Shower
-                )
-                effect_weights = (
-                    20,
-                    8, 8,
-                    20,
-                    25
-                )
-                self.max_effects = 8
-
-            case 5: 
-                # trippy effects
-                self.possible_effects = (
-                    SphericalSweepOutward, SphericalSweepInward, 
-                    SweepUp, SweepRight, SweepDown, SweepLeft, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower,
-                    AnticlockwiseRetractingSpiral
-                )
-                effect_weights = (
-                    10, 10,
-                    8, 8, 8, 8,
-                    10, 10, 10, 10,
-                    25, 25,
-                    20,
-                    6
-                )
-                self.max_effects = 12
-
-            case 6:
-                # all effects
-                self.possible_effects = (
-                    SphericalSweepOutward, SphericalSweepInward, 
-                    SweepUp, SweepRight, SweepDown, SweepLeft, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
-                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
-                    FlashFade, 
-                    SectionBuzz, 
-                    UnitBuzz,
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower,
-                    Sparkles
-                )
-                effect_weights = (
-                    8, 8,
-                    8, 8, 8, 8,
-                    5, 5, 5, 5,
-                    3, 3,
-                    40,
-                    20,
-                    10,
-                    30, 30,
-                    15,
-                    10
-                )
-                self.max_effects = 8
-
-        effect_weights = np.array(effect_weights)
-        self.effect_weights = effect_weights / effect_weights.sum() # normalize probabilities
+    def set_effect_set(self, effect_set_nr):
+        effect_set = EffectSets[effect_set_nr]
+        return effect_set()
