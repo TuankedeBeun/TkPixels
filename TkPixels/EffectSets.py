@@ -117,7 +117,7 @@ class Flashy(EffectSet):
                 UnitBuzz, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown, 
                 Sparkles
-            )
+            ),
             (
                 20,
                 5,
@@ -157,5 +157,21 @@ class Snakes(EffectSet):
             chance_multiplier = 4
         )
 
+class UpUp(EffectSet):
+    def __init__(self):
+        super().__init__(
+            (
+                SnakeStripLeftUp, SnakeStripRightUp,
+                SectionPairsSnakeUp,
+                SweepUp
+            ),
+            (
+                12, 12,
+                20,
+                15
+            ),
+            10,
+            chance_multiplier = 4
+        )
 
-EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes)
+EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp)
