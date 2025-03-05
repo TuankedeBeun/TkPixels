@@ -8,10 +8,9 @@ CMD_MODE = 0x0000 # Work on 8-bit mode
 LED_ON = 0x00ff # 8-byte 1 data
 LED_OFF = 0x0000 # 8-byte 0 data
 
-BLINK_STATE = False
 TIME_LAST_CHANGED = 0
 SWIPE_STATE = 0
-TIME_STATE_CHANGED = 0
+BLINK_STATE = 0
 
 def setup_pins(data_pin, clk_pin):
 	global DATA_PIN, CLK_PIN
@@ -29,11 +28,6 @@ def reset_state():
 	BLINK_STATE = False
 	TIME_LAST_CHANGED = 0
 	SWIPE_STATE = 0
-	TIME_STATE_CHANGED = 0
-	
-def setting_changed():
-	global TIME_STATE_CHANGED
-	TIME_STATE_CHANGED = time.time()
 
 def send_16bit_data(data):
 	clk_state = GPIO.HIGH
@@ -83,33 +77,39 @@ def set_bar_state(bar_state):
 	send_bar_data(bar_state)
 	latch_data()
 
-def set_single_led(led_nr):
-	bar_state = 2**(led_nr - 1)
-	set_bar_state(bar_state)
-
-def set_cumulative_leds(led_nr):
-	bar_state = 2**led_nr - 1
-	set_bar_state(bar_state)
-
 # used for selecting kind of setting
-def blink_cumulative_leds(led_nr, frequency=2):
-	global TIME_LAST_CHANGED, BLINK_STATE
+def set_single_led(led):
+	bar_state = 2**(led - 1)
+	set_bar_state(bar_state)
+
+def set_cumulative_leds(leds):
+	bar_state = 2**leds - 1
+	set_bar_state(bar_state)
+
+# used for showing setting value
+def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
+	global BLINK_STATE
 	
-	wait_time = 1 / (2 * frequency)
-	now = time.time()
-	
-	if now - TIME_LAST_CHANGED < wait_time:
+	if not blinking:
+		set_cumulative_leds(leds)
 		return
 	
-	if BLINK_STATE == 0:
-		set_cumulative_leds(led_nr)
+	wait_time = 1 / blinking_freq
+	now = time.time()
+	
+	on = ((now % wait_time) / wait_time) < fraction_on
+	
+	if BLINK_STATE == on:
+		return
+	
+	if on:
+		set_cumulative_leds(leds)
+		BLINK_STATE = True
 	else:
 		blackout()
+		BLINK_STATE = False
 	
-	BLINK_STATE = not BLINK_STATE
-	TIME_LAST_CHANGED = now
-	
-# used when setting state to ON
+# used when setting state switches
 def swipe_full(frequency=10, reverse=False):
 	global TIME_LAST_CHANGED, SWIPE_STATE
 	
@@ -127,19 +127,24 @@ def swipe_full(frequency=10, reverse=False):
 	set_cumulative_leds(SWIPE_STATE)
 	TIME_LAST_CHANGED = now
 
-def determine_output(setting_nr, setting_value):
-	global TIME_STATE_CHANGED
-	
+def determine_output(setting_nr, setting_value, time_last_setting_press, time_last_measurement_press, time_last_setting_changed):
 	now = time.time()
 	
-	if now - TIME_STATE_CHANGED > 2:
-		blink_cumulative_leds(setting_nr + 1)
+	# choosing setting mode
+	if now - time_last_setting_press < 2:
+		set_single_led(setting_nr + 1)
 		return
+	
+	# determine setting is old
+	old_value = now - time_last_setting_changed > 2
 	
 	match setting_nr:
 		case 0:
-			reverse = not setting_value
-			swipe_full(reverse=reverse)
+			if old_value:
+				leds_stack(max(int(10 * setting_value), 1), blinking=True)
+			else:
+				reverse = not setting_value
+				swipe_full(reverse=reverse)
 		
 		case 1:
 			bpm_min = 60
@@ -147,20 +152,20 @@ def determine_output(setting_nr, setting_value):
 			bpm_diff = bpm_max - bpm_min
 			fraction = (setting_value - bpm_min) / bpm_diff
 			tens = int(round(10 * fraction, 0))
-			tens = max(0, min(10, tens)) # stay within bounds [0, 10]
-			set_cumulative_leds(tens)
+			tens = max(1, min(10, tens)) # stay within bounds [0, 10]
+			leds_stack(tens, blinking=old_value)
 		
 		case 2:
-			set_cumulative_leds(setting_value + 1)
+			leds_stack(int(setting_value + 1), blinking=old_value)
 		
 		case 3:
-			set_cumulative_leds(int(round(10 * setting_value, 0)))
+			leds_stack(int(round(10 * setting_value, 0)), blinking=old_value)
 		
 		case 4:
-			set_cumulative_leds(int(round(10 * setting_value, 0)))
+			leds_stack(int(round(10 * setting_value, 0)), blinking=old_value)
 		
 		case 5:
-			set_cumulative_leds(setting_value)
+			leds_stack(int(setting_value), blinking=old_value)
 	
 def blackout():
 	set_bar_state(0)

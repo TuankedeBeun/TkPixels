@@ -13,9 +13,11 @@ DATA_PATH = './data/settings.csv'
 os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
 
 SETTINGS = ['state', 'bpm', 'mode', 'brightness', 'effect_intensity', 'number_of_colors']
-SETTING_NR = -1
+SETTING_NR = 0
 SETTING_VALUE = 0
-TIME_LAST_PRESS = 0
+TIME_LAST_SETTING_PRESS = 0
+TIME_LAST_MEASUREMENT_PRESS = 0
+TIME_LAST_SETTING_CHANGED = 0
 BPM_MEASUREMENTS = []
 
 def setup_pins(setting, measurement, cs, clk, dio):
@@ -34,44 +36,47 @@ def setup_pins(setting, measurement, cs, clk, dio):
 	CLK_PIN = clk
 	DIO_PIN = dio
 	
-def shift_setting(ev=None):
-	global SETTING_NR, SETTING_VALUE
+def shift_setting(ev=None, setting_mode_duration=1.5):
+	global SETTING_NR, SETTING_VALUE, TIME_LAST_SETTING_PRESS
 	
-	SETTING_NR = (SETTING_NR + 1) % len(SETTINGS)
+	if time.time() - TIME_LAST_SETTING_PRESS < setting_mode_duration:
+		SETTING_NR = (SETTING_NR + 1) % len(SETTINGS)
 	
 	GPIO.remove_event_detect(MEASUREMENT_PIN)
 	match SETTING_NR:
 		case 0:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=toggle_state, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=toggle_state, bouncetime=175)
 			print('\nToggle state. Press the red button.')
 			
 		case 1:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=175)
 			print('\nConfigure BPM. Use the red button to tap the tempo.')
 			
 		case 2:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=mode_select, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=mode_select, bouncetime=175)
 			print('\nSelect mode. Use the red button to shift through modes')
 			
 		case 3:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=175)
 			print('\nConfigure brightness. Use the slider and select the brightness by pressing the red button.')
 			
 		case 4:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=175)
 			print('\nConfigure effect intensity. Use the slider and select the instensity by pressing the red button.')
 			
 		case 5:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=150)
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=175)
 			print('\nConfigure number of colors. Use the slider and select the number by pressing the red button.')
 			
 	# read current setting from file
-	with open(DATA_PATH, 'r') as file:
-		lines = file.readlines()
-		line = lines[SETTING_NR].strip()
-		splitted = line.split(',')
-		print(f'Current setting: {splitted[0]} = {splitted[1]}')
-		SETTING_VALUE = float(splitted[1])
+	with open(DATA_PATH, 'r') as settings_file:
+		lines = settings_file.readlines()
+		
+	line = lines[SETTING_NR].strip()
+	splitted = line.split(',')
+	print(f'Current setting: {splitted[0]} = {splitted[1]}')
+	SETTING_VALUE = float(splitted[1])
+	TIME_LAST_SETTING_PRESS = time.time()
 
 def activate_buttons(settings_pin, measurement_pin):
 	global MEASUREMENT_PIN
@@ -81,13 +86,13 @@ def activate_buttons(settings_pin, measurement_pin):
 
 def check_time(wait_time_seconds):
 	now = time.time()
-	if TIME_LAST_PRESS == 0:
+	if TIME_LAST_MEASUREMENT_PRESS == 0:
 		return False
 	else:
-		return (now - TIME_LAST_PRESS > wait_time_seconds)
+		return (now - TIME_LAST_MEASUREMENT_PRESS > wait_time_seconds)
 
 def get_setting_value():
-	global TIME_LAST_PRESS, SETTING_VALUE
+	global TIME_LAST_MEASUREMENT_PRESS, SETTING_VALUE, TIME_LAST_SETTING_CHANGED
 	
 	match SETTING_NR:
 		case 0:
@@ -99,7 +104,7 @@ def get_setting_value():
 				SETTING_VALUE = compute_bpm()
 		
 		case 2:
-			setting_change = check_time(2)
+			setting_change = check_time(0)
 		
 		case 3:
 			setting_change = check_time(0)
@@ -118,20 +123,21 @@ def get_setting_value():
 				SETTING_VALUE = int(raw * 5) + 1
 	
 	if setting_change:
-		TIME_LAST_PRESS = 0
+		TIME_LAST_MEASUREMENT_PRESS = 0
+		TIME_LAST_SETTING_CHANGED = time.time()
 		return SETTING_VALUE
 	else:
 		return -1
 
 def bpm_measurement(ev=None):
-	global BPM_MEASUREMENTS, TIME_LAST_PRESS
+	global BPM_MEASUREMENTS, TIME_LAST_MEASUREMENT_PRESS
 	now = time.time()
 	
 	if len(BPM_MEASUREMENTS) == 0:
 		print('starting measurement...')
 	
 	BPM_MEASUREMENTS.append(now)
-	TIME_LAST_PRESS = time.time()
+	TIME_LAST_MEASUREMENT_PRESS = time.time()
 
 def compute_bpm():
 	global BPM_MEASUREMENTS
@@ -154,18 +160,18 @@ def compute_bpm():
 	return bpm
 
 def toggle_state(ev=None):
-	global SETTING_VALUE, TIME_LAST_PRESS
+	global SETTING_VALUE, TIME_LAST_MEASUREMENT_PRESS
 	SETTING_VALUE = int(not SETTING_VALUE)
-	TIME_LAST_PRESS = time.time()
+	TIME_LAST_MEASUREMENT_PRESS = time.time()
 
 def mode_select(ev=None):
-	global SETTING_VALUE, TIME_LAST_PRESS
+	global SETTING_VALUE, TIME_LAST_MEASUREMENT_PRESS
 	SETTING_VALUE = int((SETTING_VALUE + 1) % 7)
-	TIME_LAST_PRESS = time.time()
+	TIME_LAST_MEASUREMENT_PRESS = time.time()
 	
 def slider_select(ev=None):
-	global TIME_LAST_PRESS
-	TIME_LAST_PRESS = time.time()
+	global TIME_LAST_MEASUREMENT_PRESS
+	TIME_LAST_MEASUREMENT_PRESS = time.time()
 
 def write_to_file(value, setting_nr=None):
 	### Write a specific setting to the settings file

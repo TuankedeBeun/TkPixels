@@ -25,12 +25,16 @@ if __name__ == '__main__':
 			
 			if value != -1:
 				Settings.write_to_file(value)
-				LedBar.setting_changed()
 				
-			LedBar.determine_output(Settings.SETTING_NR, Settings.SETTING_VALUE)
+			LedBar.determine_output(
+				Settings.SETTING_NR, Settings.SETTING_VALUE,
+				Settings.TIME_LAST_SETTING_PRESS, Settings.TIME_LAST_MEASUREMENT_PRESS,
+				Settings.TIME_LAST_SETTING_CHANGED
+			)
 	
 	except KeyboardInterrupt:
 		print('')
 		Settings.write_to_file(0, setting_nr=0) # always turn off state
+		LedBar.blackout()
 		GPIO.cleanup()
 		print('pins are free')
