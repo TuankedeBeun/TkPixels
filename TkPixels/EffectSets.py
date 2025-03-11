@@ -56,7 +56,6 @@ class Soft(EffectSet):
                 Shower
             ),
             (
-                10,
                 12, 12,
                 7, 7, 7, 7,
                 15
@@ -119,7 +118,7 @@ class Flashy(EffectSet):
                 Sparkles
             ),
             (
-                20,
+                40,
                 5,
                 15,
                 15,
@@ -146,7 +145,7 @@ class Snakes(EffectSet):
     def __init__(self):
         super().__init__(
             (
-                SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightDown,
+                SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripRightDown, SnakeStripRightUp,
                 SectionPairsSnakeDown, SectionPairsSnakeUp
             ),
             (
