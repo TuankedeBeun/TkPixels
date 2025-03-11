@@ -19,6 +19,7 @@ TIME_LAST_SETTING_PRESS = 0
 TIME_LAST_MEASUREMENT_PRESS = 0
 TIME_LAST_SETTING_CHANGED = 0
 BPM_MEASUREMENTS = []
+NUMBER_OF_MODES = 8
 
 def setup_pins(setting, measurement, cs, clk, dio):
 	global SETTING_PIN, MEASUREMENT_PIN, CS_PIN, CLK_PIN, DIO_PIN
@@ -166,7 +167,7 @@ def toggle_state(ev=None):
 
 def mode_select(ev=None):
 	global SETTING_VALUE, TIME_LAST_MEASUREMENT_PRESS
-	SETTING_VALUE = int((SETTING_VALUE + 1) % 7)
+	SETTING_VALUE = int((SETTING_VALUE + 1) % NUMBER_OF_MODES)
 	TIME_LAST_MEASUREMENT_PRESS = time.time()
 	
 def slider_select(ev=None):
