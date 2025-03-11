@@ -51,17 +51,14 @@ class Soft(EffectSet):
     def __init__(self):
         super().__init__(
             (
-                FlashFade, 
                 SphericalSweepInward, SphericalSweepOutward, 
-                SweepRight, SweepUp, SweepDown, SweepLeft, 
-                SectionPairsSnakeUp, SectionPairsSnakeDown,
+                SweepRight, SweepUp, SweepDown, SweepLeft,
                 Shower
             ),
             (
                 10,
                 12, 12,
                 7, 7, 7, 7,
-                20, 20,
                 15
             ),
             8
@@ -89,6 +86,7 @@ class Trippy(EffectSet):
     def __init__(self):
         super().__init__(
             (
+                FlashFade,
                 SphericalSweepOutward, SphericalSweepInward, 
                 SweepUp, SweepRight, SweepDown, SweepLeft, 
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
@@ -97,6 +95,7 @@ class Trippy(EffectSet):
                 AnticlockwiseRetractingSpiral
             ),
             (
+                25,
                 10, 10,
                 8, 8, 8, 8,
                 10, 10, 10, 10,
@@ -104,7 +103,8 @@ class Trippy(EffectSet):
                 20,
                 6
             ),
-            12
+            12,
+            chance_multiplier = 4
         )
 
 class Flashy(EffectSet):
