@@ -1,3 +1,4 @@
+# TODO: Rewrite this LedBar and ADC in OOP.
 import RPi.GPIO as GPIO
 import time
 
@@ -5,8 +6,6 @@ DATA_PIN = None
 CLK_PIN = None
 
 CMD_MODE = 0x0000 # Work on 8-bit mode
-LED_ON = 0x00ff # 8-byte 1 data
-LED_OFF = 0x0000 # 8-byte 0 data
 
 TIME_LAST_CHANGED = 0
 SWIPE_STATE = 0
@@ -22,12 +21,6 @@ def setup_pins(data_pin, clk_pin):
 
 	GPIO.output(data_pin, GPIO.LOW)
 	GPIO.output(clk_pin,  GPIO.LOW)
-	
-def reset_state():
-	global BLINK_STATE, TIME_LAST_CHANGED, SWIPE_STATE
-	BLINK_STATE = False
-	TIME_LAST_CHANGED = 0
-	SWIPE_STATE = 0
 
 def send_16bit_data(data):
 	clk_state = GPIO.HIGH
@@ -64,27 +57,27 @@ def latch_data():
 		
 		GPIO.output(DATA_PIN, data_state)
   
-def send_bar_data(bar_state):
+def send_bar_data(bar_state, brightness):
 	for i in range(0, 12):
 		if bar_state & 1:
-			send_16bit_data(LED_ON)
+			send_16bit_data(brightness)
 		else:
-			send_16bit_data(LED_OFF)
+			send_16bit_data(0)
 		bar_state >>= 1
 		
-def set_bar_state(bar_state):
+def set_bar_state(bar_state, brightness=255):
 	send_16bit_data(CMD_MODE)
-	send_bar_data(bar_state)
+	send_bar_data(bar_state, brightness)
 	latch_data()
 
 # used for selecting kind of setting
-def set_single_led(led):
+def set_single_led(led, brightness=255):
 	bar_state = 2**(led - 1)
-	set_bar_state(bar_state)
+	set_bar_state(bar_state, brightness)
 
-def set_cumulative_leds(leds):
+def set_cumulative_leds(leds, brightness=255):
 	bar_state = 2**leds - 1
-	set_bar_state(bar_state)
+	set_bar_state(bar_state, brightness)
 
 # used for showing setting value
 def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
@@ -103,7 +96,7 @@ def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
 		return
 	
 	if on:
-		set_cumulative_leds(leds)
+		set_cumulative_leds(leds, brightness=10)
 		BLINK_STATE = True
 	else:
 		blackout()
