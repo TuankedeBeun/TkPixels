@@ -1,3 +1,4 @@
+# TODO: Rewrite this LedBar and ADC in OOP.
 import RPi.GPIO as GPIO
 import time
 
@@ -5,8 +6,6 @@ DATA_PIN = None
 CLK_PIN = None
 
 CMD_MODE = 0x0000 # Work on 8-bit mode
-LED_ON = 0x00ff # 8-byte 1 data
-LED_OFF = 0x0000 # 8-byte 0 data
 
 TIME_LAST_CHANGED = 0
 SWIPE_STATE = 0
@@ -22,12 +21,6 @@ def setup_pins(data_pin, clk_pin):
 
 	GPIO.output(data_pin, GPIO.LOW)
 	GPIO.output(clk_pin,  GPIO.LOW)
-	
-def reset_state():
-	global BLINK_STATE, TIME_LAST_CHANGED, SWIPE_STATE
-	BLINK_STATE = False
-	TIME_LAST_CHANGED = 0
-	SWIPE_STATE = 0
 
 def send_16bit_data(data):
 	clk_state = GPIO.HIGH
@@ -147,6 +140,9 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 				swipe_full(reverse=reverse)
 		
 		case 1:
+			leds_stack(int(setting_value + 1), blinking=old_value)
+		
+		case 2:
 			bpm_min = 60
 			bpm_max = 200
 			bpm_diff = bpm_max - bpm_min
@@ -154,10 +150,7 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 			tens = int(round(10 * fraction, 0))
 			tens = max(1, min(10, tens)) # stay within bounds [0, 10]
 			leds_stack(tens, blinking=old_value)
-		
-		case 2:
-			leds_stack(int(setting_value + 1), blinking=old_value)
-		
+
 		case 3:
 			leds_stack(int(round(10 * setting_value, 0)), blinking=old_value)
 		
