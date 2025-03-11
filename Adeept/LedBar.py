@@ -57,27 +57,27 @@ def latch_data():
 		
 		GPIO.output(DATA_PIN, data_state)
   
-def send_bar_data(bar_state):
+def send_bar_data(bar_state, brightness, background):
 	for i in range(0, 12):
 		if bar_state & 1:
-			send_16bit_data(LED_ON)
+			send_16bit_data(brightness)
 		else:
-			send_16bit_data(LED_OFF)
+			send_16bit_data(background)
 		bar_state >>= 1
 		
-def set_bar_state(bar_state):
+def set_bar_state(bar_state, brightness=255, background=0):
 	send_16bit_data(CMD_MODE)
-	send_bar_data(bar_state)
+	send_bar_data(bar_state, brightness, background)
 	latch_data()
 
 # used for selecting kind of setting
-def set_single_led(led):
+def set_single_led(led, brightness=255, background=0):
 	bar_state = 2**(led - 1)
-	set_bar_state(bar_state)
+	set_bar_state(bar_state, brightness, background)
 
-def set_cumulative_leds(leds):
+def set_cumulative_leds(leds, brightness=255, background=0):
 	bar_state = 2**leds - 1
-	set_bar_state(bar_state)
+	set_bar_state(bar_state, brightness, background)
 
 # used for showing setting value
 def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
@@ -96,7 +96,7 @@ def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
 		return
 	
 	if on:
-		set_cumulative_leds(leds)
+		set_cumulative_leds(leds, brightness=50)
 		BLINK_STATE = True
 	else:
 		blackout()
@@ -125,7 +125,7 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 	
 	# choosing setting mode
 	if now - time_last_setting_press < 2:
-		set_single_led(setting_nr + 1)
+		set_single_led(setting_nr + 1, background=1)
 		return
 	
 	# determine setting is old
