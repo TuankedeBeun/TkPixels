@@ -12,7 +12,7 @@ DIO_PIN = None
 DATA_PATH = './data/settings.csv'
 os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
 
-SETTINGS = ['state', 'bpm', 'mode', 'brightness', 'effect_intensity', 'number_of_colors']
+SETTINGS = ['state', 'mode', 'bpm', 'brightness', 'effect_intensity', 'number_of_colors']
 SETTING_NR = 0
 SETTING_VALUE = 0
 TIME_LAST_SETTING_PRESS = 0
@@ -49,12 +49,12 @@ def shift_setting(ev=None, setting_mode_duration=1.5):
 			print('\nToggle state. Press the red button.')
 			
 		case 1:
-			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=175)
-			print('\nConfigure BPM. Use the red button to tap the tempo.')
-			
-		case 2:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=mode_select, bouncetime=175)
 			print('\nSelect mode. Use the red button to shift through modes')
+			
+		case 2:
+			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=bpm_measurement, bouncetime=175)
+			print('\nConfigure BPM. Use the red button to tap the tempo.')
 			
 		case 3:
 			GPIO.add_event_detect(MEASUREMENT_PIN, GPIO.FALLING, callback=slider_select, bouncetime=175)
@@ -99,12 +99,12 @@ def get_setting_value():
 			setting_change = check_time(0)
 		
 		case 1:
+			setting_change = check_time(0)
+		
+		case 2:
 			setting_change = check_time(2)
 			if setting_change:
 				SETTING_VALUE = compute_bpm()
-		
-		case 2:
-			setting_change = check_time(0)
 		
 		case 3:
 			setting_change = check_time(0)

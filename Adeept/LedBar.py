@@ -140,6 +140,9 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 				swipe_full(reverse=reverse)
 		
 		case 1:
+			leds_stack(int(setting_value + 1), blinking=old_value)
+		
+		case 2:
 			bpm_min = 60
 			bpm_max = 200
 			bpm_diff = bpm_max - bpm_min
@@ -147,9 +150,6 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 			tens = int(round(10 * fraction, 0))
 			tens = max(1, min(10, tens)) # stay within bounds [0, 10]
 			leds_stack(tens, blinking=old_value)
-		
-		case 2:
-			leds_stack(int(setting_value + 1), blinking=old_value)
 		
 		case 3:
 			leds_stack(int(round(10 * setting_value, 0)), blinking=old_value)
