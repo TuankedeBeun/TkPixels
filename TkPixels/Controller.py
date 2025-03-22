@@ -12,6 +12,15 @@ class Controller():
         
         # set state, bpm, effect_set_nr, brightness, effect_intensity, num_colors
         # It also sets time_per_beat, beat_increment
+        self.state = None
+        self.bpm = None
+        self.time_per_beat = None
+        self.beat_increment = None
+        self.effect_set_nr = None
+        self.brightness = None
+        self.effect_intensity = None
+        self.chance_effect_per_beat = None
+        self.num_colors = None
         self.load_settings()
         
         # determine time properties
@@ -26,8 +35,6 @@ class Controller():
         self.choose_colors()
         
         # effect settings
-        self.max_effects = 0
-        self.chance_effect_per_beat = 0.0
         self.num_effects = 0
         self.effects = []
         
@@ -35,28 +42,45 @@ class Controller():
     
     def load_settings(self):
         
+        # open and read settings
         with open(DATA_PATH, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             settings = dict(reader)
         
-        self.state = int(settings['state'])
-        self.bpm = float(settings['bpm'])
-        self.effect_set_nr = int(settings['mode'])
-        self.brightness = float(settings['brightness'])
+        state = int(settings['state'])
+        bpm = float(settings['bpm'])
+        effect_set_nr = int(settings['mode'])
+        brightness = float(settings['brightness'])
         effect_intensity = float(settings['effect_intensity'])
-        self.num_colors = int(settings['number_of_colors'])
-        
-        # adjust BPM settings
-        self.time_per_beat = 60 / self.bpm
-        if self.bpm < 125:
-            self.beat_increment = 0.0625
-        else:
-            self.beat_increment = 0.125
-            
-        # adjust effect instensity
-        self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
-        
-        print(settings)
+        num_colors = int(settings['number_of_colors'])
+
+        if state != self.state:
+            print(f'State changed to: {state}')
+            self.state = state
+
+        if bpm != self.bpm:
+            print(f'BPM changed to: {bpm}')
+            self.bpm = bpm
+            self.time_per_beat = 60 / bpm
+            self.beat_increment = compute_beat_increment(bpm)
+            print('beat increment:', self.beat_increment)
+
+        if effect_set_nr != self.effect_set_nr:
+            print(f'Effect set changed to: {effect_set_nr}')
+            self.effect_set_nr = effect_set_nr
+
+        if brightness != self.brightness:
+            print(f'Brightness changed to: {brightness}')
+            self.brightness = brightness
+
+        if effect_intensity != self.effect_intensity:
+            print(f'Effect intensity changed to: {effect_intensity}')
+            self.effect_intensity = effect_intensity
+            self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
+
+        if num_colors != self.num_colors:
+            print(f'Number of colors changed to: {num_colors}')
+            self.num_colors = num_colors
 
     def play(self):
         self.time = time()
@@ -154,3 +178,12 @@ class Controller():
     def set_effect_set(self, effect_set_nr):
         effect_set = EffectSets[effect_set_nr]
         return effect_set()
+
+def compute_beat_increment(bpm, increment=1, minimum_ms=30):
+    beat_length_ms = 1000 * 60 / bpm
+    increment_length_ms = increment * beat_length_ms
+    
+    if (increment_length_ms / 2) < minimum_ms:
+        return increment
+    else:
+        return compute_beat_increment(bpm, (increment / 2))
