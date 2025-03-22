@@ -3,10 +3,11 @@ from colorsys import hsv_to_rgb
 from random import random, choice, randint
 
 class Effect():
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, velocity = 1):
         self.colors = colors
         self.beat = 0
         self.beat_increment = beat_increment
+        self.beat_offset = beat_offset
         self.max_beats = max_beats
         self.num_pixels = num_pixels
         self.pixeldata = pixeldata
@@ -237,12 +238,17 @@ class FlashFade(Effect):
         self.rgb = hsv_to_rgb(color, saturation, 1)
         self.decay_coef = 6
         self.max_beats = randint(2, 4)
+        self.beat = self.beat_offset - 1
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
         self.r_norm = r / r_max + 0.1 # goes from 0.2 to 1.2
 
     def get_rgb(self):
+        # wait until the beat offset has passsed
+        if self.beat < 0:
+            return self.pixels
+        
         t_norm = self.beat / self.max_beats
         I = 255 * np.exp(-self.decay_coef / self.r_norm * t_norm)
         self.pixels = np.outer(I, self.rgb)
@@ -258,6 +264,7 @@ class SectionBuzz(Effect):
         self.unique_sections = np.unique(self.section_ids, axis=0)
         self.shuffled = np.random.permutation(self.unique_sections)
         self.section = 0
+        self.beat = self.beat_offset - 1
 
     def get_rgb(self):
 
@@ -285,6 +292,7 @@ class UnitBuzz(Effect):
         self.unique_units = np.unique(self.units, axis=0)
         self.shuffled_units = np.random.permutation(self.unique_units)
         self.unit_id = 0
+        self.beat = self.beat_offset - 1
 
     def get_rgb(self):
 

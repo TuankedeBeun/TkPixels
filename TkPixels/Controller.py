@@ -21,7 +21,9 @@ class Controller():
         self.effect_intensity = None
         self.chance_effect_per_beat = None
         self.num_colors = None
+        print('Loading initial settings')
         self.load_settings()
+        print('\nRuntime setting changes:')
         
         # determine time properties
         self.time = 0
@@ -157,8 +159,9 @@ class Controller():
         chance_per_increment = self.beat_increment * self.chance_effect_per_beat * self.effect_set.chance_multiplier
         if chance_per_increment > random():
             new_effect = self.effect_set.new_effect()
-            max_beats = randint(4, 16)
-            new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
+            beat_offset = self.beat_increments % 1
+            max_beats = randint(4, 16) # TODO: maybe make this dynamic using a settings?
+            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, max_beats, self.board.num_pixels, self.board.pixeldata)
             self.effects.append(new_effect_instance)
             self.num_effects += 1
 

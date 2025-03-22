@@ -182,4 +182,23 @@ class UpUp(EffectSet):
             chance_multiplier = 4
         )
 
-EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp)
+class Test(EffectSet):
+    def __init__(self):
+        super().__init__(
+            'Test Set',
+            (
+                FlashFade,
+                SectionBuzz, 
+                UnitBuzz, 
+                Sparkles
+            ),
+            (
+                30,
+                15,
+                15,
+                6
+            ),
+            4
+        )
+
+EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)
