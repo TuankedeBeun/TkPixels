@@ -37,8 +37,6 @@ class Controller():
         # effect settings
         self.num_effects = 0
         self.effects = []
-        
-        self.effect_set = self.set_effect_set(self.effect_set_nr)
     
     def load_settings(self):
         
@@ -55,32 +53,33 @@ class Controller():
         num_colors = int(settings['number_of_colors'])
 
         if state != self.state:
-            print(f'State changed to: {state}')
             self.state = state
+            print(f'State changed to: {state}')
 
         if bpm != self.bpm:
-            print(f'BPM changed to: {bpm}')
             self.bpm = bpm
             self.time_per_beat = 60 / bpm
             self.beat_increment = compute_beat_increment(bpm)
-            print('beat increment:', self.beat_increment)
+            print(f'BPM changed to: {bpm} (increment {self.beat_increment})')
 
         if effect_set_nr != self.effect_set_nr:
-            print(f'Effect set changed to: {effect_set_nr}')
             self.effect_set_nr = effect_set_nr
+            self.effect_set = self.set_effect_set(self.effect_set_nr)
+            print(f'Effect set changed to: {effect_set_nr} ({self.effect_set.name})')
 
         if brightness != self.brightness:
-            print(f'Brightness changed to: {brightness}')
             self.brightness = brightness
+            self.board.set_brightness(self.brightness)
+            print(f'Brightness changed to: {brightness}')
 
         if effect_intensity != self.effect_intensity:
-            print(f'Effect intensity changed to: {effect_intensity}')
             self.effect_intensity = effect_intensity
             self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
+            print(f'Effect intensity changed to: {effect_intensity} (chance/beat {round(self.chance_effect_per_beat, 2)})')
 
         if num_colors != self.num_colors:
-            print(f'Number of colors changed to: {num_colors}')
             self.num_colors = num_colors
+            print(f'Number of colors changed to: {num_colors}')
 
     def play(self):
         self.time = time()
@@ -126,8 +125,6 @@ class Controller():
             if self.beat % 4 == 0:
                 self.bar += 1
                 self.load_settings()
-                self.board.set_brightness(self.brightness)
-                self.effect_set = self.set_effect_set(self.effect_set_nr)
                 
                 if self.bar % 32 == 0:
                     self.phrase += 1

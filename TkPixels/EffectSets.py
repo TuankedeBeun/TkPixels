@@ -2,10 +2,11 @@ import numpy as np
 from TkPixels.Effects import *
 
 class EffectSet():
-    def __init__(self, effects, weights, max_effects, chance_multiplier=1):
+    def __init__(self, name, effects, weights, max_effects, chance_multiplier=1):
         if len(effects) != len(weights):
             raise ValueError("The number of effects is different from the number of weights.")
 
+        self.name = name
         self.effects = effects
         self.max_effects = max_effects
         self.chance_multiplier = chance_multiplier
@@ -20,6 +21,7 @@ class EffectSet():
 class All(EffectSet):
     def __init__(self):
         super().__init__(
+            'Everything',
             (
                 SphericalSweepOutward, SphericalSweepInward, 
                 SweepUp, SweepRight, SweepDown, SweepLeft, 
@@ -50,6 +52,7 @@ class All(EffectSet):
 class Soft(EffectSet):
     def __init__(self):
         super().__init__(
+            'Soft',
             (
                 SphericalSweepInward, SphericalSweepOutward, 
                 SweepRight, SweepUp, SweepDown, SweepLeft,
@@ -66,6 +69,7 @@ class Soft(EffectSet):
 class Downward(EffectSet):
     def __init__(self):
         super().__init__(
+            'Smoothly Downward',
             (
                 SweepDown,
                 SnakeStripLeftDown, SnakeStripRightDown, 
@@ -84,6 +88,7 @@ class Downward(EffectSet):
 class Trippy(EffectSet):
     def __init__(self):
         super().__init__(
+            'Trippy',
             (
                 FlashFade,
                 SphericalSweepOutward, SphericalSweepInward, 
@@ -109,6 +114,7 @@ class Trippy(EffectSet):
 class Flashy(EffectSet):
     def __init__(self):
         super().__init__(
+            'Flashy & Intense',
             (
                 FlashFade,
                 ClockwiseRetractingSpiral, 
@@ -131,6 +137,7 @@ class Flashy(EffectSet):
 class BeatAndZip(EffectSet):
     def __init__(self):
         super().__init__(
+            'Beat & Zip',
             (
                 FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
             ),
@@ -144,6 +151,7 @@ class BeatAndZip(EffectSet):
 class Snakes(EffectSet):
     def __init__(self):
         super().__init__(
+            'Snakes',
             (
                 SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripRightDown, SnakeStripRightUp,
                 SectionPairsSnakeDown, SectionPairsSnakeUp
@@ -159,6 +167,7 @@ class Snakes(EffectSet):
 class UpUp(EffectSet):
     def __init__(self):
         super().__init__(
+            'Up Up',
             (
                 SnakeStripLeftUp, SnakeStripRightUp,
                 SectionPairsSnakeUp,
