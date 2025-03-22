@@ -187,18 +187,16 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
-                FlashFade,
-                SectionBuzz, 
-                UnitBuzz, 
-                Sparkles
+                Droplets,
+                # SectionBuzz,
+                # SnakeStripLeftUp, SnakeStripRightUp, SnakeStripLeftDown, SnakeStripRightDown,
             ),
             (
-                30,
-                15,
-                15,
-                6
+                10,
+                # 10,
+                # 2,2,2,2
             ),
-            4
+            5
         )
 
 EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)

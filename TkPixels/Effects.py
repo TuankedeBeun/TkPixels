@@ -444,4 +444,55 @@ class Sparkles(Effect):
                         self.on_count = randint(1, 4) / 2
 
         return self.pixels
+
+class Droplets(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.drop_radius = randint(5, 15)
+        self.drop_speed = randint(1, 3) * self.drop_radius
+        self.beat -= self.beat_offset
+        
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        self.xlim = (int(min(self.x)), int(max(self.x)))
+        self.ylim = (int(min(self.y)), int(max(self.y)))
+
+        self.drop_coords = np.array([[randint(*self.xlim), randint(*self.ylim), self.drop_radius]], dtype=float) # coords in x, y, z
+
     
+    def get_rgb(self):
+        # Using formula for a single droplet:
+        # a pixel is ON if it is closer to the center of the droplet than its radius
+        # d < r
+        # d = V(dx^2 + dy^2 + dz^2) = V((x_drop - x)^2 + (y_drop - y)^2 + z_drop^2)
+
+        num_drops = len(self.drop_coords)
+        droplets_on = np.zeros((num_drops + 1, self.num_pixels))
+        for i, drop in enumerate(self.drop_coords):
+            dx = drop[0] - self.x
+            dy = drop[1] - self.y
+            dz = drop[2]
+            d = np.sqrt(dx**2 + dy**2 + dz**2)
+            droplet_on = d < self.drop_radius
+            droplets_on[i] = droplet_on
+        
+        combined_droplets = 255 * np.max(droplets_on, axis=0)
+        self.pixels = np.outer(combined_droplets, self.rgb)
+
+        # lower drops
+        self.drop_coords[:,2] -= self.drop_speed * self.beat_increment
+
+        # remove old droplets
+        condition = self.drop_coords[:, 2] > -self.drop_radius
+        self.drop_coords = self.drop_coords[condition, :]
+        
+        # generate new droplets
+        if (self.beat * 4) % 1 == 0: # do every off-beat
+            beats_left = self.max_beats - self.beat
+            if beats_left > 1:
+                new_drop = np.array([[randint(*self.xlim), randint(*self.ylim), self.drop_radius]]) # choose new point, 1 radius above the strip
+                self.drop_coords = np.append(self.drop_coords, new_drop, axis=0)
+
+        return self.pixels
