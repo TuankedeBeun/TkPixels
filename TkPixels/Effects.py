@@ -502,7 +502,6 @@ class CircularPulses(Effect):
 
         return self.pixels
     
-
 class CircularWaves(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

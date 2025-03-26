@@ -32,7 +32,9 @@ class All(EffectSet):
                 UnitBuzz,
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
                 Shower,
-                Sparkles
+                Sparkles,
+                CircularPulses,
+                CircularWaves
             ),
             (
                 8, 8,
@@ -44,7 +46,9 @@ class All(EffectSet):
                 10,
                 30, 30,
                 15,
-                10
+                10,
+                10,
+                15
             ),
             8
         )
@@ -96,7 +100,9 @@ class Trippy(EffectSet):
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
                 Shower,
-                AnticlockwiseRetractingSpiral
+                AnticlockwiseRetractingSpiral,
+                CircularPulses,
+                CircularWaves
             ),
             (
                 25,
@@ -105,7 +111,9 @@ class Trippy(EffectSet):
                 10, 10, 10, 10,
                 25, 25,
                 20,
-                6
+                6,
+                12,
+                15
             ),
             12,
             chance_multiplier = 4
