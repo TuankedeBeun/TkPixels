@@ -47,7 +47,8 @@ class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        brightness = 0.5 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(3, 5)
 
         self.direction = getattr(self, 'direction', 'N')
@@ -151,7 +152,8 @@ class SphericalSweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        brightness = 0.5 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
         self.inward = getattr(self, 'inward', True)
@@ -445,13 +447,16 @@ class Sparkles(Effect):
 
         return self.pixels
 
-class Droplets(Effect):
+class CircularPulses(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.drop_radius = randint(5, 15)
-        self.drop_speed = randint(1, 3) * self.drop_radius
+        saturation = 0.5 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, saturation, 1)
+        self.frequency = 1
+        self.drop_radius = randint(30, 70)
+        self.circle_width = 3
+        self.drop_speed = 2 * self.drop_radius
         self.beat -= self.beat_offset
         
         self.x = self.pixeldata['coords_cart'][:,0]
@@ -459,13 +464,13 @@ class Droplets(Effect):
         self.xlim = (int(min(self.x)), int(max(self.x)))
         self.ylim = (int(min(self.y)), int(max(self.y)))
 
-        self.drop_coords = np.array([[randint(*self.xlim), randint(*self.ylim), self.drop_radius]], dtype=float) # coords in x, y, z
+        self.drop_coords = np.array([[randint(*self.xlim), randint(*self.ylim), 5 * self.drop_radius]], dtype=float) # coords in x, y, z
 
     
     def get_rgb(self):
-        # Using formula for a single droplet:
-        # a pixel is ON if it is closer to the center of the droplet than its radius
-        # d < r
+        # Using formula for a single droplet (falling elongated sphere):
+        # a pixel is ON if it is within the droplet radius + circle width and outside the droplet radius
+        # d < r + w and d > r
         # d = V(dx^2 + dy^2 + dz^2) = V((x_drop - x)^2 + (y_drop - y)^2 + z_drop^2)
 
         num_drops = len(self.drop_coords)
@@ -474,8 +479,8 @@ class Droplets(Effect):
             dx = drop[0] - self.x
             dy = drop[1] - self.y
             dz = drop[2]
-            d = np.sqrt(dx**2 + dy**2 + dz**2)
-            droplet_on = d < self.drop_radius
+            d = np.sqrt(dx**2 + dy**2 + (0.25 * dz)**2)
+            droplet_on = (d < self.drop_radius + self.circle_width) * (d > self.drop_radius)
             droplets_on[i] = droplet_on
         
         combined_droplets = 255 * np.max(droplets_on, axis=0)
@@ -485,14 +490,69 @@ class Droplets(Effect):
         self.drop_coords[:,2] -= self.drop_speed * self.beat_increment
 
         # remove old droplets
-        condition = self.drop_coords[:, 2] > -self.drop_radius
+        condition = self.drop_coords[:, 2] > -5 * self.drop_radius
         self.drop_coords = self.drop_coords[condition, :]
         
         # generate new droplets
-        if (self.beat * 4) % 1 == 0: # do every off-beat
+        if (self.beat * self.frequency) % 4 == 0: # do every off-beat
             beats_left = self.max_beats - self.beat
             if beats_left > 1:
-                new_drop = np.array([[randint(*self.xlim), randint(*self.ylim), self.drop_radius]]) # choose new point, 1 radius above the strip
+                new_drop = np.array([[randint(*self.xlim), randint(*self.ylim), 5 * self.drop_radius]]) # choose new point, 1 radius above the strip
                 self.drop_coords = np.append(self.drop_coords, new_drop, axis=0)
+
+        return self.pixels
+    
+
+class CircularWaves(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        saturation = 0.5 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, saturation, 1)
+        self.frequency = randint(1, 4) # number of drops generated per beat
+        self.max_radius = randint(70, 140)
+        self.circle_width = 7
+        self.wave_speed = randint(15, 35)
+        self.beat -= self.beat_offset
+        
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        self.xlim = (int(min(self.x)), int(max(self.x)))
+        self.ylim = (int(min(self.y)), int(max(self.y)))
+
+        self.wave_coords = np.array([[randint(*self.xlim), randint(*self.ylim), 0]], dtype=float) # coords in x, y, z
+
+    
+    def get_rgb(self):
+        # Using formula for a single droplet:
+        # a pixel is ON if it is within the droplet radius + circle width and outside the droplet radius
+
+        num_waves = len(self.wave_coords)
+        wave_intensities = np.zeros((num_waves + 1, self.num_pixels))
+        for i, wave in enumerate(self.wave_coords):
+            dx = wave[0] - self.x
+            dy = wave[1] - self.y
+            r = wave[2]
+            d = np.sqrt(dx**2 + dy**2)
+            wave_on = (d < r + self.circle_width) * (d > r)
+            wave_intensity = 255 * (1 - r / self.max_radius) * wave_on
+            wave_intensities[i] = wave_intensity
+        
+        combined_waves = np.max(wave_intensities, axis=0)
+        self.pixels = np.outer(combined_waves, self.rgb)
+
+        # increase the wave sizes
+        self.wave_coords[:,2] += self.wave_speed * self.beat_increment
+
+        # remove old waves
+        condition = self.wave_coords[:, 2] < self.max_radius
+        self.wave_coords = self.wave_coords[condition, :]
+        
+        # generate new waves
+        if (self.beat * self.frequency) % 4 == 0: # do every off-beat
+            beats_left = self.max_beats - self.beat
+            if beats_left > 1:
+                new_wave = np.array([[randint(*self.xlim), randint(*self.ylim), 0]]) # choose new point
+                self.wave_coords = np.append(self.wave_coords, new_wave, axis=0)
 
         return self.pixels
