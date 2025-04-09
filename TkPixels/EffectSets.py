@@ -101,6 +101,7 @@ class Trippy(EffectSet):
             'Trippy',
             (
                 FlashFade,
+                FlashFadeSlow,
                 SphericalSweepOutward, SphericalSweepInward, 
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
@@ -112,6 +113,7 @@ class Trippy(EffectSet):
             ),
             (
                 25,
+                4
                 10, 10,
                 8, 8, 8, 8,
                 10, 10, 10, 10,
@@ -160,10 +162,12 @@ class BeatAndZip(EffectSet):
         super().__init__(
             'Beat & Zip',
             (
-                FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
+                FlashFade, FlashFadeSlow,
+                SectionPairsSnakeUp, SectionPairsSnakeDown
             ),
             (
-                10, 15, 15
+                10, 1,
+                15, 15
             ),
             5,
             chance_multiplier = 2

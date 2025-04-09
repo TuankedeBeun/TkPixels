@@ -143,7 +143,6 @@ class Controller():
 
     def choose_colors(self):
         self.colors = [random() for i in range(self.num_colors)]
-        print('Colors:', self.colors)
 
     def expire_effects(self):
         for i in range(self.num_effects - 1, -1, -1):
