@@ -199,8 +199,8 @@ class Test(EffectSet):
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
             ),
             (
-                0, 0, 0, 0,
                 10, 10, 10, 10,
+                0, 0, 0, 0,
             ),
             2
         )

@@ -46,42 +46,46 @@ class StrobeColor(Effect):
 class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.max_beats = 8
+        self.max_beats = 6
         self.color = choice(self.colors)
         brightness = getattr(self, 'brightness')
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.narrowness = getattr(self, 'narrowness')
         self.t_scale = getattr(self, 't_scale')
 
-        self.direction = getattr(self, 'direction', 'N')
+        self.direction = getattr(self, 'direction')
         if self.direction in ('N', 'S'):
             self.xy_index = 1
-            self.narrowness *= 4
+            xy = self.pixeldata['coords_cart'][:,self.xy_index]
+            xy_max = np.max(xy)
+            self.xy_norm = xy / xy_max # goes from 0 to 1
+            self.narrowness *= 2
         elif self.direction in ('E', 'W'):
             self.xy_index = 0
-            self.t_scale *= 2
+            xy = self.pixeldata['coords_cart'][:,self.xy_index]
+            xy_max = np.max(xy)
+            self.xy_norm = ((xy / xy_max) + 1) / 2 # goes from 0 to 1
 
         if self.direction in ('N', 'E'):
             self.reversed = False
         elif self.direction in ('S', 'W'):
             self.reversed = True
-
-        xy = self.pixeldata['coords_cart'][:,self.xy_index]
-        xy_max = np.max(xy)
-        self.xy_norm = xy / xy_max # goes from 0 to 1
-
+        
     def get_rgb(self):
         return self.get_rgb_of_beat(self.beat)
 
     def get_rgb_of_beat(self, beat):
         # I = 255 * (1 - (y - t)^2)
         # I, y, t are the intensity, height and time
-        t_norm = beat / self.max_beats # goes from 0 to 1
+        t_norm = 1.2 * (beat / self.max_beats) - 0.1 # goes from -0.1 to 1.1
 
         if self.reversed:
             t_norm = 1 - t_norm
 
-        t_scaled = self.t_scale * (t_norm - 0.5) + 0.5
+        if self.direction in ('E', 'W'):
+            t_norm = 2 * (t_norm - 0.5) # goes from -1.2 to 1.2 (in contrast to -0.1 to 1.1 for N and S)
+
+        t_scaled = self.t_scale * t_norm
         I = 255 * (1 - self.narrowness * (self.xy_norm - t_scaled) ** 2)
 
         # ensure positive values
@@ -94,12 +98,12 @@ class Sweep(Effect):
 class BroadSweep(Sweep):
     brightness = 0.5 + 0.5 * random()
     narrowness = randint(6, 12)
-    t_scale = randint(2, 3)
+    t_scale = 1 + 1 * random() # between 1 and 2
 
 class NarrowSweep(Sweep):
     brightness = 1
-    narrowness = 100
-    t_scale = randint(2, 4)
+    narrowness = 200
+    t_scale = 1.5 + 1.5 * random() # between 1.5 and 3
 
 class NarrowSweeps(NarrowSweep):
     def __init__(self, *args, **kwargs):
