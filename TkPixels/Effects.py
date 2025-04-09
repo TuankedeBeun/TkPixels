@@ -46,7 +46,6 @@ class StrobeColor(Effect):
 class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.max_beats = 6
         self.color = choice(self.colors)
         brightness = getattr(self, 'brightness')
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
@@ -113,6 +112,7 @@ class NarrowSweep(Sweep):
 class NarrowSweeps(NarrowSweep):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.max_beats = randint(4, 8)
         self.number_of_sweeps = randint(3, 8)
         self.sweep_interval = randint(1, 2)
         self.beat = self.beat_offset - self.number_of_sweeps / self.sweep_interval
@@ -495,6 +495,7 @@ class Sparkles(Effect):
         self.num_sparkles = randint(10, 25)
         self.on_count = randint(1, 7) / 2
         self.off_count = 0
+        self.beat = self.beat_offset - 1
 
     def get_rgb(self):
 
