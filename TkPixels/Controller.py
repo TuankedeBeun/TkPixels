@@ -2,7 +2,7 @@ from time import sleep, time
 from random import random, randint
 import numpy as np
 import csv
-from TkPixels.EffectSets import EffectSets
+from TkPixels.EffectSets import EffectSets, random_effect_set
 
 DATA_PATH = './data/settings.csv'
 
@@ -131,6 +131,9 @@ class Controller():
                 if self.bar % 32 == 0:
                     self.phrase += 1
                     self.choose_colors()
+                    self.set_effect_set(self.effect_set_nr) # Only changes when having effect set shuffle
+                    if self.effect_set_nr == 0:
+                        print(f'New random effect set: {self.effect_set.name}')
 
         for effect in self.effects:
             effect.increment()
@@ -176,7 +179,12 @@ class Controller():
         return effect_set_nr
 
     def set_effect_set(self, effect_set_nr):
-        effect_set = EffectSets[effect_set_nr]
+        if effect_set_nr == 0:
+            effect_set = random_effect_set() # Auto shuffle effect sets
+        elif effect_set_nr == -1:
+            effect_set = EffectSets[0] # Choose the Test Set
+        else:
+            effect_set = EffectSets[effect_set_nr] # Choose a specific effect set
         return effect_set()
 
 def compute_beat_increment(bpm, increment=1, minimum_ms=30):

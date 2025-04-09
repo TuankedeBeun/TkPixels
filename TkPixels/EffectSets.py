@@ -17,7 +17,7 @@ class EffectSet():
 
     def new_effect(self):
         return np.random.choice(self.effects, p = self.effect_weights)
-    
+
 class All(EffectSet):
     def __init__(self):
         super().__init__(
@@ -166,8 +166,8 @@ class BeatAndZip(EffectSet):
                 SectionPairsSnakeUp, SectionPairsSnakeDown
             ),
             (
-                10, 1,
-                15, 15
+                20, 1,
+                30, 30
             ),
             5,
             chance_multiplier = 2
@@ -221,5 +221,10 @@ class Test(EffectSet):
             ),
             2
         )
+    
+def random_effect_set():
+    effect_set_weights = np.array(EffectSetWeights) / sum(EffectSetWeights)
+    return np.random.choice(EffectSets, p = effect_set_weights)
 
-EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)
+EffectSets = (Test, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, All)
+EffectSetWeights = (0, 2, 1, 1, 2, 2, 1, 1, 1)
