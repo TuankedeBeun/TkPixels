@@ -24,7 +24,8 @@ class All(EffectSet):
             'Everything',
             (
                 SphericalSweepOutward, SphericalSweepInward, 
-                SweepUp, SweepRight, SweepDown, SweepLeft, 
+                BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft,
+                NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
                 ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
                 FlashFade, 
@@ -39,6 +40,7 @@ class All(EffectSet):
             (
                 8, 8,
                 8, 8, 8, 8,
+                5, 5, 5, 5,
                 5, 5, 5, 5,
                 3, 3,
                 40,
@@ -59,13 +61,15 @@ class Soft(EffectSet):
             'Soft',
             (
                 SphericalSweepInward, SphericalSweepOutward, 
-                SweepRight, SweepUp, SweepDown, SweepLeft,
-                Shower
+                BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
+                Shower,
+                CircularWaves
             ),
             (
                 12, 12,
                 7, 7, 7, 7,
-                15
+                15,
+                10
             ),
             8
         )
@@ -75,7 +79,7 @@ class Downward(EffectSet):
         super().__init__(
             'Smoothly Downward',
             (
-                SweepDown,
+                BroadSweepDown,
                 SnakeStripLeftDown, SnakeStripRightDown, 
                 SectionPairsSnakeDown,
                 Shower
@@ -96,7 +100,7 @@ class Trippy(EffectSet):
             (
                 FlashFade,
                 SphericalSweepOutward, SphericalSweepInward, 
-                SweepUp, SweepRight, SweepDown, SweepLeft, 
+                BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
                 Shower,
@@ -125,21 +129,26 @@ class Flashy(EffectSet):
             'Flashy & Intense',
             (
                 FlashFade,
+                NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
                 ClockwiseRetractingSpiral, 
                 SectionBuzz, 
                 UnitBuzz, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown, 
-                Sparkles
+                Sparkles,
+                CircularPulses
             ),
             (
                 40,
+                5, 5, 5, 5,
                 5,
                 15,
                 15,
                 20, 20,
-                6
+                6,
+                10
             ),
-            6
+            6,
+            chance_multiplier = 0.8
         )
 
 class BeatAndZip(EffectSet):
@@ -179,15 +188,17 @@ class UpUp(EffectSet):
             (
                 SnakeStripLeftUp, SnakeStripRightUp,
                 SectionPairsSnakeUp,
-                SweepUp
+                BroadSweepUp,
+                NarrowSweepsUp
             ),
             (
                 12, 12,
                 20,
-                15
+                15,
+                3
             ),
             10,
-            chance_multiplier = 4
+            chance_multiplier = 2
         )
 
 class Test(EffectSet):
@@ -199,8 +210,8 @@ class Test(EffectSet):
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
             ),
             (
-                10, 10, 10, 10,
                 0, 0, 0, 0,
+                10, 10, 10, 10,
             ),
             2
         )

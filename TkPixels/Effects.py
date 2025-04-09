@@ -74,7 +74,7 @@ class Sweep(Effect):
     def get_rgb(self):
         return self.get_rgb_of_beat(self.beat)
 
-    def get_rgb_of_beat(self, beat):
+    def get_rgb_of_beat(self, beat, binary=False):
         # I = 255 * (1 - (y - t)^2)
         # I, y, t are the intensity, height and time
         t_norm = 1.2 * (beat / self.max_beats) - 0.1 # goes from -0.1 to 1.1
@@ -91,6 +91,11 @@ class Sweep(Effect):
         # ensure positive values
         I[I < 0] = 0
 
+        # optionally make binary
+        if binary:
+            I[I > 0] = 255
+            I = I.astype(np.uint8)
+
         self.pixels = np.outer(I, self.rgb)
 
         return self.pixels
@@ -102,13 +107,13 @@ class BroadSweep(Sweep):
 
 class NarrowSweep(Sweep):
     brightness = 1
-    narrowness = 200
-    t_scale = 1.5 + 1.5 * random() # between 1.5 and 3
+    narrowness = 400
+    t_scale = 1.5 + 1.5 * random() # between 2 and 4
 
 class NarrowSweeps(NarrowSweep):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.number_of_sweeps = randint(2, 10)
+        self.number_of_sweeps = randint(3, 8)
         self.sweep_interval = randint(1, 2)
         self.beat = self.beat_offset - self.number_of_sweeps / self.sweep_interval
     
@@ -118,12 +123,10 @@ class NarrowSweeps(NarrowSweep):
         # get the individual sweeps
         for i in range(self.number_of_sweeps):
             beat = self.beat + i / self.sweep_interval # each next sweep is delayed by beat divided by the sweep interval
-            individual_sweep = self.get_rgb_of_beat(beat)
-            individual_sweeps[i] = individual_sweep
+            individual_sweeps[i] = self.get_rgb_of_beat(beat, binary=True)
         
         # sum the individual sweeps
-        combined_sweeps = np.sum(individual_sweeps, axis=0)
-        combined_sweeps[combined_sweeps > 255] = 255
+        combined_sweeps = np.sum(individual_sweeps, axis=0, dtype=np.uint8)
 
         return combined_sweeps
     
@@ -321,7 +324,7 @@ class SectionBuzz(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 2) % 1 == 0: # do every off-beat
+        if self.beat % 1 == 0: # do every beat
 
             chosen_section = self.shuffled[self.section]
 
@@ -349,7 +352,7 @@ class UnitBuzz(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 4) % 1 == 0: # do every off-beat
+        if (self.beat * 2) % 1 == 0: # do every off-beat
 
             start_unit_id = self.num_units * self.unit_id
             chosen_units = self.shuffled_units[start_unit_id : start_unit_id + self.num_units]
