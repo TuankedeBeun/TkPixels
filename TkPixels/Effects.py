@@ -71,9 +71,12 @@ class Sweep(Effect):
         self.xy_norm = xy / xy_max # goes from 0 to 1
 
     def get_rgb(self):
+        return self.get_rgb_of_beat(self.beat)
+
+    def get_rgb_of_beat(self, beat):
         # I = 255 * (1 - (y - t)^2)
         # I, y, t are the intensity, height and time
-        t_norm = self.beat / self.max_beats # goes from 0 to 1
+        t_norm = beat / self.max_beats # goes from 0 to 1
 
         if self.reversed:
             t_norm = 1 - t_norm
@@ -95,8 +98,30 @@ class BroadSweep(Sweep):
 
 class NarrowSweep(Sweep):
     brightness = 1
-    narrowness = 75
+    narrowness = 100
     t_scale = randint(2, 4)
+
+class NarrowSweeps(NarrowSweep):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.number_of_sweeps = randint(2, 10)
+        self.sweep_interval = randint(1, 2)
+        self.beat = self.beat_offset - self.number_of_sweeps / self.sweep_interval
+    
+    def get_rgb(self):
+        individual_sweeps = np.zeros((self.number_of_sweeps, self.num_pixels, 3), dtype=np.uint8)
+
+        # get the individual sweeps
+        for i in range(self.number_of_sweeps):
+            beat = self.beat + i / self.sweep_interval # each next sweep is delayed by beat divided by the sweep interval
+            individual_sweep = self.get_rgb_of_beat(beat)
+            individual_sweeps[i] = individual_sweep
+        
+        # sum the individual sweeps
+        combined_sweeps = np.sum(individual_sweeps, axis=0)
+        combined_sweeps[combined_sweeps > 255] = 255
+
+        return combined_sweeps
     
 class BroadSweepUp(BroadSweep):
     direction = 'N'
@@ -110,16 +135,16 @@ class BroadSweepDown(BroadSweep):
 class BroadSweepLeft(BroadSweep):
     direction = 'W'
 
-class NarrowSweepUp(NarrowSweep):
+class NarrowSweepsUp(NarrowSweeps):
     direction = 'N'
 
-class NarrowSweepRight(NarrowSweep):
+class NarrowSweepsRight(NarrowSweeps):
     direction = 'E'
 
-class NarrowSweepDown(NarrowSweep):
+class NarrowSweepsDown(NarrowSweeps):
     direction = 'S'
 
-class NarrowSweepLeft(NarrowSweep):
+class NarrowSweepsLeft(NarrowSweeps):
     direction = 'W'
 
 class SnakeStrip(Effect):

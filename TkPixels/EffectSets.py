@@ -196,13 +196,13 @@ class Test(EffectSet):
             'Test Set',
             (
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft,
-                NarrowSweepUp, NarrowSweepRight, NarrowSweepDown, NarrowSweepLeft,
+                NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
             ),
             (
-                10, 10, 10, 10,
                 0, 0, 0, 0,
+                10, 10, 10, 10,
             ),
-            10
+            2
         )
 
 EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)
