@@ -217,11 +217,13 @@ class CirclesAndShower(EffectSet):
                 CircularWaves,
                 SphericalSweepOutward,
                 Shower,
+                NarrowSweepsUp
             ),
             (
                 10,
                 15,
-                8
+                8,
+                2
             ),
             5,
             chance_multiplier = 0.6
