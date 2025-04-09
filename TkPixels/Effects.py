@@ -46,20 +46,20 @@ class StrobeColor(Effect):
 class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.max_beats = 8
         self.color = choice(self.colors)
-        brightness = 0.5 + 0.5 * random()
+        brightness = getattr(self, 'brightness')
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
-        self.t_scale = randint(3, 5)
+        self.narrowness = getattr(self, 'narrowness')
+        self.t_scale = getattr(self, 't_scale')
 
         self.direction = getattr(self, 'direction', 'N')
         if self.direction in ('N', 'S'):
             self.xy_index = 1
-            self.t_scale = randint(3, 5)
-            self.narrowness = randint(2, 30)
+            self.narrowness *= 4
         elif self.direction in ('E', 'W'):
             self.xy_index = 0
-            self.t_scale = randint(4, 6)
-            self.narrowness = randint(2, 20)
+            self.t_scale *= 2
 
         if self.direction in ('N', 'E'):
             self.reversed = False
@@ -88,16 +88,38 @@ class Sweep(Effect):
 
         return self.pixels
     
-class SweepUp(Sweep):
+class BroadSweep(Sweep):
+    brightness = 0.5 + 0.5 * random()
+    narrowness = randint(6, 12)
+    t_scale = randint(2, 3)
+
+class NarrowSweep(Sweep):
+    brightness = 1
+    narrowness = 75
+    t_scale = randint(2, 4)
+    
+class BroadSweepUp(BroadSweep):
     direction = 'N'
 
-class SweepRight(Sweep):
+class BroadSweepRight(BroadSweep):
     direction = 'E'
 
-class SweepDown(Sweep):
+class BroadSweepDown(BroadSweep):
     direction = 'S'
 
-class SweepLeft(Sweep):
+class BroadSweepLeft(BroadSweep):
+    direction = 'W'
+
+class NarrowSweepUp(NarrowSweep):
+    direction = 'N'
+
+class NarrowSweepRight(NarrowSweep):
+    direction = 'E'
+
+class NarrowSweepDown(NarrowSweep):
+    direction = 'S'
+
+class NarrowSweepLeft(NarrowSweep):
     direction = 'W'
 
 class SnakeStrip(Effect):

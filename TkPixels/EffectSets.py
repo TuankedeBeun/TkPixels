@@ -195,18 +195,14 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
-                CircularPulses,
-                CircularWaves
-                # SectionBuzz,
-                # SnakeStripLeftUp, SnakeStripRightUp, SnakeStripLeftDown, SnakeStripRightDown,
+                BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft,
+                NarrowSweepUp, NarrowSweepRight, NarrowSweepDown, NarrowSweepLeft,
             ),
             (
-                0,
-                10
-                # 10,
-                # 2,2,2,2
+                10, 10, 10, 10,
+                0, 0, 0, 0,
             ),
-            2
+            10
         )
 
 EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)
