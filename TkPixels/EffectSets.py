@@ -28,7 +28,8 @@ class All(EffectSet):
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
                 ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
-                FlashFade, 
+                FlashFade,
+                FlashFadeSlow,
                 SectionBuzz, 
                 UnitBuzz,
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
@@ -44,6 +45,7 @@ class All(EffectSet):
                 5, 5, 5, 5,
                 3, 3,
                 40,
+                3,
                 20,
                 10,
                 30, 30,
@@ -129,6 +131,7 @@ class Flashy(EffectSet):
             'Flashy & Intense',
             (
                 FlashFade,
+                FlashFadeSlow,
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
                 ClockwiseRetractingSpiral, 
                 SectionBuzz, 
@@ -139,6 +142,7 @@ class Flashy(EffectSet):
             ),
             (
                 40,
+                3,
                 5, 5, 5, 5,
                 5,
                 15,
@@ -147,7 +151,7 @@ class Flashy(EffectSet):
                 6,
                 10
             ),
-            6,
+            5,
             chance_multiplier = 0.8
         )
 
@@ -208,12 +212,14 @@ class Test(EffectSet):
             (
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft,
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
+                FlashFadeSlow
             ),
             (
                 0, 0, 0, 0,
-                10, 10, 10, 10,
+                0, 0, 0, 0,
+                10
             ),
-            2
+            1
         )
 
 EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)

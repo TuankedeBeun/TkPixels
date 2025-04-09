@@ -298,7 +298,7 @@ class FlashFade(Effect):
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
-        self.r_norm = r / r_max + 0.1 # goes from 0.2 to 1.2
+        self.r_norm = r / r_max + 0.1 # goes from 0.1 to 1.1
 
     def get_rgb(self):
         # wait until the beat offset has passsed
@@ -306,6 +306,27 @@ class FlashFade(Effect):
             return self.pixels
         
         t_norm = self.beat / self.max_beats
+        I = 255 * np.exp(-self.decay_coef / self.r_norm * t_norm)
+        self.pixels = np.outer(I, self.rgb)
+
+        return self.pixels
+
+class FlashFadeSlow(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        saturation = random() / 2
+        self.rgb = hsv_to_rgb(color, saturation, 1)
+        self.decay_coef = 0.5
+        self.max_beats = randint(10, 20)
+        self.beat = self.beat_offset - 1
+
+        r = self.pixeldata['coords_spherical'][:, 0]
+        r_max = np.max(r)
+        self.r_norm = r / r_max + 0.1 # goes from 0.1 to 1.1
+
+    def get_rgb(self):        
+        t_norm = (self.beat / self.max_beats - 0.2) * 7 # goes from -1.4 to 5.6
         I = 255 * np.exp(-self.decay_coef / self.r_norm * t_norm)
         self.pixels = np.outer(I, self.rgb)
 
