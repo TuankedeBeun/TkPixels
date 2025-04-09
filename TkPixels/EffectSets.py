@@ -209,6 +209,24 @@ class UpUp(EffectSet):
             chance_multiplier = 2
         )
 
+class CirclesAndShower(EffectSet):
+    def __init__(self):
+        super().__init__(
+            'Circles',
+            (
+                CircularWaves,
+                SphericalSweepOutward,
+                Shower,
+            ),
+            (
+                10,
+                15,
+                8
+            ),
+            5,
+            chance_multiplier = 0.6
+        )
+
 class Test(EffectSet):
     def __init__(self):
         super().__init__(
@@ -226,5 +244,5 @@ def random_effect_set():
     effect_set_weights = np.array(EffectSetWeights) / sum(EffectSetWeights)
     return np.random.choice(EffectSets, p = effect_set_weights)
 
-EffectSets = (Test, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, All)
-EffectSetWeights = (0, 2, 1, 1, 2, 2, 1, 1, 1)
+EffectSets = (Test, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, CirclesAndShower, All)
+EffectSetWeights = (0, 2, 1, 1, 2, 2, 1, 1, 1, 1)
