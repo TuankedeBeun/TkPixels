@@ -212,7 +212,7 @@ class UpUp(EffectSet):
 class CirclesAndShower(EffectSet):
     def __init__(self):
         super().__init__(
-            'Circles',
+            'Circles & Shower',
             (
                 CircularWaves,
                 SphericalSweepOutward,
