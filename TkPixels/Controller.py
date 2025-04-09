@@ -131,8 +131,10 @@ class Controller():
                 if self.bar % 32 == 0:
                     self.phrase += 1
                     self.choose_colors()
-                    self.set_effect_set(self.effect_set_nr) # Only changes when having effect set shuffle
+
+                    # Choose new effect set while on the random program
                     if self.effect_set_nr == 0:
+                        self.effect_set = self.set_effect_set(self.effect_set_nr)
                         print(f'New random effect set: {self.effect_set.name}')
 
         for effect in self.effects:
