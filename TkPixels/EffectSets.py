@@ -113,7 +113,7 @@ class Trippy(EffectSet):
             ),
             (
                 25,
-                4
+                4,
                 10, 10,
                 8, 8, 8, 8,
                 10, 10, 10, 10,
@@ -214,16 +214,12 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
-                BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft,
-                NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
-                FlashFadeSlow
+                CircularWaves,
             ),
             (
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                10
+                10,
             ),
-            1
+            2
         )
 
 EffectSets = (All, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, Test)
