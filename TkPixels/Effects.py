@@ -100,7 +100,7 @@ class Sweep(Effect):
         return self.pixels
     
 class BroadSweep(Sweep):
-    brightness = 0.5 + 0.5 * random()
+    brightness = 0.25 + 0.5 * random()
     narrowness = randint(6, 12)
     t_scale = 1 + 1 * random() # between 1 and 2
 
