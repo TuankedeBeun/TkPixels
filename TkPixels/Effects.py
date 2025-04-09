@@ -206,7 +206,7 @@ class SphericalSweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        brightness = 0.5 + 0.5 * random()
+        brightness = 0.25 + 0.5 * random()
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
