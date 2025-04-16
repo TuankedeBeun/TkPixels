@@ -243,7 +243,6 @@ class RetractingSpiral(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.num_rounds = randint(4, 9)
         self.max_spiral_width = randint(8, 25)
         self.line_width = self.max_spiral_width / randint(4, 6)
@@ -276,7 +275,10 @@ class RetractingSpiral(Effect):
 
         # Combine effects
         I = 255 * close_to_spiral * retracting_circle
-        self.pixels = np.outer(I, self.rgb)
+        sat = 1 - t_norm**4
+        brightness = t_norm**0.1
+        rgb = hsv_to_rgb(self.color, sat, brightness)
+        self.pixels = np.outer(I, rgb)
 
         return self.pixels
     

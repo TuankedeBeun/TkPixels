@@ -244,7 +244,7 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
-                Nova,
+                ClockwiseRetractingSpiral,
             ),
             (
                 10,
