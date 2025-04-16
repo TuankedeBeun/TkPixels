@@ -18,4 +18,27 @@ Install Raspberry OS using Imager:
 Install required Python modules:
 - Install neopixel and board modules by running `sudo pip3 install adafruit-circuitpython-neopixel --break-system-packages`
 
-Test
+Create an environment `myenv` and install `lRPi.GPIO` into it.
+
+Install numpy in root:
+```bash
+sudo pip install numpy
+```
+
+# Run
+To start the input, run:
+```bash
+source myenv/activate/bin
+cd Programming/TkPixels
+python start_input.py
+```
+
+To start the led show, run:
+```bash
+cd Programming/TkPixels
+sudo python led_show.py
+```
+
+# To do
+- Cleanup repository (excessive test files etc.)
+- Rewrite hardware I/O in OOP

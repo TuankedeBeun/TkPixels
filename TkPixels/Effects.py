@@ -3,10 +3,11 @@ from colorsys import hsv_to_rgb
 from random import random, choice, randint
 
 class Effect():
-    def __init__(self, colors, beat_increment, max_beats, num_pixels, pixeldata, velocity = 1):
+    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, velocity = 1):
         self.colors = colors
         self.beat = 0
         self.beat_increment = beat_increment
+        self.beat_offset = beat_offset
         self.max_beats = max_beats
         self.num_pixels = num_pixels
         self.pixeldata = pixeldata
@@ -46,56 +47,111 @@ class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.t_scale = randint(3, 5)
+        brightness = getattr(self, 'brightness')
+        self.rgb = hsv_to_rgb(self.color, 1, brightness)
+        self.narrowness = getattr(self, 'narrowness')
+        self.t_scale = getattr(self, 't_scale')
 
-        self.direction = getattr(self, 'direction', 'N')
+        self.direction = getattr(self, 'direction')
         if self.direction in ('N', 'S'):
             self.xy_index = 1
-            self.t_scale = randint(3, 5)
-            self.narrowness = randint(2, 30)
+            xy = self.pixeldata['coords_cart'][:,self.xy_index]
+            xy_max = np.max(xy)
+            self.xy_norm = xy / xy_max # goes from 0 to 1
+            self.narrowness *= 2
         elif self.direction in ('E', 'W'):
             self.xy_index = 0
-            self.t_scale = randint(4, 6)
-            self.narrowness = randint(2, 20)
+            xy = self.pixeldata['coords_cart'][:,self.xy_index]
+            xy_max = np.max(xy)
+            self.xy_norm = ((xy / xy_max) + 1) / 2 # goes from 0 to 1
 
         if self.direction in ('N', 'E'):
             self.reversed = False
         elif self.direction in ('S', 'W'):
             self.reversed = True
-
-        xy = self.pixeldata['coords_cart'][:,self.xy_index]
-        xy_max = np.max(xy)
-        self.xy_norm = xy / xy_max # goes from 0 to 1
-
+        
     def get_rgb(self):
+        return self.get_rgb_of_beat(self.beat)
+
+    def get_rgb_of_beat(self, beat, binary=False):
         # I = 255 * (1 - (y - t)^2)
         # I, y, t are the intensity, height and time
-        t_norm = self.beat / self.max_beats # goes from 0 to 1
+        t_norm = 1.2 * (beat / self.max_beats) - 0.1 # goes from -0.1 to 1.1
 
         if self.reversed:
             t_norm = 1 - t_norm
 
-        t_scaled = self.t_scale * (t_norm - 0.5) + 0.5
+        if self.direction in ('E', 'W'):
+            t_norm = 2 * (t_norm - 0.5) # goes from -1.2 to 1.2 (in contrast to -0.1 to 1.1 for N and S)
+
+        t_scaled = self.t_scale * t_norm
         I = 255 * (1 - self.narrowness * (self.xy_norm - t_scaled) ** 2)
 
         # ensure positive values
         I[I < 0] = 0
 
+        # optionally make binary
+        if binary:
+            I[I > 0] = 255
+            I = I.astype(np.uint8)
+
         self.pixels = np.outer(I, self.rgb)
 
         return self.pixels
     
-class SweepUp(Sweep):
+class BroadSweep(Sweep):
+    brightness = 0.25 + 0.5 * random()
+    narrowness = randint(6, 12)
+    t_scale = 1 + 1 * random() # between 1 and 2
+
+class NarrowSweep(Sweep):
+    brightness = 1
+    narrowness = 400
+    t_scale = 1.5 + 1.5 * random() # between 2 and 4
+
+class NarrowSweeps(NarrowSweep):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.max_beats = randint(4, 8)
+        self.number_of_sweeps = randint(3, 8)
+        self.sweep_interval = randint(1, 2)
+        self.beat = self.beat_offset - self.number_of_sweeps / self.sweep_interval
+    
+    def get_rgb(self):
+        individual_sweeps = np.zeros((self.number_of_sweeps, self.num_pixels, 3), dtype=np.uint8)
+
+        # get the individual sweeps
+        for i in range(self.number_of_sweeps):
+            beat = self.beat + i / self.sweep_interval # each next sweep is delayed by beat divided by the sweep interval
+            individual_sweeps[i] = self.get_rgb_of_beat(beat, binary=True)
+        
+        # sum the individual sweeps
+        combined_sweeps = np.sum(individual_sweeps, axis=0, dtype=np.uint8)
+
+        return combined_sweeps
+    
+class BroadSweepUp(BroadSweep):
     direction = 'N'
 
-class SweepRight(Sweep):
+class BroadSweepRight(BroadSweep):
     direction = 'E'
 
-class SweepDown(Sweep):
+class BroadSweepDown(BroadSweep):
     direction = 'S'
 
-class SweepLeft(Sweep):
+class BroadSweepLeft(BroadSweep):
+    direction = 'W'
+
+class NarrowSweepsUp(NarrowSweeps):
+    direction = 'N'
+
+class NarrowSweepsRight(NarrowSweeps):
+    direction = 'E'
+
+class NarrowSweepsDown(NarrowSweeps):
+    direction = 'S'
+
+class NarrowSweepsLeft(NarrowSweeps):
     direction = 'W'
 
 class SnakeStrip(Effect):
@@ -150,7 +206,8 @@ class SphericalSweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        brightness = 0.25 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
         self.inward = getattr(self, 'inward', True)
@@ -186,7 +243,6 @@ class RetractingSpiral(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.num_rounds = randint(4, 9)
         self.max_spiral_width = randint(8, 25)
         self.line_width = self.max_spiral_width / randint(4, 6)
@@ -219,7 +275,10 @@ class RetractingSpiral(Effect):
 
         # Combine effects
         I = 255 * close_to_spiral * retracting_circle
-        self.pixels = np.outer(I, self.rgb)
+        sat = 1 - t_norm**4
+        brightness = t_norm**0.1
+        rgb = hsv_to_rgb(self.color, sat, brightness)
+        self.pixels = np.outer(I, rgb)
 
         return self.pixels
     
@@ -237,13 +296,39 @@ class FlashFade(Effect):
         self.rgb = hsv_to_rgb(color, saturation, 1)
         self.decay_coef = 6
         self.max_beats = randint(2, 4)
+        self.beat = self.beat_offset - 1
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
-        self.r_norm = r / r_max + 0.1 # goes from 0.2 to 1.2
+        self.r_norm = r / r_max + 0.1 # goes from 0.1 to 1.1
 
     def get_rgb(self):
+        # wait until the beat offset has passsed
+        if self.beat < 0:
+            return self.pixels
+        
         t_norm = self.beat / self.max_beats
+        I = 255 * np.exp(-self.decay_coef / self.r_norm * t_norm)
+        self.pixels = np.outer(I, self.rgb)
+
+        return self.pixels
+
+class FlashFadeSlow(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        saturation = random() / 2
+        self.rgb = hsv_to_rgb(color, saturation, 1)
+        self.decay_coef = 0.5
+        self.max_beats = randint(10, 20)
+        self.beat = self.beat_offset - 1
+
+        r = self.pixeldata['coords_spherical'][:, 0]
+        r_max = np.max(r)
+        self.r_norm = r / r_max + 0.1 # goes from 0.1 to 1.1
+
+    def get_rgb(self):        
+        t_norm = (self.beat / self.max_beats - 0.2) * 7 # goes from -1.4 to 5.6
         I = 255 * np.exp(-self.decay_coef / self.r_norm * t_norm)
         self.pixels = np.outer(I, self.rgb)
 
@@ -258,10 +343,11 @@ class SectionBuzz(Effect):
         self.unique_sections = np.unique(self.section_ids, axis=0)
         self.shuffled = np.random.permutation(self.unique_sections)
         self.section = 0
+        self.beat = self.beat_offset - 1
 
     def get_rgb(self):
 
-        if (self.beat * 2) % 1 == 0: # do every off-beat
+        if self.beat % 1 == 0: # do every beat
 
             chosen_section = self.shuffled[self.section]
 
@@ -285,10 +371,11 @@ class UnitBuzz(Effect):
         self.unique_units = np.unique(self.units, axis=0)
         self.shuffled_units = np.random.permutation(self.unique_units)
         self.unit_id = 0
+        self.beat = self.beat_offset - 1
 
     def get_rgb(self):
 
-        if (self.beat * 4) % 1 == 0: # do every off-beat
+        if (self.beat * 2) % 1 == 0: # do every off-beat
 
             start_unit_id = self.num_units * self.unit_id
             chosen_units = self.shuffled_units[start_unit_id : start_unit_id + self.num_units]
@@ -410,6 +497,7 @@ class Sparkles(Effect):
         self.num_sparkles = randint(10, 25)
         self.on_count = randint(1, 7) / 2
         self.off_count = 0
+        self.beat = self.beat_offset - 1
 
     def get_rgb(self):
 
@@ -434,6 +522,166 @@ class Sparkles(Effect):
                     # when the off count has finished, determine the new on duration
                     if self.off_count == 0:
                         self.on_count = randint(1, 4) / 2
+
+        return self.pixels
+
+class CircularPulses(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        saturation = 0.5 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, saturation, 1)
+        self.frequency = 1
+        self.drop_radius = randint(30, 70)
+        self.circle_width = 3
+        self.drop_speed = 2 * self.drop_radius
+        self.beat -= self.beat_offset
+        
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        self.xlim = (int(min(self.x)), int(max(self.x)))
+        self.ylim = (int(min(self.y)), int(max(self.y)))
+
+        self.drop_coords = np.array([[randint(*self.xlim), randint(*self.ylim), 5 * self.drop_radius]], dtype=float) # coords in x, y, z
+
+    
+    def get_rgb(self):
+        # Using formula for a single droplet (falling elongated sphere):
+        # a pixel is ON if it is within the droplet radius + circle width and outside the droplet radius
+        # d < r + w and d > r
+        # d = V(dx^2 + dy^2 + dz^2) = V((x_drop - x)^2 + (y_drop - y)^2 + z_drop^2)
+
+        num_drops = len(self.drop_coords)
+        droplets_on = np.zeros((num_drops + 1, self.num_pixels))
+        for i, drop in enumerate(self.drop_coords):
+            dx = drop[0] - self.x
+            dy = drop[1] - self.y
+            dz = drop[2]
+            d = np.sqrt(dx**2 + dy**2 + (0.25 * dz)**2)
+            droplet_on = (d < self.drop_radius + self.circle_width) * (d > self.drop_radius)
+            droplets_on[i] = droplet_on
+        
+        combined_droplets = 255 * np.max(droplets_on, axis=0)
+        self.pixels = np.outer(combined_droplets, self.rgb)
+
+        # lower drops
+        self.drop_coords[:,2] -= self.drop_speed * self.beat_increment
+
+        # remove old droplets
+        condition = self.drop_coords[:, 2] > -5 * self.drop_radius
+        self.drop_coords = self.drop_coords[condition, :]
+        
+        # generate new droplets
+        if (self.beat * self.frequency) % 4 == 0: # do every off-beat
+            beats_left = self.max_beats - self.beat
+            if beats_left > 1:
+                new_drop = np.array([[randint(*self.xlim), randint(*self.ylim), 5 * self.drop_radius]]) # choose new point, 1 radius above the strip
+                self.drop_coords = np.append(self.drop_coords, new_drop, axis=0)
+
+        return self.pixels
+    
+class CircularWaves(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        saturation = 0.5 + 0.5 * random()
+        self.rgb = hsv_to_rgb(self.color, saturation, 1)
+        self.frequency = randint(1, 4) # number of drops generated per beat
+        self.max_radius = randint(70, 140)
+        self.circle_width = 7
+        self.wave_speed = randint(15, 35)
+        self.beat -= self.beat_offset
+        
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        self.xlim = (int(min(self.x)), int(max(self.x)))
+        self.ylim = (int(min(self.y)), int(max(self.y)))
+
+        self.wave_coords = np.array([[randint(*self.xlim), randint(*self.ylim), 0]], dtype=float) # coords in x, y, z
+
+    
+    def get_rgb(self):
+        # Using formula for a single droplet:
+        # a pixel is ON if it is within the droplet radius + circle width and outside the droplet radius
+
+        num_waves = len(self.wave_coords)
+        wave_intensities = np.zeros((num_waves + 1, self.num_pixels))
+        for i, wave in enumerate(self.wave_coords):
+            dx = wave[0] - self.x
+            dy = wave[1] - self.y
+            r = wave[2]
+            d = np.sqrt(dx**2 + dy**2)
+            wave_on = (d < r + self.circle_width) * (d > r)
+            wave_intensity = 255 * (1 - r / self.max_radius) * wave_on
+            wave_intensities[i] = wave_intensity
+        
+        combined_waves = np.max(wave_intensities, axis=0)
+        self.pixels = np.outer(combined_waves, self.rgb)
+
+        # increase the wave sizes
+        self.wave_coords[:,2] += self.wave_speed * self.beat_increment
+
+        # remove old waves
+        condition = self.wave_coords[:, 2] < self.max_radius
+        self.wave_coords = self.wave_coords[condition, :]
+        
+        # generate new waves
+        if (self.beat * self.frequency) % 4 == 0: # do every off-beat
+            beats_left = self.max_beats - self.beat
+            if beats_left > 1:
+                new_wave = np.array([[randint(*self.xlim), randint(*self.ylim), 0]]) # choose new point
+                self.wave_coords = np.append(self.wave_coords, new_wave, axis=0)
+
+        return self.pixels
+    
+class Nova(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.max_beats = randint(2, 3)
+        self.color = choice(self.colors)
+
+        r = self.pixeldata['coords_spherical'][:, 0]
+        r_max = np.max(r)
+        self.r_norm = r / r_max # goes from 0 to 1
+
+        r_scale = 0.75 + 0.25 * random()
+        self.r_1 = 0.25 * r_scale # radius of the light circle at t_1
+        self.r_2a = 0.07 # radius of the dark circle at t_1
+        self.r_2b = 0.12 * r_scale # radius of the dark circle at t_2
+
+        self.t_1 = 0.4 # time until light circle grows
+        self.t_2 = 0.5 # time when dark circle grows
+    
+    def get_rgb(self):
+        # Concept:
+        # 1. light circle grows until t_1
+        # 2. dark circle grows until t_2
+        # 3. light and dark circles both grow until the dark circle is fully grown 
+
+        t_norm = self.beat / self.max_beats # goes from 0 to 1
+
+        if (t_norm < self.t_1):
+            t_scaled = t_norm / self.t_1
+            r_light = self.r_1 * (t_scaled ** 2)
+            on = self.r_norm < r_light
+        
+        elif (t_norm < self.t_2):
+            t_scaled = (t_norm - self.t_1) / (self.t_2 - self.t_1)
+            light = self.r_norm < self.r_1
+            r_dark = self.r_2a + (self.r_2b - self.r_2a) * (t_scaled ** 2)
+            dark = self.r_norm < r_dark
+            on = light * (1 - dark)
+        
+        else:
+            t_scaled = (t_norm - self.t_2) / (1 - self.t_2)
+            r_light = self.r_1 + 2 * (1 - self.r_1) * (t_scaled ** 1.5) # light circle grows faster than the dark circle
+            light = self.r_norm < r_light
+            r_dark = self.r_2b + (1 - self.r_2b) * (t_scaled ** 2)
+            dark = self.r_norm < r_dark
+            on = light * (1 - dark)
+
+        rgb = hsv_to_rgb(self.color, t_norm**2, 1) # the saturation increases with time
+        self.pixels = 255 * np.outer(on, rgb)
 
         return self.pixels
     

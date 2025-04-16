@@ -2,7 +2,7 @@ from time import sleep, time
 from random import random, randint
 import numpy as np
 import csv
-from TkPixels.Effects import *
+from TkPixels.EffectSets import EffectSets, random_effect_set
 
 DATA_PATH = './data/settings.csv'
 
@@ -12,7 +12,18 @@ class Controller():
         
         # set state, bpm, effect_set_nr, brightness, effect_intensity, num_colors
         # It also sets time_per_beat, beat_increment
+        self.state = None
+        self.bpm = None
+        self.time_per_beat = None
+        self.beat_increment = None
+        self.effect_set_nr = None
+        self.brightness = None
+        self.effect_intensity = None
+        self.chance_effect_per_beat = None
+        self.num_colors = None
+        print('Loading initial settings')
         self.load_settings()
+        print('\nRuntime setting changes:')
         
         # determine time properties
         self.time = 0
@@ -26,37 +37,51 @@ class Controller():
         self.choose_colors()
         
         # effect settings
-        self.max_effects = 0
-        self.chance_effect_per_beat = 0.0
         self.num_effects = 0
         self.effects = []
-        
-        self.set_effect_set(self.effect_set_nr)
     
     def load_settings(self):
         
+        # open and read settings
         with open(DATA_PATH, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             settings = dict(reader)
         
-        self.state = int(settings['state'])
-        self.bpm = float(settings['bpm'])
-        self.effect_set_nr = int(settings['mode'])
-        self.brightness = float(settings['brightness'])
+        state = int(settings['state'])
+        bpm = float(settings['bpm'])
+        effect_set_nr = int(settings['mode'])
+        brightness = float(settings['brightness'])
         effect_intensity = float(settings['effect_intensity'])
-        self.num_colors = int(settings['number_of_colors'])
-        
-        # adjust BPM settings
-        self.time_per_beat = 60 / self.bpm
-        if self.bpm < 125:
-            self.beat_increment = 0.0625
-        else:
-            self.beat_increment = 0.125
-            
-        # adjust effect instensity
-        self.chance_effect_per_beat = 0.3 + (0.6 * effect_intensity) # range 0.3 - 0.9
-        
-        print(settings)
+        num_colors = int(settings['number_of_colors'])
+
+        if state != self.state:
+            self.state = state
+            print(f'State changed to: {state}')
+
+        if bpm != self.bpm:
+            self.bpm = bpm
+            self.time_per_beat = 60 / bpm
+            self.beat_increment = compute_beat_increment(bpm)
+            print(f'BPM changed to: {bpm} (increment {self.beat_increment})')
+
+        if effect_set_nr != self.effect_set_nr:
+            self.effect_set_nr = effect_set_nr
+            self.effect_set = self.set_effect_set(self.effect_set_nr)
+            print(f'Effect set changed to: {effect_set_nr} ({self.effect_set.name})')
+
+        if brightness != self.brightness:
+            self.brightness = brightness
+            self.board.set_brightness(self.brightness)
+            print(f'Brightness changed to: {brightness}')
+
+        if effect_intensity != self.effect_intensity:
+            self.effect_intensity = effect_intensity
+            self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
+            print(f'Effect intensity changed to: {effect_intensity} (chance/beat {round(self.chance_effect_per_beat, 2)})')
+
+        if num_colors != self.num_colors:
+            self.num_colors = num_colors
+            print(f'Number of colors changed to: {num_colors}')
 
     def play(self):
         self.time = time()
@@ -102,12 +127,15 @@ class Controller():
             if self.beat % 4 == 0:
                 self.bar += 1
                 self.load_settings()
-                self.board.set_brightness(self.brightness)
-                self.set_effect_set(self.effect_set_nr)
                 
                 if self.bar % 32 == 0:
                     self.phrase += 1
                     self.choose_colors()
+
+                    # Choose new effect set while on the random program
+                    if self.effect_set_nr == 0:
+                        self.effect_set = self.set_effect_set(self.effect_set_nr)
+                        print(f'New random effect set: {self.effect_set.name}')
 
         for effect in self.effects:
             effect.increment()
@@ -129,13 +157,18 @@ class Controller():
                 self.num_effects -= 1
 
     def add_effect(self):
-        if self.beat_increments % 1 == 0 and self.num_effects < self.max_effects:
-            if self.chance_effect_per_beat > random():
-                new_effect = np.random.choice(self.possible_effects, p = self.effect_weights)
-                max_beats = randint(4, 16)
-                new_effect_instance = new_effect(self.colors, self.beat_increment, max_beats, self.board.num_pixels, self.board.pixeldata)
-                self.effects.append(new_effect_instance)
-                self.num_effects += 1
+
+        if self.num_effects >= self.effect_set.max_effects:
+            return
+        
+        chance_per_increment = self.beat_increment * self.chance_effect_per_beat * self.effect_set.chance_multiplier
+        if chance_per_increment > random():
+            new_effect = self.effect_set.new_effect()
+            beat_offset = self.beat_increments % 1
+            max_beats = randint(4, 16) # TODO: maybe make this dynamic using a settings?
+            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, max_beats, self.board.num_pixels, self.board.pixeldata)
+            self.effects.append(new_effect_instance)
+            self.num_effects += 1
 
     def random_effect_set(self):
         possible_sets = list(range(7))
@@ -147,142 +180,20 @@ class Controller():
         print('effect set', effect_set_nr)
         return effect_set_nr
 
-    def set_effect_set(self, effect_set_nr): #TODO: effect set to separate class
-        match effect_set_nr:
+    def set_effect_set(self, effect_set_nr):
+        if effect_set_nr == 0:
+            effect_set = random_effect_set() # Auto shuffle effect sets
+        elif effect_set_nr == -1:
+            effect_set = EffectSets[0] # Choose the Test Set
+        else:
+            effect_set = EffectSets[effect_set_nr] # Choose a specific effect set
+        return effect_set()
 
-            case -1:
-                # test set
-                self.possible_effects = (SweepUp, SweepUp)
-                effect_weights = (10, 10)
-                self.max_effects = 1
-
-            case 0:
-                # low effects
-                self.possible_effects = (
-                    FlashFade, SectionPairsSnakeUp, SectionPairsSnakeDown
-                )
-                effect_weights = (
-                    10, 15, 15
-                )
-                self.max_effects = 3
-
-            case 1:
-                # soft effects
-                self.possible_effects = (
-                    FlashFade, 
-                    SphericalSweepInward, SphericalSweepOutward, 
-                    SweepRight, SweepUp, SweepDown, SweepLeft, 
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower
-                )
-                effect_weights = (
-                    10,
-                    12, 12,
-                    7, 7, 7, 7,
-                    20, 20,
-                    15
-                )
-                self.max_effects = 8
-
-            case 2:
-                # flashy effects
-                self.possible_effects = (
-                    FlashFade,
-                    ClockwiseRetractingSpiral, 
-                    SectionBuzz, 
-                    UnitBuzz, 
-                    SectionPairsSnakeUp, SectionPairsSnakeDown, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown,
-                    Sparkles
-                )
-                effect_weights = (
-                    20,
-                    5,
-                    15,
-                    15,
-                    20, 20,
-                    10, 10, 10, 10,
-                    6
-                )
-                self.max_effects = 6
-
-            case 3: 
-                # radial effects
-                self.possible_effects = (
-                    FlashFade, 
-                    SphericalSweepInward, SphericalSweepOutward, 
-                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral
-                )
-                effect_weights = (
-                    20,
-                    10, 10,
-                    6, 6
-                )
-                self.max_effects = 8
-
-            case 4: 
-                # downward effects
-                self.possible_effects = (
-                    SweepDown,
-                    SnakeStripLeftDown, SnakeStripRightDown, 
-                    SectionPairsSnakeDown,
-                    Shower
-                )
-                effect_weights = (
-                    20,
-                    8, 8,
-                    20,
-                    25
-                )
-                self.max_effects = 8
-
-            case 5: 
-                # trippy effects
-                self.possible_effects = (
-                    SphericalSweepOutward, SphericalSweepInward, 
-                    SweepUp, SweepRight, SweepDown, SweepLeft, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower,
-                    AnticlockwiseRetractingSpiral
-                )
-                effect_weights = (
-                    10, 10,
-                    8, 8, 8, 8,
-                    10, 10, 10, 10,
-                    25, 25,
-                    20,
-                    6
-                )
-                self.max_effects = 12
-
-            case 6:
-                # all effects
-                self.possible_effects = (
-                    SphericalSweepOutward, SphericalSweepInward, 
-                    SweepUp, SweepRight, SweepDown, SweepLeft, 
-                    SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
-                    ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral, 
-                    FlashFade, 
-                    SectionBuzz, 
-                    UnitBuzz,
-                    SectionPairsSnakeUp, SectionPairsSnakeDown,
-                    Shower,
-                    Sparkles
-                )
-                effect_weights = (
-                    8, 8,
-                    8, 8, 8, 8,
-                    5, 5, 5, 5,
-                    3, 3,
-                    40,
-                    20,
-                    10,
-                    30, 30,
-                    15,
-                    10
-                )
-                self.max_effects = 8
-
-        effect_weights = np.array(effect_weights)
-        self.effect_weights = effect_weights / effect_weights.sum() # normalize probabilities
+def compute_beat_increment(bpm, increment=1, minimum_ms=30):
+    beat_length_ms = 1000 * 60 / bpm
+    increment_length_ms = increment * beat_length_ms
+    
+    if (increment_length_ms / 2) < minimum_ms:
+        return increment
+    else:
+        return compute_beat_increment(bpm, (increment / 2))

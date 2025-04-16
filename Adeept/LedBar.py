@@ -75,9 +75,9 @@ def set_single_led(led, brightness=255, background=0):
 	bar_state = 2**(led - 1)
 	set_bar_state(bar_state, brightness, background)
 
-def set_cumulative_leds(leds, brightness=255):
+def set_cumulative_leds(leds, brightness=255, background=0):
 	bar_state = 2**leds - 1
-	set_bar_state(bar_state, brightness)
+	set_bar_state(bar_state, brightness, background)
 
 # used for showing setting value
 def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
@@ -96,7 +96,7 @@ def leds_stack(leds, blinking=False, blinking_freq=1, fraction_on=0.25):
 		return
 	
 	if on:
-		set_cumulative_leds(leds, brightness=10)
+		set_cumulative_leds(leds, brightness=50)
 		BLINK_STATE = True
 	else:
 		blackout()
@@ -150,7 +150,7 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 			tens = int(round(10 * fraction, 0))
 			tens = max(1, min(10, tens)) # stay within bounds [0, 10]
 			leds_stack(tens, blinking=old_value)
-		
+
 		case 3:
 			leds_stack(int(round(10 * setting_value, 0)), blinking=old_value)
 		
