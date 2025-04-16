@@ -631,3 +631,29 @@ class CircularWaves(Effect):
                 self.wave_coords = np.append(self.wave_coords, new_wave, axis=0)
 
         return self.pixels
+    
+class Nova(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+
+        r = self.pixeldata['coords_spherical'][:, 0]
+        r_max = np.max(r)
+        self.r_norm = r / r_max # goes from 0 to 1
+        self.r_1 = 0.3 # radius of the light circle at t_1
+
+        self.t_1 = 0.4 # time until light circle grows
+        self.t_2 = 0.7 # time when dark circle grows
+    
+    def get_rgb(self):
+        t_norm = self.beat / self.max_beats # goes from 0 to 1
+
+        if (t_norm < self.t_1):
+            t_scaled = t_norm / self.t_1
+            r_light = self.r_1 * t_scaled
+            on = self.r_norm < r_light
+            self.pixels = 255 * np.outer(on, self.rgb)
+
+        return self.pixels
+    

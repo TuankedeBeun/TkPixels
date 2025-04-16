@@ -234,12 +234,12 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
-                CircularWaves,
+                Nova,
             ),
             (
                 10,
             ),
-            2
+            1
         )
     
 def random_effect_set():
