@@ -3,6 +3,7 @@ from random import random, randint
 import numpy as np
 import csv
 from TkPixels.EffectSets import EffectSets, random_effect_set
+from TkPixels.AfterEffects import Invert
 
 DATA_PATH = './data/settings.csv'
 
@@ -39,6 +40,7 @@ class Controller():
         # effect settings
         self.num_effects = 0
         self.effects = []
+        self.after_effects = [Invert(self.colors)]
     
     def load_settings(self):
         
@@ -97,6 +99,10 @@ class Controller():
             # combine effects
             effects_combined = np.sum(effect_values, axis=0, dtype=int)
             effects_combined[effects_combined > 255] = 255
+
+            # apply all after effects
+            for after_effect in self.after_effects:
+                effects_combined = after_effect.apply(self.beat, effects_combined)
 
             # draw
             self.draw_strips(effects_combined)
