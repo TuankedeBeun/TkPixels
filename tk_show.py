@@ -4,8 +4,8 @@ from TkPixels.TkStripSequence import Strip
 import tkinter as tk
 
 LED_COUNT = 120
-WIDTH = 500
-HEIGHT = 750
+WIDTH = 410
+HEIGHT = 780
 BRIGHTNESS = 1
 
 # create tkinter window and canvas
