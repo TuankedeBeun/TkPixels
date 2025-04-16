@@ -36,7 +36,8 @@ class All(EffectSet):
                 Shower,
                 Sparkles,
                 CircularPulses,
-                CircularWaves
+                CircularWaves,
+                Nova
             ),
             (
                 8, 8,
@@ -52,7 +53,8 @@ class All(EffectSet):
                 15,
                 10,
                 10,
-                15
+                15,
+                20
             ),
             8
         )
@@ -109,7 +111,8 @@ class Trippy(EffectSet):
                 Shower,
                 AnticlockwiseRetractingSpiral,
                 CircularPulses,
-                CircularWaves
+                CircularWaves,
+                Nova
             ),
             (
                 25,
@@ -121,7 +124,8 @@ class Trippy(EffectSet):
                 20,
                 6,
                 12,
-                15
+                15,
+                10
             ),
             12,
             chance_multiplier = 4
@@ -140,7 +144,8 @@ class Flashy(EffectSet):
                 UnitBuzz, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown, 
                 Sparkles,
-                CircularPulses
+                CircularPulses,
+                Nova,
             ),
             (
                 40,
@@ -151,7 +156,8 @@ class Flashy(EffectSet):
                 15,
                 20, 20,
                 6,
-                10
+                10,
+                12
             ),
             5,
             chance_multiplier = 0.8
@@ -217,13 +223,15 @@ class CirclesAndShower(EffectSet):
                 CircularWaves,
                 SphericalSweepOutward,
                 Shower,
-                NarrowSweepsUp
+                NarrowSweepsUp,
+                Nova
             ),
             (
                 10,
                 15,
                 8,
-                2
+                2,
+                3
             ),
             5,
             chance_multiplier = 0.6
