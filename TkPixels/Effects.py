@@ -635,25 +635,51 @@ class CircularWaves(Effect):
 class Nova(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.max_beats = randint(2, 3)
         self.color = choice(self.colors)
-        self.rgb = hsv_to_rgb(self.color, 1, 1)
 
         r = self.pixeldata['coords_spherical'][:, 0]
         r_max = np.max(r)
         self.r_norm = r / r_max # goes from 0 to 1
-        self.r_1 = 0.3 # radius of the light circle at t_1
+
+        r_scale = 0.75 + 0.25 * random()
+        self.r_1 = 0.25 * r_scale # radius of the light circle at t_1
+        self.r_2a = 0.07 # radius of the dark circle at t_1
+        self.r_2b = 0.12 * r_scale # radius of the dark circle at t_2
 
         self.t_1 = 0.4 # time until light circle grows
-        self.t_2 = 0.7 # time when dark circle grows
+        self.t_2 = 0.5 # time when dark circle grows
     
     def get_rgb(self):
+        # Concept:
+        # 1. light circle grows until t_1
+        # 2. dark circle grows until t_2
+        # 3. light and dark circles both grow until the dark circle is fully grown 
+
         t_norm = self.beat / self.max_beats # goes from 0 to 1
 
         if (t_norm < self.t_1):
             t_scaled = t_norm / self.t_1
-            r_light = self.r_1 * t_scaled
+            r_light = self.r_1 * (t_scaled ** 2)
             on = self.r_norm < r_light
-            self.pixels = 255 * np.outer(on, self.rgb)
+        
+        elif (t_norm < self.t_2):
+            t_scaled = (t_norm - self.t_1) / (self.t_2 - self.t_1)
+            light = self.r_norm < self.r_1
+            r_dark = self.r_2a + (self.r_2b - self.r_2a) * (t_scaled ** 2)
+            dark = self.r_norm < r_dark
+            on = light * (1 - dark)
+        
+        else:
+            t_scaled = (t_norm - self.t_2) / (1 - self.t_2)
+            r_light = self.r_1 + 2 * (1 - self.r_1) * (t_scaled ** 1.5) # light circle grows faster than the dark circle
+            light = self.r_norm < r_light
+            r_dark = self.r_2b + (1 - self.r_2b) * (t_scaled ** 2)
+            dark = self.r_norm < r_dark
+            on = light * (1 - dark)
+
+        rgb = hsv_to_rgb(self.color, t_norm**2, 1) # the saturation increases with time
+        self.pixels = 255 * np.outer(on, rgb)
 
         return self.pixels
     
