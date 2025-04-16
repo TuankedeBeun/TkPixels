@@ -116,7 +116,7 @@ class Trippy(EffectSet):
             ),
             (
                 25,
-                4,
+                2,
                 10, 10,
                 8, 8, 8, 8,
                 10, 10, 10, 10,
@@ -185,11 +185,13 @@ class Snakes(EffectSet):
             'Snakes',
             (
                 SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripRightDown, SnakeStripRightUp,
-                SectionPairsSnakeDown, SectionPairsSnakeUp
+                SectionPairsSnakeDown, SectionPairsSnakeUp,
+                NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
             ),
             (
                 5, 5, 5, 5,
-                8, 8
+                8, 8,
+                1, 1, 1, 1
             ),
             15,
             chance_multiplier = 4
