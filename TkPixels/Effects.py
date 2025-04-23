@@ -690,20 +690,19 @@ class GraphSnake(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.max_beats = randint(3, 6)
+        # self.max_beats = randint(3, 6)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.snake_length = 4 #randint(4, 20)
+        self.decay_factor = 0.9
         self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1
 
-        self.current_letter = 'A' #choice(list(self.graph.keys()))
+        self.current_letter = choice(list(self.graph.keys()))
         self.choose_next_intersection(self.current_letter)
         
     def choose_next_intersection(self, letter):
         self.current_letter = letter
         self.next_letter = choice(list(self.graph[letter]['connections'].keys()))
         next_intersection = self.graph[letter]['connections'][self.next_letter]
-        print('next letter', self.next_letter)
         self.strip_nr = next_intersection['strip_nr']
         self.led_index_curent = next_intersection['led_start']
         self.led_index_end = next_intersection['led_end']
@@ -720,7 +719,7 @@ class GraphSnake(Effect):
     def get_rgb(self):
         strip_nr = self.pixeldata['indices'][:, 0] == self.strip_nr
         indices = self.pixeldata['indices'][:, 1]
-        on = strip_nr * (self.led_index_curent <= indices) * (indices < self.led_index_curent + self.snake_length)
+        on = strip_nr * (self.led_index_curent == indices)
 
-        self.pixels = np.outer(255 * on, self.rgb)
+        self.pixels = np.outer(255 * on, self.rgb) + self.decay_factor * self.pixels
         return self.pixels

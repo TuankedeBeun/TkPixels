@@ -249,7 +249,8 @@ class Test(EffectSet):
             (
                 10,
             ),
-            1
+            10,
+            chance_multiplier = 6
         )
     
 def random_effect_set():
