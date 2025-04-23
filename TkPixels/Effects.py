@@ -3,7 +3,7 @@ from colorsys import hsv_to_rgb
 from random import random, choice, randint
 
 class Effect():
-    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, velocity = 1):
+    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, graph, velocity = 1):
         self.colors = colors
         self.beat = 0
         self.beat_increment = beat_increment
@@ -11,6 +11,7 @@ class Effect():
         self.max_beats = max_beats
         self.num_pixels = num_pixels
         self.pixeldata = pixeldata
+        self.graph = graph
         self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
 
     def get_rgb(self):
@@ -685,3 +686,40 @@ class Nova(Effect):
 
         return self.pixels
     
+class GraphSnake(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.max_beats = randint(3, 6)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.pixel_index = 0
+        self.snake_length = randint(4, 20)
+        self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1
+
+        self.current_letter = 'A' #choice(list(self.graph.keys()))
+        self.choose_next_intersection(self.current_letter)
+        
+    def choose_next_intersection(self, letter):
+        self.current_letter = letter
+        self.next_letter = choice(list(self.graph[letter]['connections'].keys()))
+        next_intersection = self.graph[letter]['connections'][self.next_letter]
+        self.strip_nr = next_intersection['strip_nr']
+        self.led_index_curent = next_intersection['led_start']
+        self.led_index_end = next_intersection['led_end']
+        self.pixel_index_increment = 1 if self.led_index_end > self.led_index_curent else -1
+
+    def increment(self):
+        self.beat += self.beat_increment
+        if self.pixel_index + self.pixel_index_increment <= self.led_index_end:
+            self.pixel_index += self.pixel_index_increment
+        else:
+            self.choose_next_intersection(self.next_letter)
+    
+    def get_rgb(self):
+        strip_nr = self.pixeldata['indices'][:, 0] == self.strip_nr
+        indices = self.pixeldata['indices'][:, 1]
+        on = strip_nr * (self.pixel_index <= indices) * (indices < self.pixel_index + self.snake_length)
+
+        self.pixels = np.outer(255 * on, self.rgb)
+        return self.pixels
