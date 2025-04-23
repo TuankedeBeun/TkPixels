@@ -250,13 +250,15 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
-                GraphSnake,
+                GraphSectionBuzz,
+                SectionBuzz
             ),
             (
                 10,
+                5
             ),
-            8,
-            chance_multiplier = 4
+            5,
+            chance_multiplier = 1
         )
     
 def random_effect_set():

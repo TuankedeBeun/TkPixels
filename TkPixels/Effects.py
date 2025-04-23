@@ -741,3 +741,28 @@ class GraphSnake(Effect):
         for primary_color in range(3):
             self.pixels[self.pixels[:,primary_color] > (255 * self.rgb[primary_color]), primary_color] = 255 * self.rgb[primary_color]
         return self.pixels
+
+class GraphSectionBuzz(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        self.section_ids = self.pixeldata['graph_section_ids']
+        self.unique_sections = np.unique(self.section_ids, axis=0)
+        self.shuffled = np.random.permutation(self.unique_sections)
+        self.section = 0
+        self.beat = self.beat_offset - 1
+
+    def get_rgb(self):
+
+        if (self.beat * 4) % 1 == 0: # do every beat
+
+            chosen_section = self.shuffled[self.section]
+
+            on = (self.section_ids == chosen_section)
+            on = np.prod(on, axis=1)
+
+            self.pixels = np.outer(255 * on, self.rgb)
+            self.section = (self.section + 1) % len(self.shuffled)
+
+        return self.pixels
