@@ -697,6 +697,7 @@ class GraphSnake(Effect):
         self.decay_factor = 0.7 + 0.2 * random() # random between 0.7 and 0.9
         self.decay_increments = log(0.1, self.decay_factor) # the number of increments needed at the end to end at 10% brightness
         self.pixel_index_increment = max(1, 16 * self.beat_increment)
+        self.snake_length = max(self.pixel_index_increment, randint(2, 6))
 
         self.current_letter = choice(list(self.graph.keys()))
         self.choose_next_intersection(self.current_letter)
@@ -730,11 +731,13 @@ class GraphSnake(Effect):
         
         # progress the snake
         if self.direction == 1:
-            end = min(self.led_index_end, self.led_index_curent + self.pixel_index_increment)
+            end = min(self.led_index_end, self.led_index_curent + self.snake_length)
             on = strip_nr * (indices >= self.led_index_curent) * (indices < end)
         elif self.direction == -1:
-            end = max(self.led_index_end, self.led_index_curent - self.pixel_index_increment)
+            end = max(self.led_index_end, self.led_index_curent - self.snake_length)
             on = strip_nr * (indices <= self.led_index_curent) * (indices > end)
             
         self.pixels = np.outer(255 * on, self.rgb) + self.decay_factor * self.pixels
+        for primary_color in range(3):
+            self.pixels[self.pixels[:,primary_color] > (255 * self.rgb[primary_color]), primary_color] = 255 * self.rgb[primary_color]
         return self.pixels
