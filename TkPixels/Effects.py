@@ -693,8 +693,8 @@ class GraphSnake(Effect):
         # self.max_beats = randint(3, 6)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.decay_factor = 0.9
-        self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1
+        self.decay_factor = 0.8 # TODO: make random
+        self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1 # TODO: Make dependent on BPM
 
         self.current_letter = choice(list(self.graph.keys()))
         self.choose_next_intersection(self.current_letter)
@@ -706,20 +706,23 @@ class GraphSnake(Effect):
         self.strip_nr = next_intersection['strip_nr']
         self.led_index_curent = next_intersection['led_start']
         self.led_index_end = next_intersection['led_end']
-        self.pixel_index_increment = 1 if self.led_index_end > self.led_index_curent else -1
+        self.direction = 1 if self.led_index_end > self.led_index_curent else -1
 
     def increment(self):
         self.beat += self.beat_increment
-        self.led_index_curent += self.pixel_index_increment
+        self.led_index_curent += self.direction * self.pixel_index_increment
 
-        if (self.pixel_index_increment == 1 and self.led_index_curent > self.led_index_end) or \
-           (self.pixel_index_increment == -1 and self.led_index_curent < self.led_index_end):
+        if (self.direction == 1 and self.led_index_curent > self.led_index_end) or \
+           (self.direction == -1 and self.led_index_curent < self.led_index_end):
             self.choose_next_intersection(self.next_letter)
 
     def get_rgb(self):
         strip_nr = self.pixeldata['indices'][:, 0] == self.strip_nr
         indices = self.pixeldata['indices'][:, 1]
-        on = strip_nr * (self.led_index_curent == indices)
+        if (self.max_beats - self.beat) / self.beat_increment > 8: # TODO: Make dependent on decay factor
+            on = strip_nr * (self.led_index_curent <= indices) * (indices < self.led_index_curent + self.pixel_index_increment)
+        else:
+            on = 0 * strip_nr
 
         self.pixels = np.outer(255 * on, self.rgb) + self.decay_factor * self.pixels
         return self.pixels
