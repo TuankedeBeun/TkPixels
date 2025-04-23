@@ -696,7 +696,7 @@ class GraphSnake(Effect):
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.decay_factor = 0.7 + 0.2 * random() # random between 0.7 and 0.9
         self.decay_increments = log(0.1, self.decay_factor) # the number of increments needed at the end to end at 10% brightness
-        self.pixel_index_increment = randint(1, 3)
+        self.pixel_index_increment = max(1, 16 * self.beat_increment)
 
         self.current_letter = choice(list(self.graph.keys()))
         self.choose_next_intersection(self.current_letter)
