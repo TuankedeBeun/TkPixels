@@ -32,7 +32,7 @@ def get_intersection_of_coords(coord_11, coord_12, coord_21, coord_22):
 
     return [x_int, y_int]
 
-def get_intersections(corners):
+def compute_graph(corners):
     flipped_corners = flip_corners(deepcopy(corners))
 
     ### X COORDS ###
