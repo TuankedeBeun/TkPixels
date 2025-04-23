@@ -37,7 +37,8 @@ class All(EffectSet):
                 Sparkles,
                 CircularPulses,
                 CircularWaves,
-                Nova
+                Nova,
+                GraphSnake
             ),
             (
                 8, 8,
@@ -54,7 +55,8 @@ class All(EffectSet):
                 10,
                 10,
                 15,
-                20
+                20,
+                30
             ),
             8
         )
@@ -67,13 +69,15 @@ class Soft(EffectSet):
                 SphericalSweepInward, SphericalSweepOutward, 
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 Shower,
-                CircularWaves
+                CircularWaves,
+                GraphSnake
             ),
             (
                 12, 12,
                 7, 7, 7, 7,
-                15,
-                10
+                12,
+                10,
+                15
             ),
             8
         )
@@ -108,6 +112,7 @@ class Trippy(EffectSet):
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
+                GraphSnake,
                 Shower,
                 AnticlockwiseRetractingSpiral,
                 CircularPulses,
@@ -121,6 +126,7 @@ class Trippy(EffectSet):
                 8, 8, 8, 8,
                 10, 10, 10, 10,
                 25, 25,
+                30,
                 20,
                 6,
                 12,
@@ -187,11 +193,13 @@ class Snakes(EffectSet):
                 SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripRightDown, SnakeStripRightUp,
                 SectionPairsSnakeDown, SectionPairsSnakeUp,
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
+                GraphSnake
             ),
             (
                 5, 5, 5, 5,
                 8, 8,
-                1, 1, 1, 1
+                1, 1, 1, 1,
+                30
             ),
             15,
             chance_multiplier = 4
