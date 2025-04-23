@@ -73,48 +73,20 @@ def compute_graph(corners):
 
     ### DEFINE INTERSECTION COORDINATES
     intersections = {
-        'A': {
-            'coords': [-x_2, y_0]
-        },
-        'B': {
-            'coords': [x_2, y_0]
-        },
-        'C': {
-            'coords': [-x_2, y_1]
-        },
-        'D': {
-            'coords': [x_2, y_1]
-        },
-        'E': {
-            'coords': [x_0, y_2]
-        },
-        'F': {
-            'coords': [-x_1, y_3]
-        },
-        'G': {
-            'coords': [x_1, y_3]
-        },
-        'H': {
-            'coords': [x_0, y_4]
-        },
-        'I': {
-            'coords': [-x_2, y_5]
-        },
-        'J': {
-            'coords': [-x_1, y_5]
-        },
-        'K': {
-            'coords': [x_1, y_5]
-        },
-        'L': {
-            'coords': [x_2, y_5]
-        },
-        'M': {
-            'coords': [-x_1, y_6]
-        },
-        'N': {
-            'coords': [x_1, y_6]
-        }
+        'A': {'coords': [-x_2, y_0]},
+        'B': {'coords': [x_2, y_0]},
+        'C': {'coords': [-x_2, y_1]},
+        'D': {'coords': [x_2, y_1]},
+        'E': {'coords': [x_0, y_2]},
+        'F': {'coords': [-x_1, y_3]},
+        'G': {'coords': [x_1, y_3]},
+        'H': {'coords': [x_0, y_4]},
+        'I': {'coords': [-x_2, y_5]},
+        'J': {'coords': [-x_1, y_5]},
+        'K': {'coords': [x_1, y_5]},
+        'L': {'coords': [x_2, y_5]},
+        'M': {'coords': [-x_1, y_6]},
+        'N': {'coords': [x_1, y_6]}
     }
 
     led_nrs_per_intersection = compute_led_nrs_per_intersection(intersections)
