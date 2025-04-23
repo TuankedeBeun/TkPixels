@@ -13,6 +13,21 @@ def compute_led_nrs_per_intersection(intersections, total_leds):
 
     return led_nrs_per_intersection
 
+def get_graph_section_ids_of_all_leds(led_nrs_per_intersection, total_leds):
+
+    graph_section_ids_strip = list()
+    led_nrs_per_intersection.pop(0)
+
+    section_id = 0
+    for i in range(total_leds):
+        while section_id < len(led_nrs_per_intersection) and i >= led_nrs_per_intersection[section_id]:
+            section_id += 1
+        if section_id >= len(led_nrs_per_intersection):
+            raise ValueError('LED nr out of bounds')
+        graph_section_ids_strip.append(section_id)
+
+    return graph_section_ids_strip
+
 def get_intersection_of_coords(coord_11, coord_12, coord_21, coord_22):
     # compute intersection [x_int, y_int] of y1(x) = a1*x + b2 and y2(x) = a2*x + b2
     # a = Dy / Dx
@@ -84,188 +99,220 @@ def compute_graph(corners, total_leds):
         'E': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[0],
-            'led_end': led_nrs_per_intersection[1]
+            'led_end': led_nrs_per_intersection[1],
+            'graph_section': 0
         }
     }
     graph['B']['connections'] = {
         'E': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[0],
-            'led_end': led_nrs_per_intersection[1]
+            'led_end': led_nrs_per_intersection[1],
+            'graph_section': 0
         }
     }
     graph['C']['connections'] = {
         'F': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[4],
-            'led_end': led_nrs_per_intersection[5]
+            'led_end': led_nrs_per_intersection[5],
+            'graph_section': 4
         },
         'I': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[4],
-            'led_end': led_nrs_per_intersection[3]
+            'led_end': led_nrs_per_intersection[3],
+            'graph_section': 3
         }
     }
     graph['D']['connections'] = {
         'G': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[4],
-            'led_end': led_nrs_per_intersection[5]
+            'led_end': led_nrs_per_intersection[5],
+            'graph_section': 4
         },
         'L': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[4],
-            'led_end': led_nrs_per_intersection[3]
+            'led_end': led_nrs_per_intersection[3],
+            'graph_section': 3
         }
     }
     graph['E']['connections'] = {
         'A': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[1],
-            'led_end': led_nrs_per_intersection[0]
+            'led_end': led_nrs_per_intersection[0],
+            'graph_section': 0
         },
         'B': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[1],
-            'led_end': led_nrs_per_intersection[0]
+            'led_end': led_nrs_per_intersection[0],
+            'graph_section': 0
         },
         'F': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[1],
-            'led_end': led_nrs_per_intersection[2]
+            'led_end': led_nrs_per_intersection[2],
+            'graph_section': 1
         },
         'G': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[1],
-            'led_end': led_nrs_per_intersection[2]
+            'led_end': led_nrs_per_intersection[2],
+            'graph_section': 1
         }
     }
     graph['F']['connections'] = {
         'C': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[5],
-            'led_end': led_nrs_per_intersection[4]
+            'led_end': led_nrs_per_intersection[4],
+            'graph_section': 4
         },
         'E': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[2],
-            'led_end': led_nrs_per_intersection[1]
+            'led_end': led_nrs_per_intersection[1],
+            'graph_section': 1
         },
         'H': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[5],
-            'led_end': led_nrs_per_intersection[6]
+            'led_end': led_nrs_per_intersection[6],
+            'graph_section': 5
         },
         'I': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[2],
-            'led_end': led_nrs_per_intersection[3]
+            'led_end': led_nrs_per_intersection[3],
+            'graph_section': 2
         }
     }
     graph['G']['connections'] = {
         'D': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[5],
-            'led_end': led_nrs_per_intersection[4]
+            'led_end': led_nrs_per_intersection[4],
+            'graph_section': 4
         },
         'E': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[2],
-            'led_end': led_nrs_per_intersection[1]
+            'led_end': led_nrs_per_intersection[1],
+            'graph_section': 1
         },
         'H': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[5],
-            'led_end': led_nrs_per_intersection[6]
+            'led_end': led_nrs_per_intersection[6],
+            'graph_section': 5
         },
         'L': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[2],
-            'led_end': led_nrs_per_intersection[3]
+            'led_end': led_nrs_per_intersection[3],
+            'graph_section': 2
         }
     }
     graph['H']['connections'] = {
         'F': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[6],
-            'led_end': led_nrs_per_intersection[5]
+            'led_end': led_nrs_per_intersection[5],
+            'graph_section': 5
         },
         'G': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[6],
-            'led_end': led_nrs_per_intersection[5]
+            'led_end': led_nrs_per_intersection[5],
+            'graph_section': 5
         },
         'J': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[6],
-            'led_end': led_nrs_per_intersection[7]
+            'led_end': led_nrs_per_intersection[7],
+            'graph_section': 6
         },
         'K': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[6],
-            'led_end': led_nrs_per_intersection[7]
+            'led_end': led_nrs_per_intersection[7],
+            'graph_section': 6
         }
     }
     graph['I']['connections'] = {
         'C': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[3],
-            'led_end': led_nrs_per_intersection[4]
+            'led_end': led_nrs_per_intersection[4],
+            'graph_section': 3
         },
         'F': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[3],
-            'led_end': led_nrs_per_intersection[2]
+            'led_end': led_nrs_per_intersection[2],
+            'graph_section': 2
         }
     }
     graph['J']['connections'] = {
         'H': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[7],
-            'led_end': led_nrs_per_intersection[6]
+            'led_end': led_nrs_per_intersection[6],
+            'graph_section': 6
         },
         'M': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[7],
-            'led_end': led_nrs_per_intersection[8]
+            'led_end': led_nrs_per_intersection[8],
+            'graph_section': 7
         }
     }
     graph['K']['connections'] = {
         'H': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[7],
-            'led_end': led_nrs_per_intersection[6]
+            'led_end': led_nrs_per_intersection[6],
+            'graph_section': 6
         },
         'N': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[7],
-            'led_end': led_nrs_per_intersection[8]
+            'led_end': led_nrs_per_intersection[8],
+            'graph_section': 7
         }
     }
     graph['L']['connections'] = {
         'D': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[3],
-            'led_end': led_nrs_per_intersection[4]
+            'led_end': led_nrs_per_intersection[4],
+            'graph_section': 3
         },
         'G': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[3],
-            'led_end': led_nrs_per_intersection[2]
+            'led_end': led_nrs_per_intersection[2],
+            'graph_section': 2
         }
     }
     graph['M']['connections'] = {
         'J': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[8],
-            'led_end': led_nrs_per_intersection[7]
+            'led_end': led_nrs_per_intersection[7],
+            'graph_section': 7
         }
     }
     graph['N']['connections'] = {
         'K': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[8],
-            'led_end': led_nrs_per_intersection[7]
+            'led_end': led_nrs_per_intersection[7],
+            'graph_section': 7
         }
     }
 

@@ -9,9 +9,7 @@ CORNERS = [
     [-9.5, 106.21]
 ]
 
-def get_section_id_of_led(corners, led_nr, total_leds):
-
-    cumulative_distances = compute_cumulative_distances(corners)
+def get_section_id_of_led(cumulative_distances, led_nr, total_leds):
     total_distance = cumulative_distances[-1]
 
     # convert led nr to distance
@@ -94,8 +92,10 @@ def get_section_ids_of_all_leds(total_leds, x_mirrored=False):
 
     section_ids_strip = list()
 
+    cumulative_distances = compute_cumulative_distances(corners)
+
     for i in range(total_leds):
-        coord = get_section_id_of_led(corners, i, total_leds)
+        coord = get_section_id_of_led(cumulative_distances, i, total_leds)
         section_ids_strip.append(coord)
 
     return section_ids_strip
