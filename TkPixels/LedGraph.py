@@ -35,7 +35,7 @@ def get_intersection_of_coords(coord_11, coord_12, coord_21, coord_22):
 def compute_graph(corners):
     flipped_corners = flip_corners(deepcopy(corners))
 
-    ### X COORDS ###
+    ### DEFINE X/Y COORDS ###
     # top/bottom diamond
     x_0 = 0
     # right diamond / right upper part
@@ -43,7 +43,6 @@ def compute_graph(corners):
     # right side
     x_2 = corners[2][0]
 
-    ### Y COORDS ###
     # bottom
     y_0 = corners[0][1]
     # lower right/left corner
@@ -68,11 +67,9 @@ def compute_graph(corners):
     for key in coords.keys():
         for i in range(len(coords[key])):
             coords[key][i] = round(coords[key][i], 1)
-    # display coords
-    print(coords)
 
     ### DEFINE INTERSECTION COORDINATES
-    intersections = {
+    graph = {
         'A': {'coords': [-x_2, y_0]},
         'B': {'coords': [x_2, y_0]},
         'C': {'coords': [-x_2, y_1]},
@@ -89,24 +86,24 @@ def compute_graph(corners):
         'N': {'coords': [x_1, y_6]}
     }
 
-    led_nrs_per_intersection = compute_led_nrs_per_intersection(intersections)
+    led_nrs_per_intersection = compute_led_nrs_per_intersection(graph)
 
     ### DETERMINE CONNECTIONS
-    intersections['A']['connections'] = {
+    graph['A']['connections'] = {
         'E': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[0],
             'led_end': led_nrs_per_intersection[1]
         }
     }
-    intersections['B']['connections'] = {
+    graph['B']['connections'] = {
         'E': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[0],
             'led_end': led_nrs_per_intersection[1]
         }
     }
-    intersections['C']['connections'] = {
+    graph['C']['connections'] = {
         'F': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[4],
@@ -118,7 +115,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[3]
         }
     }
-    intersections['D']['connections'] = {
+    graph['D']['connections'] = {
         'G': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[4],
@@ -130,7 +127,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[3]
         }
     }
-    intersections['E']['connections'] = {
+    graph['E']['connections'] = {
         'A': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[1],
@@ -152,7 +149,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[2]
         }
     }
-    intersections['F']['connections'] = {
+    graph['F']['connections'] = {
         'C': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[5],
@@ -174,7 +171,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[3]
         }
     }
-    intersections['G']['connections'] = {
+    graph['G']['connections'] = {
         'D': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[5],
@@ -196,7 +193,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[3]
         }
     }
-    intersections['H']['connections'] = {
+    graph['H']['connections'] = {
         'F': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[6],
@@ -218,7 +215,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[7]
         }
     }
-    intersections['I']['connections'] = {
+    graph['I']['connections'] = {
         'C': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[3],
@@ -230,7 +227,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[2]
         }
     }
-    intersections['J']['connections'] = {
+    graph['J']['connections'] = {
         'H': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[7],
@@ -242,7 +239,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[8]
         }
     }
-    intersections['K']['connections'] = {
+    graph['K']['connections'] = {
         'H': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[7],
@@ -254,7 +251,7 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[8]
         }
     }
-    intersections['L']['connections'] = {
+    graph['L']['connections'] = {
         'D': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[3],
@@ -266,14 +263,14 @@ def compute_graph(corners):
             'led_end': led_nrs_per_intersection[2]
         }
     }
-    intersections['M']['connections'] = {
+    graph['M']['connections'] = {
         'J': {
             'strip_nr': 1,
             'led_start': led_nrs_per_intersection[8],
             'led_end': led_nrs_per_intersection[7]
         }
     }
-    intersections['N']['connections'] = {
+    graph['N']['connections'] = {
         'K': {
             'strip_nr': 0,
             'led_start': led_nrs_per_intersection[8],
@@ -281,4 +278,4 @@ def compute_graph(corners):
         }
     }
 
-    return intersections
+    return graph
