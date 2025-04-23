@@ -197,3 +197,122 @@ def distance(loc1, loc2):
     dx = loc2[0] - loc1[0]
     dist = sqrt(dy**2 + dx**2)
     return dist
+
+def get_intersection_of_coords(coord_11, coord_12, coord_21, coord_22):
+    # compute intersection [x_int, y_int] of y1(x) = a1*x + b2 and y2(x) = a2*x + b2
+    # a = Dy / Dx
+    # b = y - a1*x
+    # x_int = - (b2 - b1) / (a2 - a1)
+    # y_int = a1 * x_int + b1
+
+    a1 = (coord_12[1] - coord_11[1]) / (coord_12[0] - coord_11[0])
+    b1 = coord_11[1] - a1 * coord_11[0]
+    a2 = (coord_22[1] - coord_21[1]) / (coord_22[0] - coord_21[0])
+    b2 = coord_21[1] - a2 * coord_21[0]
+
+    x_int = - (b2 - b1) / (a2 - a1)
+    y_int = a1 * x_int + b1
+
+    return [x_int, y_int]
+
+def get_intersections(corners):
+    flipped_corners = flip_corners(deepcopy(corners))
+
+    ### X COORDS ###
+    # top/bottom diamond
+    x_0 = 0
+    # right diamond / right upper part
+    x_1 = -corners[4][0]
+    # right side
+    x_2 = corners[2][0]
+
+    ### Y COORDS ###
+    # bottom
+    y_0 = corners[0][1]
+    # lower right/left corner
+    y_1 = corners[2][1]
+    # bottom diamond
+    x, y_2 = get_intersection_of_coords(corners[0], corners[1], flipped_corners[0], flipped_corners[1])
+    # left/right diamond
+    x, y_3 = get_intersection_of_coords(corners[0], corners[1], corners[2], corners[3])
+    # top diamond
+    x, y_4 = get_intersection_of_coords(corners[2], corners[3], flipped_corners[2], flipped_corners[3])
+    # upper right/left corner / bottom upper part
+    y_5 = corners[1][1]
+    # top
+    y_6 = corners[4][1]
+
+    # gather all coords
+    coords = {
+        'x': [x_0, x_1, x_2],
+        'y': [y_0, y_1, y_2, y_3, y_4]
+    }
+    # round all values to 1 decimal place
+    for key in coords.keys():
+        for i in range(len(coords[key])):
+            coords[key][i] = round(coords[key][i], 1)
+    # display coords
+    print(coords)
+
+    intersections = {
+        'A': {
+            'coords': [-x_2, y_0],
+            'connections': ['E']
+        },
+        'B': {
+            'coords': [x_2, y_0],
+            'connections': ['E']
+        },
+        'C': {
+            'coords': [-x_2, y_1],
+            'connections': ['F', 'I']
+        },
+        'D': {
+            'coords': [x_2, y_1],
+            'connections': ['G', 'L']
+        },
+        'E': {
+            'coords': [x_0, y_2],
+            'connections': ['A', 'B', 'F', 'G']
+        },
+        'F': {
+            'coords': [-x_1, y_3],
+            'connections': ['C', 'E', 'H', 'I']
+        },
+        'G': {
+            'coords': [x_1, y_3],
+            'connections': ['D', 'E', 'G', 'L']
+        },
+        'H': {
+            'coords': [x_0, y_4],
+            'connections': ['F', 'G', 'J', 'K']
+        },
+        'I': {
+            'coords': [-x_2, y_5],
+            'connections': ['C', 'F']
+        },
+        'J': {
+            'coords': [-x_1, y_5],
+            'connections': ['H', 'M']
+        },
+        'K': {
+            'coords': [x_1, y_5],
+            'connections': ['H', 'N']
+        },
+        'L': {
+            'coords': [x_2, y_5],
+            'connections': ['D', 'G']
+        },
+        'M': {
+            'coords': [-x_1, y_6],
+            'connections': ['J']
+        },
+        'N': {
+            'coords': [x_1, y_6],
+            'connections': ['K']
+        }
+    }
+
+    return coords
+
+get_intersections(CORNERS)
