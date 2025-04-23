@@ -251,13 +251,15 @@ class Test(EffectSet):
             'Test Set',
             (
                 GraphSectionBuzz,
-                SectionBuzz
+                SectionBuzz,
+                GraphSectionSnake
             ),
             (
-                10,
-                5
+                12,
+                5,
+                10
             ),
-            5,
+            3,
             chance_multiplier = 1
         )
     

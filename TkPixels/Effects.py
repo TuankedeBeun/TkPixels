@@ -755,7 +755,7 @@ class GraphSectionBuzz(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 4) % 1 == 0: # do every beat
+        if (self.beat * 2) % 1 == 0: # do every beat
 
             chosen_section = self.shuffled[self.section]
 
@@ -764,5 +764,35 @@ class GraphSectionBuzz(Effect):
 
             self.pixels = np.outer(255 * on, self.rgb)
             self.section = (self.section + 1) % len(self.shuffled)
+
+        return self.pixels
+
+class GraphSectionSnake(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.section_ids = self.pixeldata['graph_section_ids']
+
+        self.current_letter = choice(list(self.graph.keys()))
+        self.choose_next_graph_section(self.current_letter)
+        self.beat = self.beat_offset - 1
+        
+    def choose_next_graph_section(self, letter):
+        self.current_letter = letter
+        self.next_letter = choice(list(self.graph[letter]['connections'].keys())) # TODO: make sure it does not choose the previous one again
+        next_intersection = self.graph[letter]['connections'][self.next_letter]
+        self.strip_nr = next_intersection['strip_nr']
+        self.graph_section = next_intersection['graph_section']
+
+    def get_rgb(self):
+        if (self.beat * 4) % 1 == 0: # do every beat
+
+            on = (self.section_ids == np.array([self.strip_nr, self.graph_section]))
+            on = np.prod(on, axis=1)
+
+            self.pixels = np.outer(255 * on, self.rgb)
+            self.choose_next_graph_section(self.next_letter)
 
         return self.pixels
