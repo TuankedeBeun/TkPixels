@@ -7,7 +7,7 @@ PIXEL_RADIUS = 10
 X_BOUNDS = (2*PIXEL_RADIUS, 410 - 2*PIXEL_RADIUS)
 Y_BOUNDS = (2*PIXEL_RADIUS, 780 - 2*PIXEL_RADIUS)
 COORD_FILE_PATH = "data/led_coordinates.json"
-GRAPH_FILE_PATH = "data/led_coordinates.json"
+GRAPH_FILE_PATH = "data/graph.json"
 
 # Get LED indices
 led_indices_r = [[0, i] for i in range(NUM_PIXELS)]
@@ -69,7 +69,7 @@ with open(COORD_FILE_PATH, "w") as outfile:
     json.dump(led_coordinates, outfile)
 
 # Compute graph
-led_graph = compute_graph(CORNERS)
+led_graph = compute_graph(CORNERS, NUM_PIXELS)
 
 with open(GRAPH_FILE_PATH, "w") as outfile: 
-    json.dump(led_coordinates, outfile)
+    json.dump(led_graph, outfile)

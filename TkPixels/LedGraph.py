@@ -3,15 +3,13 @@ from TkPixels.LedCoordinates import compute_cumulative_distances, flip_corners
 
 def compute_led_nrs_per_intersection(intersections, total_leds):
     # get the coords of all the intersections of a specific strip
-    intersection_letters_per_strip = [
-        ['A', 'E', 'G', 'L', 'D', 'G', 'H', 'J', 'M'], # only left strip, because the right one has the same outcome
-    ]
+    intersection_letters_per_strip = ['A', 'E', 'G', 'L', 'D', 'G', 'H', 'J', 'M'] # only left strip, because the right one has the same outcome
 
     intersection_coords = [intersections[letter]['coords'] for letter in intersection_letters_per_strip]
 
-    cumulative_distances = compute_cumulative_distances(intersection_coords)
+    cumulative_distances = compute_cumulative_distances(intersection_coords, count_zero=True)
     total_dist = cumulative_distances[-1]
-    led_nrs_per_intersection = [dist/total_dist*total_leds for dist in cumulative_distances]
+    led_nrs_per_intersection = [int(dist / total_dist * total_leds) for dist in cumulative_distances]
 
     return led_nrs_per_intersection
 
@@ -32,7 +30,7 @@ def get_intersection_of_coords(coord_11, coord_12, coord_21, coord_22):
 
     return [x_int, y_int]
 
-def compute_graph(corners):
+def compute_graph(corners, total_leds):
     flipped_corners = flip_corners(deepcopy(corners))
 
     ### DEFINE X/Y COORDS ###
@@ -48,25 +46,18 @@ def compute_graph(corners):
     # lower right/left corner
     y_1 = corners[2][1]
     # bottom diamond
-    x, y_2 = get_intersection_of_coords(corners[0], corners[1], flipped_corners[0], flipped_corners[1])
+    intersection = get_intersection_of_coords(corners[0], corners[1], flipped_corners[0], flipped_corners[1])
+    y_2 = round(intersection[1], 1)
     # left/right diamond
-    x, y_3 = get_intersection_of_coords(corners[0], corners[1], corners[2], corners[3])
+    intersection = get_intersection_of_coords(corners[0], corners[1], corners[2], corners[3])
+    y_3 = round(intersection[1], 1)
     # top diamond
-    x, y_4 = get_intersection_of_coords(corners[2], corners[3], flipped_corners[2], flipped_corners[3])
+    intersection = get_intersection_of_coords(corners[2], corners[3], flipped_corners[2], flipped_corners[3])
+    y_4 = round(intersection[1], 1)
     # upper right/left corner / bottom upper part
     y_5 = corners[1][1]
     # top
     y_6 = corners[4][1]
-
-    # gather all coords
-    coords = {
-        'x': [x_0, x_1, x_2],
-        'y': [y_0, y_1, y_2, y_3, y_4]
-    }
-    # round all values to 1 decimal place
-    for key in coords.keys():
-        for i in range(len(coords[key])):
-            coords[key][i] = round(coords[key][i], 1)
 
     ### DEFINE INTERSECTION COORDINATES
     graph = {
@@ -86,7 +77,7 @@ def compute_graph(corners):
         'N': {'coords': [x_1, y_6]}
     }
 
-    led_nrs_per_intersection = compute_led_nrs_per_intersection(graph)
+    led_nrs_per_intersection = compute_led_nrs_per_intersection(graph, total_leds)
 
     ### DETERMINE CONNECTIONS
     graph['A']['connections'] = {

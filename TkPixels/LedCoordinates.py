@@ -186,7 +186,7 @@ def distance(loc1, loc2):
     dist = sqrt(dy**2 + dx**2)
     return dist
 
-def compute_cumulative_distances(coords):
+def compute_cumulative_distances(coords, count_zero=False):
     distances = list()
     for i in range(len(coords) - 1):
         dist = distance(coords[i], coords[i + 1])
@@ -194,7 +194,11 @@ def compute_cumulative_distances(coords):
 
     # cumulative distances
     cumulative_total = 0
-    cumulative_distances = list()
+    if count_zero:
+        cumulative_distances = [0]
+    else:
+        cumulative_distances = []
+
     for i in range(len(distances)):
         cumulative_total += distances[i]
         cumulative_distances.append(cumulative_total)
