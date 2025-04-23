@@ -1,6 +1,7 @@
 import numpy as np
 from colorsys import hsv_to_rgb
 from random import random, choice, randint
+from math import log
 
 class Effect():
     def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, graph, velocity = 1):
@@ -693,8 +694,9 @@ class GraphSnake(Effect):
         # self.max_beats = randint(3, 6)
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
-        self.decay_factor = 0.8 # TODO: make random
-        self.pixel_index_increment = int(self.num_pixels / (2 * self.max_beats / self.beat_increment)) + 1 # TODO: Make dependent on BPM
+        self.decay_factor = 0.7 + 0.2 * random() # random between 0.7 and 0.9
+        self.decay_increments = log(0.1, self.decay_factor) # the number of increments needed at the end to end at 10% brightness
+        self.pixel_index_increment = randint(1, 3)
 
         self.current_letter = choice(list(self.graph.keys()))
         self.choose_next_intersection(self.current_letter)
@@ -712,17 +714,27 @@ class GraphSnake(Effect):
         self.beat += self.beat_increment
         self.led_index_curent += self.direction * self.pixel_index_increment
 
-        if (self.direction == 1 and self.led_index_curent > self.led_index_end) or \
-           (self.direction == -1 and self.led_index_curent < self.led_index_end):
+        if (self.direction == 1 and self.led_index_curent >= self.led_index_end) or \
+           (self.direction == -1 and self.led_index_curent <= self.led_index_end):
             self.choose_next_intersection(self.next_letter)
 
     def get_rgb(self):
         strip_nr = self.pixeldata['indices'][:, 0] == self.strip_nr
         indices = self.pixeldata['indices'][:, 1]
-        if (self.max_beats - self.beat) / self.beat_increment > 8: # TODO: Make dependent on decay factor
-            on = strip_nr * (self.led_index_curent <= indices) * (indices < self.led_index_curent + self.pixel_index_increment)
-        else:
-            on = 0 * strip_nr
 
+        # stop progressing the snake near the end
+        if (self.max_beats - self.beat) / self.beat_increment < self.decay_increments:
+            on = 0 * strip_nr
+            self.pixels = self.decay_factor * self.pixels
+            return self.pixels
+        
+        # progress the snake
+        if self.direction == 1:
+            end = min(self.led_index_end, self.led_index_curent + self.pixel_index_increment)
+            on = strip_nr * (indices >= self.led_index_curent) * (indices < end)
+        elif self.direction == -1:
+            end = max(self.led_index_end, self.led_index_curent - self.pixel_index_increment)
+            on = strip_nr * (indices <= self.led_index_curent) * (indices > end)
+            
         self.pixels = np.outer(255 * on, self.rgb) + self.decay_factor * self.pixels
         return self.pixels
