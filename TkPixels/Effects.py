@@ -296,7 +296,7 @@ class FlashFade(Effect):
         color = choice(self.colors)
         saturation = 0.5 + random() / 2
         self.rgb = hsv_to_rgb(color, saturation, 1)
-        self.decay_coef = 6
+        self.decay_coef = 5
         self.max_beats = randint(2, 4)
         self.beat = self.beat_offset - 1
 
