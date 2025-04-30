@@ -37,7 +37,8 @@ class All(EffectSet):
                 Sparkles,
                 CircularPulses, CircularWaves,
                 Nova,
-                GraphSnake, GraphSectionBuzz, GraphNodeBuzz, GraphSectionSnake
+                GraphSnake, GraphSectionBuzz, GraphNodeBuzz, GraphSectionSnake,
+                GraphLightning
             ),
             (
                 8, 8,
@@ -54,7 +55,8 @@ class All(EffectSet):
                 10,
                 10, 15,
                 20,
-                30, 15, 15, 20
+                30, 15, 15, 20,
+                15
             ),
             8
         )
@@ -171,13 +173,15 @@ class IntenseFlashing(EffectSet):
                 SectionBuzz, UnitBuzz,
                 GraphSectionBuzz, GraphNodeBuzz,
                 Sparkles,
+                GraphLightning
             ),
             (
                 40,
                 2,
                 12, 12,
                 12, 12,
-                8
+                8,
+                10
             ),
             5,
             chance_multiplier = 0.8
@@ -189,11 +193,13 @@ class BeatAndZip(EffectSet):
             'Beat & Zip',
             (
                 FlashFade, FlashFadeSlow,
-                SectionPairsSnakeUp, SectionPairsSnakeDown
+                SectionPairsSnakeUp, SectionPairsSnakeDown,
+                GraphLightning
             ),
             (
                 20, 1,
-                30, 30
+                30, 30,
+                10
             ),
             5,
             chance_multiplier = 2

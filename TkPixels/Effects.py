@@ -868,7 +868,7 @@ class GraphLightning(Effect):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
         self.beat = self.beat_offset - 1
-        self.max_beats = randint(4, 8)
+        self.max_beats = randint(2, 6)
 
         section_ids = self.pixeldata['graph_section_ids']
         self.number_of_sections = 20
