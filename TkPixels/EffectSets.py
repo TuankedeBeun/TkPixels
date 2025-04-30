@@ -255,7 +255,7 @@ class Test(EffectSet):
                 GraphSectionSnake
             ),
             (
-                12,
+                5,
                 5,
                 10
             ),

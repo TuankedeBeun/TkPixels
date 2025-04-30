@@ -774,6 +774,9 @@ class GraphSectionSnake(Effect):
         self.color = choice(self.colors)
         self.rgb = hsv_to_rgb(self.color, 1, 1)
         self.section_ids = self.pixeldata['graph_section_ids']
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        self.node_radius = 2.5
 
         self.current_letter = choice(list(self.graph.keys()))
         self.choose_next_graph_section(self.current_letter)
@@ -781,18 +784,27 @@ class GraphSectionSnake(Effect):
         
     def choose_next_graph_section(self, letter):
         self.current_letter = letter
-        self.next_letter = choice(list(self.graph[letter]['connections'].keys())) # TODO: make sure it does not choose the previous one again
+        self.next_letter = choice(list(self.graph[letter]['connections'].keys()))
         next_intersection = self.graph[letter]['connections'][self.next_letter]
         self.strip_nr = next_intersection['strip_nr']
         self.graph_section = next_intersection['graph_section']
+        self.node_coords = self.graph[letter]['coords']
 
     def get_rgb(self):
-        if (self.beat * 4) % 1 == 0: # do every beat
-
+        if (self.beat * 2) % 1 == 0: # do every beat
+            # Light the node
+            dx = self.node_coords[0] - self.x
+            dy = self.node_coords[1] - self.y
+            d = np.sqrt(dx**2 + dy**2)
+            on = d < self.node_radius
+            self.pixels = np.outer(255 * on, self.rgb)
+        
+        elif (self.beat * 2) % 1 == 0.5: # do every off-beat
+            # Light the intersection
             on = (self.section_ids == np.array([self.strip_nr, self.graph_section]))
             on = np.prod(on, axis=1)
-
             self.pixels = np.outer(255 * on, self.rgb)
+
             self.choose_next_graph_section(self.next_letter)
 
         return self.pixels
