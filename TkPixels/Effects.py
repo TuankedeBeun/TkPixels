@@ -868,24 +868,34 @@ class GraphLightning(Effect):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
         self.beat = self.beat_offset - 1
-        self.max_beats = 4 #randint(4, 8)
+        self.max_beats = randint(4, 8)
 
         section_ids = self.pixeldata['graph_section_ids']
-        unique_sections = np.unique(section_ids, axis=0)
-        
-        chosen_section_ids = np.random.choice(14, 10, replace=False) # TODO: temporary choice model
-        chosen_sections = np.array([unique_sections[id] for id in chosen_section_ids])
+        self.number_of_sections = 20
+        current_letter = choice(list(self.graph.keys()))
 
-        ons = np.zeros((10, self.num_pixels), dtype=np.uint8)
-        for i in range(10):
-            on = (section_ids == chosen_sections[i])
+        ons = np.zeros((self.number_of_sections, self.num_pixels), dtype=np.uint8)
+
+        for i in range(self.number_of_sections):
+            # choose a new random connected node and its intersection
+            next_letter = choice(list(self.graph[current_letter]['connections'].keys()))
+            next_intersection = self.graph[current_letter]['connections'][next_letter]
+            section_id = np.array([next_intersection['strip_nr'], next_intersection['graph_section']])
+
+            # compute which leds are on
+            on = (section_ids == section_id)
             on = np.prod(on, axis=1)
             ons[i] = on
+
+            # update the current letter
+            current_letter = next_letter
 
         self.on = np.max(ons, axis=0)
 
     def get_rgb(self):
+        # saturation starts at 0 and increases rapidly to 1
         sat = 1 - ((self.max_beats - self.beat) / self.max_beats)**5
+        # brightness starts at 1 and decreases moderately to 0.5
         brightness = 1 - (self.beat / self.max_beats)**2
         self.rgb = hsv_to_rgb(self.color, sat, brightness)
         self.pixels = np.outer(255 * self.on, self.rgb)
