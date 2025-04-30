@@ -767,6 +767,48 @@ class GraphSectionBuzz(Effect):
 
         return self.pixels
 
+class GraphNodeBuzz(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        number_of_letters = list(self.graph.keys())
+        self.nodes_together = randint(1, 4)
+        self.loop_length = randint(5, 9)
+        self.node_radius = randint(3, 6)
+        
+        if self.nodes_together == 1:
+            self.frequency = 4
+            self.loop_length *= 2
+        else:
+            self.frequency = 2
+
+        self.node_program = np.random.choice(number_of_letters, (self.loop_length, self.nodes_together), replace=True)
+        self.program_id = 0
+        self.beat = self.beat_offset - 1
+
+    def get_rgb(self):
+
+        if (self.beat * self.frequency) % 1 == 0:
+
+            letters = self.node_program[self.program_id]
+
+            pixel_stack = np.zeros((self.nodes_together, self.num_pixels), dtype=np.uint8)
+            for i, letter in enumerate(letters):
+                coord = self.graph[letter]['coords']
+                dx = coord[0] - self.x
+                dy = coord[1] - self.y
+                d = np.sqrt(dx**2 + dy**2)
+                on = d < self.node_radius
+                pixel_stack[i] = on
+
+            self.pixels = np.outer(255 * np.max(pixel_stack, axis=0), self.rgb)
+            self.program_id = (self.program_id + 1) % self.loop_length
+
+        return self.pixels
+
 class GraphSectionSnake(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
