@@ -198,7 +198,7 @@ class BeatAndZip(EffectSet):
             ),
             (
                 20, 1,
-                30, 30,
+                40, 40,
                 10
             ),
             5,
