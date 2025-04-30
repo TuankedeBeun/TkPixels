@@ -294,4 +294,4 @@ def random_effect_set():
     return np.random.choice(EffectSets, p = effect_set_weights)
 
 EffectSets = (Test, Soft, Downward, Trippy, IntenseMoving, IntenseFlashing, BeatAndZip, Snakes, UpUp, CirclesAndShower, All)
-EffectSetWeights = (0, 2, 1, 1, 2, 2, 1, 1, 1, 1)
+EffectSetWeights = (0, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1)
