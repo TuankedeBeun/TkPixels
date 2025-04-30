@@ -349,7 +349,7 @@ class SectionBuzz(Effect):
 
     def get_rgb(self):
 
-        if self.beat % 1 == 0: # do every beat
+        if self.beat % 2 == 0: # do every beat
 
             chosen_section = self.shuffled[self.section]
 
@@ -377,7 +377,7 @@ class UnitBuzz(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 2) % 1 == 0: # do every off-beat
+        if self.beat % 1 == 0: # do every off-beat
 
             start_unit_id = self.num_units * self.unit_id
             chosen_units = self.shuffled_units[start_unit_id : start_unit_id + self.num_units]
@@ -755,7 +755,7 @@ class GraphSectionBuzz(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 2) % 1 == 0: # do every beat
+        if self.beat % 1 == 0: # do every beat
 
             chosen_section = self.shuffled[self.section]
 
