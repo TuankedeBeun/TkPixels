@@ -157,7 +157,7 @@ class IntenseMoving(EffectSet):
                 20, 20,
                 6,
                 10,
-                20
+                15
             ),
             5,
             chance_multiplier = 0.8
