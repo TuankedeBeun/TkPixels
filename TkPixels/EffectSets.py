@@ -273,11 +273,11 @@ class Test(EffectSet):
                 GraphSectionSnake
             ),
             (
-                5,
-                5,
+                0,
+                0,
                 10
             ),
-            3,
+            1,
             chance_multiplier = 1
         )
     

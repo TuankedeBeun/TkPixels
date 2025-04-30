@@ -777,34 +777,46 @@ class GraphSectionSnake(Effect):
         self.x = self.pixeldata['coords_cart'][:,0]
         self.y = self.pixeldata['coords_cart'][:,1]
         self.node_radius = 2.5
-
-        self.current_letter = choice(list(self.graph.keys()))
-        self.choose_next_graph_section(self.current_letter)
+        self.number_of_snakes = 4 #randint(2, 4)
         self.beat = self.beat_offset - 1
+
+        self.snakes = []
+        for i in range(self.number_of_snakes):
+            snake = {
+                'current_letter': choice(list(self.graph.keys()))
+            }
+            self.choose_next_graph_section(snake, snake['current_letter'])
+            self.snakes.append(snake)
         
-    def choose_next_graph_section(self, letter):
-        self.current_letter = letter
-        self.next_letter = choice(list(self.graph[letter]['connections'].keys()))
-        next_intersection = self.graph[letter]['connections'][self.next_letter]
-        self.strip_nr = next_intersection['strip_nr']
-        self.graph_section = next_intersection['graph_section']
-        self.node_coords = self.graph[letter]['coords']
+    def choose_next_graph_section(self, snake, letter):
+        snake['current_letter'] = letter
+        snake['next_letter'] = choice(list(self.graph[letter]['connections'].keys()))
+        next_intersection = self.graph[letter]['connections'][snake['next_letter']]
+        snake['strip_nr'] = next_intersection['strip_nr']
+        snake['graph_section'] = next_intersection['graph_section']
+        snake['node_coords'] = self.graph[letter]['coords']
 
     def get_rgb(self):
-        if (self.beat * 2) % 1 == 0: # do every beat
-            # Light the node
-            dx = self.node_coords[0] - self.x
-            dy = self.node_coords[1] - self.y
-            d = np.sqrt(dx**2 + dy**2)
-            on = d < self.node_radius
-            self.pixels = np.outer(255 * on, self.rgb)
-        
-        elif (self.beat * 2) % 1 == 0.5: # do every off-beat
-            # Light the intersection
-            on = (self.section_ids == np.array([self.strip_nr, self.graph_section]))
-            on = np.prod(on, axis=1)
-            self.pixels = np.outer(255 * on, self.rgb)
+        pixel_stack = np.zeros((self.number_of_snakes, self.num_pixels, 3), dtype=np.uint8)
 
-            self.choose_next_graph_section(self.next_letter)
+        if (self.beat * 2) % 1 == 0:
+            for i, snake in enumerate(self.snakes):
+                if (self.beat * 1) % 1 == 0: # do every beat
+                    # Light the node
+                    dx = snake['node_coords'][0] - self.x
+                    dy = snake['node_coords'][1] - self.y
+                    d = np.sqrt(dx**2 + dy**2)
+                    on = d < self.node_radius
+                    pixel_stack[i] = np.outer(255 * on, self.rgb)
+                
+                elif (self.beat * 1) % 1 == 0.5: # do every off-beat
+                    # Light the intersection
+                    on = (self.section_ids == np.array([snake['strip_nr'], snake['graph_section']]))
+                    on = np.prod(on, axis=1)
+                    pixel_stack[i] = np.outer(255 * on, self.rgb)
+
+                    self.choose_next_graph_section(snake, snake['next_letter'])
+
+            self.pixels = np.max(pixel_stack, axis=0)
 
         return self.pixels
