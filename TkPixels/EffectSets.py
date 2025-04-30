@@ -269,9 +269,11 @@ class Test(EffectSet):
                 GraphSectionBuzz,
                 SectionBuzz,
                 GraphSectionSnake,
-                GraphNodeBuzz
+                GraphNodeBuzz,
+                GraphLightning
             ),
             (
+                0,
                 0,
                 0,
                 0,

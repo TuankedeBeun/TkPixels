@@ -862,3 +862,31 @@ class GraphSectionSnake(Effect):
             self.pixels = np.max(pixel_stack, axis=0)
 
         return self.pixels
+
+class GraphLightning(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        self.beat = self.beat_offset - 1
+        self.max_beats = 4 #randint(4, 8)
+
+        section_ids = self.pixeldata['graph_section_ids']
+        unique_sections = np.unique(section_ids, axis=0)
+        
+        chosen_section_ids = np.random.choice(14, 10, replace=False) # TODO: temporary choice model
+        chosen_sections = np.array([unique_sections[id] for id in chosen_section_ids])
+
+        ons = np.zeros((10, self.num_pixels), dtype=np.uint8)
+        for i in range(10):
+            on = (section_ids == chosen_sections[i])
+            on = np.prod(on, axis=1)
+            ons[i] = on
+
+        self.on = np.max(ons, axis=0)
+
+    def get_rgb(self):
+        sat = 1 - ((self.max_beats - self.beat) / self.max_beats)**5
+        brightness = 1 - (self.beat / self.max_beats)**2
+        self.rgb = hsv_to_rgb(self.color, sat, brightness)
+        self.pixels = np.outer(255 * self.on, self.rgb)
+        return self.pixels
