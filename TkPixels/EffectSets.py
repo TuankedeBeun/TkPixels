@@ -35,10 +35,9 @@ class All(EffectSet):
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
                 Shower,
                 Sparkles,
-                CircularPulses,
-                CircularWaves,
+                CircularPulses, CircularWaves,
                 Nova,
-                GraphSnake
+                GraphSnake, GraphSectionBuzz, GraphSectionSnake
             ),
             (
                 8, 8,
@@ -53,10 +52,9 @@ class All(EffectSet):
                 30, 30,
                 15,
                 10,
-                10,
-                15,
+                10, 15,
                 20,
-                30
+                30, 15, 20
             ),
             8
         )
@@ -110,7 +108,7 @@ class Trippy(EffectSet):
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 SnakeStripLeftUp, SnakeStripLeftDown, SnakeStripRightUp, SnakeStripRightDown, 
                 SectionPairsSnakeUp, SectionPairsSnakeDown,
-                GraphSnake,
+                GraphSnake, GraphSectionSnake,
                 Shower,
                 AnticlockwiseRetractingSpiral,
                 CircularPulses,
@@ -124,7 +122,7 @@ class Trippy(EffectSet):
                 8, 8, 8, 8,
                 10, 10, 10, 10,
                 25, 25,
-                30,
+                30, 10,
                 20,
                 6,
                 12,
