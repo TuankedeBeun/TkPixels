@@ -777,8 +777,8 @@ class GraphNodeBuzz(Effect):
         number_of_letters = list(self.graph.keys())
         self.nodes_together = randint(1, 4)
         self.loop_length = randint(5, 9)
-        self.node_radius = randint(3, 6)
-        
+        self.node_radius = randint(4, 7)
+
         if self.nodes_together == 1:
             self.frequency = 4
             self.loop_length *= 2

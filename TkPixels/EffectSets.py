@@ -37,7 +37,7 @@ class All(EffectSet):
                 Sparkles,
                 CircularPulses, CircularWaves,
                 Nova,
-                GraphSnake, GraphSectionBuzz, GraphSectionSnake
+                GraphSnake, GraphSectionBuzz, GraphNodeBuzz, GraphSectionSnake
             ),
             (
                 8, 8,
@@ -54,7 +54,7 @@ class All(EffectSet):
                 10,
                 10, 15,
                 20,
-                30, 15, 20
+                30, 15, 15, 20
             ),
             8
         )
@@ -169,14 +169,14 @@ class IntenseFlashing(EffectSet):
                 FlashFade,
                 FlashFadeSlow,
                 SectionBuzz, UnitBuzz,
-                GraphSectionBuzz,
+                GraphSectionBuzz, GraphNodeBuzz,
                 Sparkles,
             ),
             (
                 40,
                 2,
                 12, 12,
-                12,
+                12, 12,
                 8
             ),
             5,
@@ -268,9 +268,11 @@ class Test(EffectSet):
             (
                 GraphSectionBuzz,
                 SectionBuzz,
-                GraphSectionSnake
+                GraphSectionSnake,
+                GraphNodeBuzz
             ),
             (
+                0,
                 0,
                 0,
                 10
