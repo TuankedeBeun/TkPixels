@@ -135,33 +135,51 @@ class Trippy(EffectSet):
             chance_multiplier = 4
         )
 
-class Flashy(EffectSet):
+class IntenseMoving(EffectSet):
     def __init__(self):
         super().__init__(
-            'Flashy & Intense',
+            'Intense Moves',
             (
                 FlashFade,
                 FlashFadeSlow,
                 NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
-                ClockwiseRetractingSpiral, 
-                SectionBuzz, 
-                UnitBuzz, 
+                ClockwiseRetractingSpiral, AnticlockwiseRetractingSpiral,
                 SectionPairsSnakeUp, SectionPairsSnakeDown, 
-                Sparkles,
                 CircularPulses,
                 Nova,
+                GraphSectionSnake
             ),
             (
                 40,
-                3,
+                2,
                 4, 4, 4, 4,
-                5,
-                15,
-                15,
+                3, 3,
                 20, 20,
                 6,
                 10,
-                12
+                20
+            ),
+            5,
+            chance_multiplier = 0.8
+        )
+
+class IntenseFlashing(EffectSet):
+    def __init__(self):
+        super().__init__(
+            'Intense Flashes',
+            (
+                FlashFade,
+                FlashFadeSlow,
+                SectionBuzz, UnitBuzz,
+                GraphSectionBuzz,
+                Sparkles,
+            ),
+            (
+                40,
+                2,
+                12, 12,
+                12,
+                8
             ),
             5,
             chance_multiplier = 0.8
@@ -267,5 +285,5 @@ def random_effect_set():
     effect_set_weights = np.array(EffectSetWeights) / sum(EffectSetWeights)
     return np.random.choice(EffectSets, p = effect_set_weights)
 
-EffectSets = (Test, Soft, Downward, Trippy, Flashy, BeatAndZip, Snakes, UpUp, CirclesAndShower, All)
+EffectSets = (Test, Soft, Downward, Trippy, IntenseMoving, IntenseFlashing, BeatAndZip, Snakes, UpUp, CirclesAndShower, All)
 EffectSetWeights = (0, 2, 1, 1, 2, 2, 1, 1, 1, 1)
