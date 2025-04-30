@@ -777,7 +777,7 @@ class GraphSectionSnake(Effect):
         self.x = self.pixeldata['coords_cart'][:,0]
         self.y = self.pixeldata['coords_cart'][:,1]
         self.node_radius = 2.5
-        self.number_of_snakes = 4 #randint(2, 4)
+        self.number_of_snakes = randint(2, 5)
         self.beat = self.beat_offset - 1
 
         self.snakes = []
