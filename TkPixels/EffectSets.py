@@ -212,14 +212,12 @@ class Snakes(EffectSet):
             (
                 SnakeStripLeftDown, SnakeStripLeftUp, SnakeStripRightDown, SnakeStripRightUp,
                 SectionPairsSnakeDown, SectionPairsSnakeUp,
-                NarrowSweepsUp, NarrowSweepsRight, NarrowSweepsDown, NarrowSweepsLeft,
                 GraphSnake
             ),
             (
                 5, 5, 5, 5,
                 8, 8,
-                1, 1, 1, 1,
-                30
+                25
             ),
             15,
             chance_multiplier = 4
@@ -272,20 +270,20 @@ class Test(EffectSet):
         super().__init__(
             'Test Set',
             (
+                GraphSnake,
                 GraphSectionBuzz,
-                SectionBuzz,
                 GraphSectionSnake,
                 GraphNodeBuzz,
                 GraphLightning
             ),
             (
-                0,
-                0,
-                0,
-                0,
-                10
+                10,
+                10,
+                10,
+                10,
+                10,
             ),
-            1,
+            3,
             chance_multiplier = 1
         )
     
