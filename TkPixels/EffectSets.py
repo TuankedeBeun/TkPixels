@@ -217,7 +217,7 @@ class Snakes(EffectSet):
             (
                 5, 5, 5, 5,
                 8, 8,
-                25
+                35
             ),
             15,
             chance_multiplier = 4
@@ -266,7 +266,7 @@ class CirclesAndShower(EffectSet):
         )
 
 class Test(EffectSet):
-    def __init__(self):
+    def __init__(self): 
         super().__init__(
             'Test Set',
             (
