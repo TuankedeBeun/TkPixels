@@ -140,7 +140,7 @@ def determine_output(setting_nr, setting_value, time_last_setting_press, time_la
 				swipe_full(reverse=reverse)
 		
 		case 1:
-			leds_stack(int(setting_value + 1), blinking=old_value)
+			leds_stack(int(setting_value), blinking=old_value)
 		
 		case 2:
 			bpm_min = 60
