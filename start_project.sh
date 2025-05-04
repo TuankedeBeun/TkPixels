@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set safe environment
-export PATH=/usr/bin:/bin:/usr/local/bin
+export PATH=/usr/bin:/bin/usr/local/bin
 
 # navogate to project root
 cd /home/tuanke/Programming/TkPixels || exit
