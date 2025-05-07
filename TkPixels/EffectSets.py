@@ -225,7 +225,7 @@ class Snakes(EffectSet):
                 35
             ),
             15,
-            chance_multiplier = 4
+            chance_multiplier = 3
         )
 
 class UpUp(EffectSet):
