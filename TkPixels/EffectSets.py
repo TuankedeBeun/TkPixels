@@ -256,18 +256,16 @@ class CirclesAndShower(EffectSet):
                 CircularWaves,
                 SphericalSweepOutward,
                 Shower,
-                Nova,
-                GraphSnake
+                Nova
             ),
             (
-                10,
+                8,
                 15,
                 8,
-                3,
-                5
+                3
             ),
-            5,
-            chance_multiplier = 0.6
+            3,
+            chance_multiplier = 2
         )
 
 class Test(EffectSet):
