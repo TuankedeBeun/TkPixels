@@ -58,7 +58,7 @@ class All(EffectSet):
                 30, 15, 15, 20,
                 15
             ),
-            8
+            6
         )
 
 class Soft(EffectSet):
@@ -69,15 +69,18 @@ class Soft(EffectSet):
                 SphericalSweepInward, SphericalSweepOutward, 
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 Shower,
-                CircularWaves
+                CircularWaves,
+                GraphSnake
             ),
             (
                 12, 12,
                 7, 7, 7, 7,
-                12,
+                5,
+                1,
                 10
             ),
-            8
+            8,
+            chance_multiplier = 1.2
         )
 
 class Downward(EffectSet):
@@ -86,15 +89,17 @@ class Downward(EffectSet):
             'Smoothly Downward',
             (
                 BroadSweepDown,
-                SnakeStripLeftDown, SnakeStripRightDown, 
+                SnakeStripLeftDown, SnakeStripRightDown,
+                NarrowSweepsDown,
                 SectionPairsSnakeDown,
                 Shower
             ),
             (
                 20,
                 8, 8,
+                5,
                 20,
-                25
+                15
             ),
             8
         )
@@ -132,7 +137,7 @@ class Trippy(EffectSet):
                 10
             ),
             12,
-            chance_multiplier = 4
+            chance_multiplier = 1.5
         )
 
 class IntenseMoving(EffectSet):
@@ -160,7 +165,7 @@ class IntenseMoving(EffectSet):
                 15
             ),
             5,
-            chance_multiplier = 0.8
+            chance_multiplier = 1.2
         )
 
 class IntenseFlashing(EffectSet):
@@ -184,7 +189,7 @@ class IntenseFlashing(EffectSet):
                 10
             ),
             5,
-            chance_multiplier = 0.8
+            chance_multiplier = 0.9
         )
 
 class BeatAndZip(EffectSet):
@@ -197,9 +202,9 @@ class BeatAndZip(EffectSet):
                 GraphLightning
             ),
             (
-                20, 1,
-                40, 40,
-                10
+                30, 1,
+                50, 50,
+                8
             ),
             5,
             chance_multiplier = 2
@@ -220,7 +225,7 @@ class Snakes(EffectSet):
                 35
             ),
             15,
-            chance_multiplier = 4
+            chance_multiplier = 3
         )
 
 class UpUp(EffectSet):
@@ -234,13 +239,13 @@ class UpUp(EffectSet):
                 NarrowSweepsUp
             ),
             (
-                12, 12,
-                20,
+                20, 20,
+                30,
                 15,
                 3
             ),
             10,
-            chance_multiplier = 2
+            chance_multiplier = 2.5
         )
 
 class CirclesAndShower(EffectSet):
@@ -251,18 +256,16 @@ class CirclesAndShower(EffectSet):
                 CircularWaves,
                 SphericalSweepOutward,
                 Shower,
-                Nova,
-                GraphSnake
+                Nova
             ),
             (
-                10,
+                8,
                 15,
                 8,
-                3,
-                5
+                3
             ),
-            5,
-            chance_multiplier = 0.6
+            3,
+            chance_multiplier = 2
         )
 
 class Test(EffectSet):

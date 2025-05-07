@@ -21,30 +21,6 @@ class Effect():
     def increment(self):
         self.beat += self.beat_increment
 
-class Strobe(Effect):
-    def get_rgb(self):
-        if self.beat % 1.25 == 0:
-            self.pixels[:,:] = 255
-        else:
-            self.pixels[:,:] = 0
-
-        return self.pixels
-    
-class StrobeColor(Effect):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.color = choice(self.colors)
-        self.max_beats = randint(4,7)
-
-    def get_rgb(self):
-        if self.beat % 1 == 0:
-            rgb = hsv_to_rgb(self.color, 1, 1)
-            self.pixels[:] = 255 * np.array(rgb)
-        else:
-            self.pixels[:,:] = 0
-
-        return self.pixels
-    
 class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,7 +78,7 @@ class Sweep(Effect):
         return self.pixels
     
 class BroadSweep(Sweep):
-    brightness = 0.25 + 0.5 * random()
+    brightness = 0.1 + 0.4 * random()
     narrowness = randint(6, 12)
     t_scale = 1 + 1 * random() # between 1 and 2
 
@@ -208,7 +184,7 @@ class SphericalSweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        brightness = 0.25 + 0.5 * random()
+        brightness = 0.1 + 0.4 * random()
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
@@ -503,27 +479,26 @@ class Sparkles(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 8) % 1 == 0: # sparkle frequency is 8 per beat
-            if self.on_count > 0:
-                indices_sparkles = np.random.choice(self.indices, self.num_sparkles, replace=False)
-                on = np.isin(self.indices, indices_sparkles)
-                self.pixels = np.outer(255 * on, self.rgb)
+        if self.on_count > 0:
+            indices_sparkles = np.random.choice(self.indices, self.num_sparkles, replace=False)
+            on = np.isin(self.indices, indices_sparkles)
+            self.pixels = np.outer(255 * on, self.rgb)
 
-                if (self.beat * 2) % 1 == 0:
-                    self.on_count -= 0.5
+            if (self.beat * 2) % 1 == 0:
+                self.on_count -= 0.5
 
-                    if self.on_count == 0:
-                        self.off_count = randint(1, 7) / 2
+                if self.on_count == 0:
+                    self.off_count = randint(1, 7) / 2
 
-            elif self.off_count > 0:
-                self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
+        elif self.off_count > 0:
+            self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
 
-                if (self.beat * 2) % 1 == 0:
-                    self.off_count -= 0.5
+            if (self.beat * 2) % 1 == 0:
+                self.off_count -= 0.5
 
-                    # when the off count has finished, determine the new on duration
-                    if self.off_count == 0:
-                        self.on_count = randint(1, 4) / 2
+                # when the off count has finished, determine the new on duration
+                if self.off_count == 0:
+                    self.on_count = randint(1, 4) / 2
 
         return self.pixels
 
