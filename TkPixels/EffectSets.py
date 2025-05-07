@@ -189,7 +189,7 @@ class IntenseFlashing(EffectSet):
                 10
             ),
             5,
-            chance_multiplier = 0.8
+            chance_multiplier = 0.9
         )
 
 class BeatAndZip(EffectSet):
