@@ -4,12 +4,12 @@ from random import random, choice, randint
 from math import log
 
 class Effect():
-    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, graph, velocity = 1):
+    def __init__(self, colors, beat_increment, beat_offset, num_pixels, pixeldata, graph, velocity = 1):
         self.colors = colors
         self.beat = 0
         self.beat_increment = beat_increment
         self.beat_offset = beat_offset
-        self.max_beats = max_beats
+        self.max_beats = randint(4, 16)
         self.num_pixels = num_pixels
         self.pixeldata = pixeldata
         self.graph = graph

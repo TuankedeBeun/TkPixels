@@ -180,8 +180,7 @@ class Controller():
         if chance_per_increment > random():
             new_effect = self.effect_set.new_effect()
             beat_offset = self.beat_increments % 1
-            max_beats = randint(4, 16) # TODO: maybe make this dynamic using a settings? Or define in Effect base class...
-            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, max_beats, self.board.num_pixels, self.board.pixeldata, self.graph) # initialize efffect
+            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, self.board.num_pixels, self.board.pixeldata, self.graph) # initialize efffect
             self.effects.append(new_effect_instance)
             self.num_effects += 1
 
