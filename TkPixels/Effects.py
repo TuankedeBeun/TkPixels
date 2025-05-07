@@ -102,7 +102,7 @@ class Sweep(Effect):
         return self.pixels
     
 class BroadSweep(Sweep):
-    brightness = 0.1 + 0.3 * random()
+    brightness = 0.1 + 0.4 * random()
     narrowness = randint(6, 12)
     t_scale = 1 + 1 * random() # between 1 and 2
 
@@ -208,7 +208,7 @@ class SphericalSweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        brightness = 0.25 + 0.5 * random()
+        brightness = 0.1 + 0.4 * random()
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
