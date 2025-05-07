@@ -3,9 +3,10 @@ from TkPixels.Controller import Controller
 from TkPixels.TkStripSequence import Strip
 import tkinter as tk
 
+SCALE = 1.5
 LED_COUNT = 120
-WIDTH = 410
-HEIGHT = 780
+WIDTH = 410 * SCALE
+HEIGHT = 780 * SCALE
 BRIGHTNESS = 1
 
 # create tkinter window and canvas
@@ -27,6 +28,6 @@ strip_right = Strip(LED_COUNT, BRIGHTNESS, canvas, 1)
 strip_left = Strip(LED_COUNT, BRIGHTNESS, canvas, 1 + LED_COUNT)
 
 # initialize board and controller
-board = Board(strip_right, strip_left, simulate=True, canvas=canvas)
+board = Board(strip_right, strip_left, simulate=True, canvas=canvas, scale=SCALE)
 controller = Controller(board)
 controller.play()
