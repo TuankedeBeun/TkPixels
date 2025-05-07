@@ -21,30 +21,6 @@ class Effect():
     def increment(self):
         self.beat += self.beat_increment
 
-class Strobe(Effect):
-    def get_rgb(self):
-        if self.beat % 1.25 == 0:
-            self.pixels[:,:] = 255
-        else:
-            self.pixels[:,:] = 0
-
-        return self.pixels
-    
-class StrobeColor(Effect):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.color = choice(self.colors)
-        self.max_beats = randint(4,7)
-
-    def get_rgb(self):
-        if self.beat % 1 == 0:
-            rgb = hsv_to_rgb(self.color, 1, 1)
-            self.pixels[:] = 255 * np.array(rgb)
-        else:
-            self.pixels[:,:] = 0
-
-        return self.pixels
-    
 class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
