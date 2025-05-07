@@ -72,7 +72,7 @@ class Controller():
         if effect_set_nr != self.effect_set_nr:
             self.effect_set_nr = effect_set_nr
             self.effect_set = self.set_effect_set(self.effect_set_nr)
-            print(f'Effect set changed to: {effect_set_nr} ({self.effect_set.name})')
+            print(f'Effect set changed to: {effect_set_nr} ({self.effect_set.name} - spawn multiplier {self.effect_set.chance_multiplier})')
 
         if brightness != self.brightness:
             self.brightness = brightness
