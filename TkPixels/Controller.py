@@ -3,7 +3,7 @@ from random import random, randint
 import numpy as np
 import csv
 from TkPixels.EffectSets import EffectSets, random_effect_set
-from TkPixels.AfterEffects import Invert
+from TkPixels.AfterEffects import BoostColor
 import json
 
 DATA_PATH = './data/settings.csv'
@@ -45,7 +45,8 @@ class Controller():
         # effect settings
         self.num_effects = 0
         self.effects = []
-        self.after_effects = [Invert(self.colors)]
+        self.num_after_effects = 1
+        self.after_effects = [BoostColor(self.colors, self.beat_increment)]
     
     def load_settings(self):
         
@@ -111,7 +112,7 @@ class Controller():
 
             # apply all after effects
             for after_effect in self.after_effects:
-                effects_combined = after_effect.apply(self.beat, effects_combined)
+                effects_combined = after_effect.apply(effects_combined)
 
             # draw
             self.draw_strips(effects_combined)
@@ -121,6 +122,7 @@ class Controller():
 
             # check which effects expire
             self.expire_effects()
+            self.expire_after_effects()
 
             # chance to add new effect
             if self.state:
@@ -155,6 +157,9 @@ class Controller():
         for effect in self.effects:
             effect.increment()
 
+        for after_effect in self.after_effects:
+            after_effect.increment()
+
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
         # print('time to sleep:', time_to_wait)
@@ -170,6 +175,14 @@ class Controller():
             if effect.beat >= effect.max_beats:
                 self.effects.pop(i)
                 self.num_effects -= 1
+
+    def expire_after_effects(self):
+        for i in range(self.num_after_effects - 1, -1, -1):
+            after_effect = self.after_effects[i]
+            if after_effect.beat >= after_effect.max_beats:
+                print(f'After effect expired: {after_effect.__class__.__name__}')
+                self.after_effects.pop(i)
+                self.num_after_effects -= 1
 
     def add_effect(self):
 
