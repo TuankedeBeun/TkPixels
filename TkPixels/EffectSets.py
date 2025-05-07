@@ -9,7 +9,7 @@ class EffectSet():
 
         self.name = name
         self.effects = effects
-        self.after_effects = after_effects
+        self.after_effects = [after_effects] if isinstance(after_effects, Effect) else after_effects
         self.max_effects = max_effects
         self.chance_multiplier = chance_multiplier
 
@@ -23,6 +23,10 @@ class EffectSet():
     def new_after_effect(self):
         if self.after_effects is None:
             return None
+        
+        elif len(self.after_effects) == 1:
+            return self.after_effects[0]
+        
         return np.random.choice(self.after_effects)
 
 class All(EffectSet):
@@ -111,7 +115,7 @@ class Downward(EffectSet):
                 15
             ),
             8,
-            after_effects = (BoostColor)
+            after_effects = (BoostColor,)
         )
 
 class Trippy(EffectSet):
@@ -177,7 +181,7 @@ class IntenseMoving(EffectSet):
             ),
             5,
             chance_multiplier = 1.2,
-            after_effects = (DipOnBeat)
+            after_effects = (DipOnBeat,)
         )
 
 class IntenseFlashing(EffectSet):
@@ -202,7 +206,7 @@ class IntenseFlashing(EffectSet):
             ),
             5,
             chance_multiplier = 0.9,
-            after_effects = (DipOnBeat)
+            after_effects = (DipOnBeat,)
         )
 
 class BeatAndZip(EffectSet):

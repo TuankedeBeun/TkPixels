@@ -45,8 +45,10 @@ class Controller():
         # effect settings
         self.num_effects = 0
         self.effects = []
-        self.num_after_effects = 1
-        self.after_effects = [Blurr(self.colors, self.beat_increment, 0)]
+        self.num_after_effects = 0
+        self.max_after_effects = 1
+        self.after_effects = []
+        self.chance_after_effect_per_bar = 1
     
     def load_settings(self):
         
@@ -144,6 +146,7 @@ class Controller():
             if self.beat % 4 == 0:
                 self.bar += 1
                 self.load_settings()
+                self.add_after_effect()
                 
                 if self.bar % 32 == 0:
                     self.phrase += 1
@@ -180,9 +183,9 @@ class Controller():
         for i in range(self.num_after_effects - 1, -1, -1):
             after_effect = self.after_effects[i]
             if after_effect.beat >= after_effect.max_beats:
-                print(f'After effect expired: {after_effect.__class__.__name__}')
                 self.after_effects.pop(i)
                 self.num_after_effects -= 1
+                print(f'After effect expired: {after_effect.__class__.__name__}')
 
     def add_effect(self):
 
@@ -196,6 +199,17 @@ class Controller():
             new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, self.board.num_pixels, self.board.pixeldata, self.graph) # initialize efffect
             self.effects.append(new_effect_instance)
             self.num_effects += 1
+
+    def add_after_effect(self):
+        if self.num_after_effects >= self.max_after_effects:
+            return
+        
+        if self.chance_after_effect_per_bar > random() and self.effect_set.after_effects:
+            new_after_effect = self.effect_set.new_after_effect()
+            new_after_effect_instance = new_after_effect(self.colors, self.beat_increment)
+            self.after_effects.append(new_after_effect_instance)
+            self.num_after_effects += 1
+            print(f'After effect added: {new_after_effect.__name__}')
 
     def random_effect_set(self):
         possible_sets = list(range(7))

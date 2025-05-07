@@ -4,11 +4,11 @@ from colorsys import hsv_to_rgb
 from random import random, choice, randint
 
 class AfterEffect():
-    def __init__(self, colors, beat_increment, beat_offset):
+    def __init__(self, colors, beat_increment):
         self.colors = colors
-        self.max_beats = 16 * randint(1, 4)
+        self.max_beats = 16 * randint(2, 8)
         self.beat_increment = beat_increment
-        self.beat = beat_offset - 1
+        self.beat = 0
     
     def apply(self, pixels, beat_increment=None):
         pass
@@ -24,9 +24,7 @@ class BoostColor(AfterEffect):
         self.max_boost_factor = 0.75 #0.25 + random() * 0.5
 
         rgb = hsv_to_rgb(self.boost_color, 1, 1)
-        print(f'Boost color: {self.boost_color}, RGB: {rgb}')
-        print(f'Max boost factor: {self.max_boost_factor}')
-        print(f'Max beats: {self.max_beats}')
+        print(f'Boost color: {self.boost_color}, RGB: {rgb}, Max boost factor: {self.max_boost_factor}')
         
     def apply(self, pixels):
 
@@ -58,10 +56,10 @@ class DipOnBeat(AfterEffect):
     def apply(self, pixels):
         # the dip factor is dependent on how far away we are from the beat
         # the dip factor is max_dip_factor at the beat and 1 exactly in between beats
-        # it follows a fourth-order curve: I(t) = ((t*2 - 1)^6 - 1) * max_dip_factor + 1
+        # it follows a fourth-order curve: I(t) = ((t*2 - 1)^4 - 1) * max_dip_factor + 1
 
         t = (self.beat % self.frequency) / self.frequency
-        dip_factor = ((t * 2 - 1) ** 6 - 1) * self.max_dip_factor + 1
+        dip_factor = ((t * 2 - 1) ** 4 - 1) * self.max_dip_factor + 1
         brightness = 1 - dip_factor
 
         # ensure brightness is not negative
@@ -77,7 +75,8 @@ class Blurr(AfterEffect):
     # This effect applies an increasing Gaussian blur to the pixels over each strip
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.max_blur_range = randint(2, 6)
+        self.max_blur_range = randint(4, 10)
+        print(f'Blurr: {self.max_blur_range}')
 
     def apply(self, pixels):
         blur_range = self.max_blur_range * (self.beat / self.max_beats) ** 2
