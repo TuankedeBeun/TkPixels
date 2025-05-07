@@ -165,7 +165,7 @@ class IntenseMoving(EffectSet):
                 15
             ),
             5,
-            chance_multiplier = 0.8
+            chance_multiplier = 1.2
         )
 
 class IntenseFlashing(EffectSet):
