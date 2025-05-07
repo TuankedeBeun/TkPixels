@@ -58,7 +58,7 @@ class All(EffectSet):
                 30, 15, 15, 20,
                 15
             ),
-            8
+            6
         )
 
 class Soft(EffectSet):
