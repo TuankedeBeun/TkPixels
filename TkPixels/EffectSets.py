@@ -132,7 +132,7 @@ class Trippy(EffectSet):
                 10
             ),
             12,
-            chance_multiplier = 4
+            chance_multiplier = 1.5
         )
 
 class IntenseMoving(EffectSet):

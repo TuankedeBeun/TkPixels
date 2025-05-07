@@ -81,7 +81,7 @@ class Controller():
 
         if effect_intensity != self.effect_intensity:
             self.effect_intensity = effect_intensity
-            self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
+            self.chance_effect_per_beat = 0.2 + (0.6 * effect_intensity) # range 0.2 - 0.8
             print(f'Effect intensity changed to: {effect_intensity} (chance/beat {round(self.chance_effect_per_beat, 2)})')
 
         if num_colors != self.num_colors:
