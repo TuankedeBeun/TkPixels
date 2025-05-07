@@ -89,15 +89,17 @@ class Downward(EffectSet):
             'Smoothly Downward',
             (
                 BroadSweepDown,
-                SnakeStripLeftDown, SnakeStripRightDown, 
+                SnakeStripLeftDown, SnakeStripRightDown,
+                NarrowSweepsDown,
                 SectionPairsSnakeDown,
                 Shower
             ),
             (
                 20,
                 8, 8,
+                5,
                 20,
-                25
+                15
             ),
             8
         )
