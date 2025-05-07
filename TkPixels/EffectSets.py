@@ -202,9 +202,9 @@ class BeatAndZip(EffectSet):
                 GraphLightning
             ),
             (
-                20, 1,
-                40, 40,
-                10
+                30, 1,
+                50, 50,
+                8
             ),
             5,
             chance_multiplier = 2
