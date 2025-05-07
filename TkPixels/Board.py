@@ -6,9 +6,10 @@ from math import sqrt
 import numpy as np
 
 class Board():
-    def __init__(self, strip_right, strip_left, simulate = False, canvas = None):
+    def __init__(self, strip_right, strip_left, simulate = False, canvas = None, scale = 1):
         self.simulate = simulate
         self.strips = [strip_right, strip_left]
+        self.scale = scale
         
         # load pixel data
         script_dir = path.dirname(path.abspath(__file__))
@@ -26,15 +27,15 @@ class Board():
         coords = self.pixeldata['coords_board']
 
         for (x, y) in coords:
-            x0 = x - pixel_radius
-            x1 = x + pixel_radius
-            y0 = y - pixel_radius
-            y1 = y + pixel_radius
+            x0 = (x - pixel_radius) * self.scale
+            x1 = (x + pixel_radius) * self.scale
+            y0 = (y - pixel_radius) * self.scale
+            y1 = (y + pixel_radius) * self.scale
             self.canvas.create_oval(
                 x0, y0, x1, y1, 
                 width = 1,
                 fill = ('#%02x%02x%02x' % (0, 0, 0)),
-                outline = 'gray'
+                outline = '#363636'
             )
         
         self.canvas.update()

@@ -1,9 +1,10 @@
 import numpy as np
 from colorsys import hsv_to_rgb
 from random import random, choice, randint
+from math import log
 
 class Effect():
-    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, velocity = 1):
+    def __init__(self, colors, beat_increment, beat_offset, max_beats, num_pixels, pixeldata, graph, velocity = 1):
         self.colors = colors
         self.beat = 0
         self.beat_increment = beat_increment
@@ -11,6 +12,7 @@ class Effect():
         self.max_beats = max_beats
         self.num_pixels = num_pixels
         self.pixeldata = pixeldata
+        self.graph = graph
         self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
 
     def get_rgb(self):
@@ -19,30 +21,6 @@ class Effect():
     def increment(self):
         self.beat += self.beat_increment
 
-class Strobe(Effect):
-    def get_rgb(self):
-        if self.beat % 1.25 == 0:
-            self.pixels[:,:] = 255
-        else:
-            self.pixels[:,:] = 0
-
-        return self.pixels
-    
-class StrobeColor(Effect):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.color = choice(self.colors)
-        self.max_beats = randint(4,7)
-
-    def get_rgb(self):
-        if self.beat % 1 == 0:
-            rgb = hsv_to_rgb(self.color, 1, 1)
-            self.pixels[:] = 255 * np.array(rgb)
-        else:
-            self.pixels[:,:] = 0
-
-        return self.pixels
-    
 class Sweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -100,7 +78,7 @@ class Sweep(Effect):
         return self.pixels
     
 class BroadSweep(Sweep):
-    brightness = 0.25 + 0.5 * random()
+    brightness = 0.1 + 0.4 * random()
     narrowness = randint(6, 12)
     t_scale = 1 + 1 * random() # between 1 and 2
 
@@ -206,7 +184,7 @@ class SphericalSweep(Effect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = choice(self.colors)
-        brightness = 0.25 + 0.5 * random()
+        brightness = 0.1 + 0.4 * random()
         self.rgb = hsv_to_rgb(self.color, 1, brightness)
         self.t_scale = randint(1, 5)
         self.narrowness = randint(10, 100) / self.t_scale
@@ -294,7 +272,7 @@ class FlashFade(Effect):
         color = choice(self.colors)
         saturation = 0.5 + random() / 2
         self.rgb = hsv_to_rgb(color, saturation, 1)
-        self.decay_coef = 6
+        self.decay_coef = 5
         self.max_beats = randint(2, 4)
         self.beat = self.beat_offset - 1
 
@@ -347,7 +325,7 @@ class SectionBuzz(Effect):
 
     def get_rgb(self):
 
-        if self.beat % 1 == 0: # do every beat
+        if self.beat % 2 == 0: # do every beat
 
             chosen_section = self.shuffled[self.section]
 
@@ -375,7 +353,7 @@ class UnitBuzz(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 2) % 1 == 0: # do every off-beat
+        if self.beat % 1 == 0: # do every off-beat
 
             start_unit_id = self.num_units * self.unit_id
             chosen_units = self.shuffled_units[start_unit_id : start_unit_id + self.num_units]
@@ -501,27 +479,26 @@ class Sparkles(Effect):
 
     def get_rgb(self):
 
-        if (self.beat * 8) % 1 == 0: # sparkle frequency is 8 per beat
-            if self.on_count > 0:
-                indices_sparkles = np.random.choice(self.indices, self.num_sparkles, replace=False)
-                on = np.isin(self.indices, indices_sparkles)
-                self.pixels = np.outer(255 * on, self.rgb)
+        if self.on_count > 0:
+            indices_sparkles = np.random.choice(self.indices, self.num_sparkles, replace=False)
+            on = np.isin(self.indices, indices_sparkles)
+            self.pixels = np.outer(255 * on, self.rgb)
 
-                if (self.beat * 2) % 1 == 0:
-                    self.on_count -= 0.5
+            if (self.beat * 2) % 1 == 0:
+                self.on_count -= 0.5
 
-                    if self.on_count == 0:
-                        self.off_count = randint(1, 7) / 2
+                if self.on_count == 0:
+                    self.off_count = randint(1, 7) / 2
 
-            elif self.off_count > 0:
-                self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
+        elif self.off_count > 0:
+            self.pixels = np.zeros((self.num_pixels, 3), dtype=np.uint8)
 
-                if (self.beat * 2) % 1 == 0:
-                    self.off_count -= 0.5
+            if (self.beat * 2) % 1 == 0:
+                self.off_count -= 0.5
 
-                    # when the off count has finished, determine the new on duration
-                    if self.off_count == 0:
-                        self.on_count = randint(1, 4) / 2
+                # when the off count has finished, determine the new on duration
+                if self.off_count == 0:
+                    self.on_count = randint(1, 4) / 2
 
         return self.pixels
 
@@ -685,3 +662,216 @@ class Nova(Effect):
 
         return self.pixels
     
+class GraphSnake(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # self.max_beats = randint(3, 6)
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.decay_factor = 0.7 + 0.2 * random() # random between 0.7 and 0.9
+        self.decay_increments = log(0.1, self.decay_factor) # the number of increments needed at the end to end at 10% brightness
+        self.pixel_index_increment = max(1, 16 * self.beat_increment)
+        self.snake_length = max(self.pixel_index_increment, randint(2, 6))
+
+        self.current_letter = choice(list(self.graph.keys()))
+        self.choose_next_intersection(self.current_letter)
+        
+    def choose_next_intersection(self, letter):
+        self.current_letter = letter
+        self.next_letter = choice(list(self.graph[letter]['connections'].keys()))
+        next_intersection = self.graph[letter]['connections'][self.next_letter]
+        self.strip_nr = next_intersection['strip_nr']
+        self.led_index_curent = next_intersection['led_start']
+        self.led_index_end = next_intersection['led_end']
+        self.direction = 1 if self.led_index_end > self.led_index_curent else -1
+
+    def increment(self):
+        self.beat += self.beat_increment
+        self.led_index_curent += self.direction * self.pixel_index_increment
+
+        if (self.direction == 1 and self.led_index_curent >= self.led_index_end) or \
+           (self.direction == -1 and self.led_index_curent <= self.led_index_end):
+            self.choose_next_intersection(self.next_letter)
+
+    def get_rgb(self):
+        strip_nr = self.pixeldata['indices'][:, 0] == self.strip_nr
+        indices = self.pixeldata['indices'][:, 1]
+
+        # stop progressing the snake near the end
+        if (self.max_beats - self.beat) / self.beat_increment < self.decay_increments:
+            on = 0 * strip_nr
+            self.pixels = self.decay_factor * self.pixels
+            return self.pixels
+        
+        # progress the snake
+        if self.direction == 1:
+            end = min(self.led_index_end, self.led_index_curent + self.snake_length)
+            on = strip_nr * (indices >= self.led_index_curent) * (indices < end)
+        elif self.direction == -1:
+            end = max(self.led_index_end, self.led_index_curent - self.snake_length)
+            on = strip_nr * (indices <= self.led_index_curent) * (indices > end)
+            
+        self.pixels = np.outer(255 * on, self.rgb) + self.decay_factor * self.pixels
+        for primary_color in range(3):
+            self.pixels[self.pixels[:,primary_color] > (255 * self.rgb[primary_color]), primary_color] = 255 * self.rgb[primary_color]
+        return self.pixels
+
+class GraphSectionBuzz(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        self.section_ids = self.pixeldata['graph_section_ids']
+        self.unique_sections = np.unique(self.section_ids, axis=0)
+        self.shuffled = np.random.permutation(self.unique_sections)
+        self.section = 0
+        self.beat = self.beat_offset - 1
+
+    def get_rgb(self):
+
+        if self.beat % 1 == 0: # do every beat
+
+            chosen_section = self.shuffled[self.section]
+
+            on = (self.section_ids == chosen_section)
+            on = np.prod(on, axis=1)
+
+            self.pixels = np.outer(255 * on, self.rgb)
+            self.section = (self.section + 1) % len(self.shuffled)
+
+        return self.pixels
+
+class GraphNodeBuzz(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color = choice(self.colors)
+        self.rgb = hsv_to_rgb(color, 1, 1)
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        number_of_letters = list(self.graph.keys())
+        self.nodes_together = randint(1, 4)
+        self.loop_length = randint(5, 9)
+        self.node_radius = randint(4, 7)
+
+        if self.nodes_together == 1:
+            self.frequency = 4
+            self.loop_length *= 2
+        else:
+            self.frequency = 2
+
+        self.node_program = np.random.choice(number_of_letters, (self.loop_length, self.nodes_together), replace=True)
+        self.program_id = 0
+        self.beat = self.beat_offset - 1
+
+    def get_rgb(self):
+
+        if (self.beat * self.frequency) % 1 == 0:
+
+            letters = self.node_program[self.program_id]
+
+            pixel_stack = np.zeros((self.nodes_together, self.num_pixels), dtype=np.uint8)
+            for i, letter in enumerate(letters):
+                coord = self.graph[letter]['coords']
+                dx = coord[0] - self.x
+                dy = coord[1] - self.y
+                d = np.sqrt(dx**2 + dy**2)
+                on = d < self.node_radius
+                pixel_stack[i] = on
+
+            self.pixels = np.outer(255 * np.max(pixel_stack, axis=0), self.rgb)
+            self.program_id = (self.program_id + 1) % self.loop_length
+
+        return self.pixels
+
+class GraphSectionSnake(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.color = choice(self.colors)
+        self.rgb = hsv_to_rgb(self.color, 1, 1)
+        self.section_ids = self.pixeldata['graph_section_ids']
+        self.x = self.pixeldata['coords_cart'][:,0]
+        self.y = self.pixeldata['coords_cart'][:,1]
+        self.node_radius = 2.5
+        self.number_of_snakes = randint(2, 5)
+        self.beat = self.beat_offset - 1
+
+        self.snakes = []
+        for i in range(self.number_of_snakes):
+            snake = {
+                'current_letter': choice(list(self.graph.keys()))
+            }
+            self.choose_next_graph_section(snake, snake['current_letter'])
+            self.snakes.append(snake)
+        
+    def choose_next_graph_section(self, snake, letter):
+        snake['current_letter'] = letter
+        snake['next_letter'] = choice(list(self.graph[letter]['connections'].keys()))
+        next_intersection = self.graph[letter]['connections'][snake['next_letter']]
+        snake['strip_nr'] = next_intersection['strip_nr']
+        snake['graph_section'] = next_intersection['graph_section']
+        snake['node_coords'] = self.graph[letter]['coords']
+
+    def get_rgb(self):
+        pixel_stack = np.zeros((self.number_of_snakes, self.num_pixels, 3), dtype=np.uint8)
+
+        if (self.beat * 2) % 1 == 0:
+            for i, snake in enumerate(self.snakes):
+                if (self.beat * 1) % 1 == 0: # do every beat
+                    # Light the node
+                    dx = snake['node_coords'][0] - self.x
+                    dy = snake['node_coords'][1] - self.y
+                    d = np.sqrt(dx**2 + dy**2)
+                    on = d < self.node_radius
+                    pixel_stack[i] = np.outer(255 * on, self.rgb)
+                
+                elif (self.beat * 1) % 1 == 0.5: # do every off-beat
+                    # Light the intersection
+                    on = (self.section_ids == np.array([snake['strip_nr'], snake['graph_section']]))
+                    on = np.prod(on, axis=1)
+                    pixel_stack[i] = np.outer(255 * on, self.rgb)
+
+                    self.choose_next_graph_section(snake, snake['next_letter'])
+
+            self.pixels = np.max(pixel_stack, axis=0)
+
+        return self.pixels
+
+class GraphLightning(Effect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = choice(self.colors)
+        self.beat = self.beat_offset - 1
+        self.max_beats = randint(2, 6)
+
+        section_ids = self.pixeldata['graph_section_ids']
+        self.number_of_sections = 20
+        current_letter = choice(list(self.graph.keys()))
+
+        ons = np.zeros((self.number_of_sections, self.num_pixels), dtype=np.uint8)
+
+        for i in range(self.number_of_sections):
+            # choose a new random connected node and its intersection
+            next_letter = choice(list(self.graph[current_letter]['connections'].keys()))
+            next_intersection = self.graph[current_letter]['connections'][next_letter]
+            section_id = np.array([next_intersection['strip_nr'], next_intersection['graph_section']])
+
+            # compute which leds are on
+            on = (section_ids == section_id)
+            on = np.prod(on, axis=1)
+            ons[i] = on
+
+            # update the current letter
+            current_letter = next_letter
+
+        self.on = np.max(ons, axis=0)
+
+    def get_rgb(self):
+        # saturation starts at 0 and increases rapidly to 1
+        sat = 1 - ((self.max_beats - self.beat) / self.max_beats)**5
+        # brightness starts at 1 and decreases moderately to 0.5
+        brightness = 1 - (self.beat / self.max_beats)**2
+        self.rgb = hsv_to_rgb(self.color, sat, brightness)
+        self.pixels = np.outer(255 * self.on, self.rgb)
+        return self.pixels

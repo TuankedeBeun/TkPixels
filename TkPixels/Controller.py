@@ -4,8 +4,10 @@ import numpy as np
 import csv
 from TkPixels.EffectSets import EffectSets, random_effect_set
 from TkPixels.AfterEffects import Invert
+import json
 
 DATA_PATH = './data/settings.csv'
+GRAPH_PATH = './data/graph.json'
 
 class Controller():
     def __init__(self, board):
@@ -25,6 +27,9 @@ class Controller():
         print('Loading initial settings')
         self.load_settings()
         print('\nRuntime setting changes:')
+
+        # load graph data
+        self.load_graph()
         
         # determine time properties
         self.time = 0
@@ -69,7 +74,7 @@ class Controller():
         if effect_set_nr != self.effect_set_nr:
             self.effect_set_nr = effect_set_nr
             self.effect_set = self.set_effect_set(self.effect_set_nr)
-            print(f'Effect set changed to: {effect_set_nr} ({self.effect_set.name})')
+            print(f'Effect set changed to: {effect_set_nr} ({self.effect_set.name} - spawn multiplier {self.effect_set.chance_multiplier})')
 
         if brightness != self.brightness:
             self.brightness = brightness
@@ -78,12 +83,16 @@ class Controller():
 
         if effect_intensity != self.effect_intensity:
             self.effect_intensity = effect_intensity
-            self.chance_effect_per_beat = 0.2 + (1 * effect_intensity) # range 0.2 - 1.2
+            self.chance_effect_per_beat = 0.2 + (0.6 * effect_intensity) # range 0.2 - 0.8
             print(f'Effect intensity changed to: {effect_intensity} (chance/beat {round(self.chance_effect_per_beat, 2)})')
 
         if num_colors != self.num_colors:
             self.num_colors = num_colors
             print(f'Number of colors changed to: {num_colors}')
+
+    def load_graph(self):
+        with open(GRAPH_PATH, 'r') as file:
+            self.graph = json.load(file)
 
     def play(self):
         self.time = time()
@@ -171,8 +180,8 @@ class Controller():
         if chance_per_increment > random():
             new_effect = self.effect_set.new_effect()
             beat_offset = self.beat_increments % 1
-            max_beats = randint(4, 16) # TODO: maybe make this dynamic using a settings?
-            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, max_beats, self.board.num_pixels, self.board.pixeldata)
+            max_beats = randint(4, 16) # TODO: maybe make this dynamic using a settings? Or define in Effect base class...
+            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, max_beats, self.board.num_pixels, self.board.pixeldata, self.graph) # initialize efffect
             self.effects.append(new_effect_instance)
             self.num_effects += 1
 
