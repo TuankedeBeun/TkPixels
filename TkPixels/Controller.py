@@ -3,7 +3,7 @@ from random import random, randint
 import numpy as np
 import csv
 from TkPixels.EffectSets import EffectSets, random_effect_set
-from TkPixels.AfterEffects import BoostColor
+from TkPixels.AfterEffects import *
 import json
 
 DATA_PATH = './data/settings.csv'
@@ -46,7 +46,7 @@ class Controller():
         self.num_effects = 0
         self.effects = []
         self.num_after_effects = 1
-        self.after_effects = [BoostColor(self.colors, self.beat_increment)]
+        self.after_effects = [DipOnBeat(self.colors, self.beat_increment, 0)]
     
     def load_settings(self):
         
