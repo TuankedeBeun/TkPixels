@@ -46,7 +46,7 @@ class Controller():
         self.num_effects = 0
         self.effects = []
         self.num_after_effects = 1
-        self.after_effects = [DipOnBeat(self.colors, self.beat_increment, 0)]
+        self.after_effects = [Blurr(self.colors, self.beat_increment, 0)]
     
     def load_settings(self):
         

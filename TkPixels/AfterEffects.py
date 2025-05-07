@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.ndimage import gaussian_filter1d
 from colorsys import hsv_to_rgb
 from random import random, choice, randint
 
@@ -16,6 +17,7 @@ class AfterEffect():
         self.beat += self.beat_increment
 
 class BoostColor(AfterEffect):
+    # This effect boosts a particular color
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.boost_color = choice(self.colors)
@@ -46,17 +48,17 @@ class BoostColor(AfterEffect):
         return pixels
 
 class DipOnBeat(AfterEffect):
-    # This after effect dips the brightness of the pixels on the beat
+    # This effect applies a dip on the beat, where the brightness of all the pixels is reduced
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.max_dip_factor = 0.6 + random() * 0.3 # from 0.6 to 0.9
+        self.max_dip_factor = 0.6 + random() * 0.4 # from 0.6 to 1.0
         self.frequency = 2 ** randint(0, 3)
         print(f'Dip on beat: {self.max_dip_factor}, Frequency: {self.frequency}')
 
     def apply(self, pixels):
         # the dip factor is dependent on how far away we are from the beat
         # the dip factor is max_dip_factor at the beat and 1 exactly in between beats
-        # it follows a fourth-order curve: I(t) = ((t*2 - 1)^4 - 1) * max_dip_factor + 1
+        # it follows a fourth-order curve: I(t) = ((t*2 - 1)^6 - 1) * max_dip_factor + 1
 
         t = (self.beat % self.frequency) / self.frequency
         dip_factor = ((t * 2 - 1) ** 6 - 1) * self.max_dip_factor + 1
@@ -67,5 +69,20 @@ class DipOnBeat(AfterEffect):
 
         # dip the brightness of the pixels
         pixels = np.uint8(pixels * brightness)
+
+        return pixels
+    
+
+class Blurr(AfterEffect):
+    # This effect applies an increasing Gaussian blur to the pixels over each strip
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.max_blur_range = randint(2, 6)
+
+    def apply(self, pixels):
+        blur_range = self.max_blur_range * (self.beat / self.max_beats) ** 2
+        blur_range = max(0.1, blur_range)
+
+        pixels = gaussian_filter1d(pixels, sigma=blur_range, axis=0)
 
         return pixels
