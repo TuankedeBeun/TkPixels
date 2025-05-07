@@ -21,7 +21,7 @@ class BoostColor(AfterEffect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.boost_color = choice(self.colors)
-        self.max_boost_factor = 0.75 #0.25 + random() * 0.5
+        self.max_boost_factor = 0.25 + random() * 0.5
 
         rgb = hsv_to_rgb(self.boost_color, 1, 1)
         print(f'Boost color: {self.boost_color}, RGB: {rgb}, Max boost factor: {self.max_boost_factor}')
@@ -50,7 +50,7 @@ class DipOnBeat(AfterEffect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.max_dip_factor = 0.6 + random() * 0.4 # from 0.6 to 1.0
-        self.frequency = 2 ** randint(0, 3)
+        self.frequency = 2 ** randint(0, 2)
         print(f'Dip on beat: {self.max_dip_factor}, Frequency: {self.frequency}')
 
     def apply(self, pixels):

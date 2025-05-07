@@ -48,7 +48,7 @@ class Controller():
         self.num_after_effects = 0
         self.max_after_effects = 1
         self.after_effects = []
-        self.chance_after_effect_per_bar = 1
+        self.chance_after_effect_per_bar = 0.05
     
     def load_settings(self):
         

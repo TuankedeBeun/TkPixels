@@ -3,7 +3,7 @@ from TkPixels.Controller import Controller
 from TkPixels.TkStripSequence import Strip
 import tkinter as tk
 
-SCALE = 1.0
+SCALE = 1.7
 LED_COUNT = 120
 WIDTH = 410 * SCALE
 HEIGHT = 780 * SCALE

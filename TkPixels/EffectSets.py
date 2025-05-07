@@ -206,7 +206,7 @@ class IntenseFlashing(EffectSet):
             ),
             5,
             chance_multiplier = 0.9,
-            after_effects = (DipOnBeat,)
+            after_effects = (DipOnBeat, Blurr)
         )
 
 class BeatAndZip(EffectSet):
