@@ -239,13 +239,13 @@ class UpUp(EffectSet):
                 NarrowSweepsUp
             ),
             (
-                12, 12,
-                20,
+                20, 20,
+                30,
                 15,
                 3
             ),
             10,
-            chance_multiplier = 2
+            chance_multiplier = 2.5
         )
 
 class CirclesAndShower(EffectSet):
