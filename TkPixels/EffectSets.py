@@ -69,15 +69,18 @@ class Soft(EffectSet):
                 SphericalSweepInward, SphericalSweepOutward, 
                 BroadSweepUp, BroadSweepRight, BroadSweepDown, BroadSweepLeft, 
                 Shower,
-                CircularWaves
+                CircularWaves,
+                GraphSnake
             ),
             (
                 12, 12,
                 7, 7, 7, 7,
-                12,
+                5,
+                1,
                 10
             ),
-            8
+            8,
+            chance_multiplier = 1.2
         )
 
 class Downward(EffectSet):
