@@ -1,9 +1,8 @@
 from time import sleep, time
-from random import random, randint
+from random import random
 import numpy as np
 import csv
 from TkPixels.EffectSets import EffectSets, random_effect_set
-from TkPixels.AfterEffects import *
 import json
 
 DATA_PATH = './data/settings.csv'
