@@ -24,7 +24,7 @@ class BoostColor(AfterEffect):
         self.max_boost_factor = 0.4 + random() * 0.5 # from 0.4 to 0.9
 
         rgb = hsv_to_rgb(self.boost_color, 1, 1)
-        print(f'Boost color: {self.boost_color}, RGB: {rgb}, Max boost factor: {self.max_boost_factor}')
+        # print(f'Boost color: {self.boost_color}, RGB: {rgb}, Max boost factor: {self.max_boost_factor}')
         
     def apply(self, pixels):
 
@@ -51,7 +51,7 @@ class DipOnBeat(AfterEffect):
         super().__init__(*args, **kwargs)
         self.max_dip_factor = 0.6 + random() * 0.4 # from 0.6 to 1.0
         self.frequency = 2 ** randint(0, 2)
-        print(f'Dip on beat: {self.max_dip_factor}, Frequency: {self.frequency}')
+        # print(f'Dip on beat: {self.max_dip_factor}, Frequency: {self.frequency}')
 
     def apply(self, pixels):
         # the dip factor is dependent on how far away we are from the beat
@@ -75,7 +75,7 @@ class Blurr(AfterEffect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.max_blur_range = randint(4, 10)
-        print(f'Blurr: {self.max_blur_range}')
+        # print(f'Blurr: {self.max_blur_range}')
 
     def apply(self, pixels):
         # increase the blur range over the beats
