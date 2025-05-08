@@ -21,7 +21,7 @@ class BoostColor(AfterEffect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.boost_color = choice(self.colors)
-        self.max_boost_factor = 0.25 + random() * 0.5
+        self.max_boost_factor = 0.4 + random() * 0.5 # from 0.4 to 0.9
 
         rgb = hsv_to_rgb(self.boost_color, 1, 1)
         print(f'Boost color: {self.boost_color}, RGB: {rgb}, Max boost factor: {self.max_boost_factor}')
@@ -70,7 +70,6 @@ class DipOnBeat(AfterEffect):
 
         return pixels
     
-
 class Blurr(AfterEffect):
     # This effect applies an increasing Gaussian blur to the pixels over each strip
     def __init__(self, *args, **kwargs):
@@ -79,8 +78,14 @@ class Blurr(AfterEffect):
         print(f'Blurr: {self.max_blur_range}')
 
     def apply(self, pixels):
-        blur_range = self.max_blur_range * (self.beat / self.max_beats) ** 2
-        blur_range = max(0.1, blur_range)
+        # increase the blur range over the beats
+        # in the last 4 beats, go from max_blur_range to 0
+        if self.max_beats - self.beat < 4:
+            blur_range = (self.max_beats - self.beat) / 4 * self.max_blur_range
+        else:
+            blur_range = self.max_blur_range * (self.beat / self.max_beats) ** 2
+        
+        blur_range = max(0.01, blur_range) # ensure blur range is positive
 
         pixels = gaussian_filter1d(pixels, sigma=blur_range, axis=0)
 
