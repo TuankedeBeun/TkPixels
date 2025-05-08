@@ -1,9 +1,9 @@
 from time import sleep, time
-from random import random, randint
+from random import random
 import numpy as np
 import csv
-import json
 from TkPixels.EffectSets import EffectSets, random_effect_set
+import json
 
 DATA_PATH = './data/settings.csv'
 GRAPH_PATH = './data/graph.json'
@@ -44,6 +44,10 @@ class Controller():
         # effect settings
         self.num_effects = 0
         self.effects = []
+        self.num_after_effects = 0
+        self.max_after_effects = 1
+        self.after_effects = []
+        self.chance_after_effect_per_bar = 0.05
     
     def load_settings(self):
         
@@ -107,6 +111,10 @@ class Controller():
             effects_combined = np.sum(effect_values, axis=0, dtype=int)
             effects_combined[effects_combined > 255] = 255
 
+            # apply all after effects
+            for after_effect in self.after_effects:
+                effects_combined = after_effect.apply(effects_combined)
+
             # draw
             self.draw_strips(effects_combined)
 
@@ -115,6 +123,7 @@ class Controller():
 
             # check which effects expire
             self.expire_effects()
+            self.expire_after_effects()
 
             # chance to add new effect
             if self.state:
@@ -136,6 +145,7 @@ class Controller():
             if self.beat % 4 == 0:
                 self.bar += 1
                 self.load_settings()
+                self.add_after_effect()
                 
                 if self.bar % 32 == 0:
                     self.phrase += 1
@@ -148,6 +158,9 @@ class Controller():
 
         for effect in self.effects:
             effect.increment()
+
+        for after_effect in self.after_effects:
+            after_effect.increment()
 
         time_passed = time() - self.time
         time_to_wait = max(0, self.beat_increment * self.time_per_beat - time_passed)
@@ -165,6 +178,14 @@ class Controller():
                 self.effects.pop(i)
                 self.num_effects -= 1
 
+    def expire_after_effects(self):
+        for i in range(self.num_after_effects - 1, -1, -1):
+            after_effect = self.after_effects[i]
+            if after_effect.beat >= after_effect.max_beats:
+                self.after_effects.pop(i)
+                self.num_after_effects -= 1
+                print(f'After effect expired: {after_effect.__class__.__name__}')
+
     def add_effect(self):
 
         if self.num_effects >= self.effect_set.max_effects:
@@ -174,10 +195,20 @@ class Controller():
         if chance_per_increment > random():
             new_effect = self.effect_set.new_effect()
             beat_offset = self.beat_increments % 1
-            max_beats = randint(4, 16) # TODO: maybe make this dynamic using a settings? Or define in Effect base class...
-            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, max_beats, self.board.num_pixels, self.board.pixeldata, self.graph) # initialize efffect
+            new_effect_instance = new_effect(self.colors, self.beat_increment, beat_offset, self.board.num_pixels, self.board.pixeldata, self.graph) # initialize efffect
             self.effects.append(new_effect_instance)
             self.num_effects += 1
+
+    def add_after_effect(self):
+        if self.num_after_effects >= self.max_after_effects:
+            return
+        
+        if self.chance_after_effect_per_bar > random() and self.effect_set.after_effects:
+            new_after_effect = self.effect_set.new_after_effect()
+            new_after_effect_instance = new_after_effect(self.colors, self.beat_increment)
+            self.after_effects.append(new_after_effect_instance)
+            self.num_after_effects += 1
+            print(f'After effect added: {new_after_effect.__name__}')
 
     def random_effect_set(self):
         possible_sets = list(range(7))

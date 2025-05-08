@@ -1,13 +1,15 @@
 import numpy as np
 from TkPixels.Effects import *
+from TkPixels.AfterEffects import *
 
 class EffectSet():
-    def __init__(self, name, effects, weights, max_effects, chance_multiplier=1):
+    def __init__(self, name, effects, weights, max_effects, chance_multiplier=1, after_effects=None):
         if len(effects) != len(weights):
             raise ValueError("The number of effects is different from the number of weights.")
 
         self.name = name
         self.effects = effects
+        self.after_effects = [after_effects] if isinstance(after_effects, Effect) else after_effects
         self.max_effects = max_effects
         self.chance_multiplier = chance_multiplier
 
@@ -17,6 +19,15 @@ class EffectSet():
 
     def new_effect(self):
         return np.random.choice(self.effects, p = self.effect_weights)
+    
+    def new_after_effect(self):
+        if self.after_effects is None:
+            return None
+        
+        elif len(self.after_effects) == 1:
+            return self.after_effects[0]
+        
+        return np.random.choice(self.after_effects)
 
 class All(EffectSet):
     def __init__(self):
@@ -58,7 +69,8 @@ class All(EffectSet):
                 30, 15, 15, 20,
                 15
             ),
-            6
+            6,
+            after_effects = (BoostColor, DipOnBeat, Blurr)
         )
 
 class Soft(EffectSet):
@@ -80,7 +92,8 @@ class Soft(EffectSet):
                 10
             ),
             8,
-            chance_multiplier = 1.2
+            chance_multiplier = 1.2,
+            after_effects = (BoostColor, DipOnBeat)
         )
 
 class Downward(EffectSet):
@@ -101,7 +114,8 @@ class Downward(EffectSet):
                 20,
                 15
             ),
-            8
+            8,
+            after_effects = (BoostColor,)
         )
 
 class Trippy(EffectSet):
@@ -137,7 +151,8 @@ class Trippy(EffectSet):
                 10
             ),
             12,
-            chance_multiplier = 1.5
+            chance_multiplier = 1.5,
+            after_effects = (BoostColor, DipOnBeat, Blurr)
         )
 
 class IntenseMoving(EffectSet):
@@ -165,7 +180,8 @@ class IntenseMoving(EffectSet):
                 15
             ),
             5,
-            chance_multiplier = 1.2
+            chance_multiplier = 1.2,
+            after_effects = (DipOnBeat,)
         )
 
 class IntenseFlashing(EffectSet):
@@ -189,7 +205,8 @@ class IntenseFlashing(EffectSet):
                 10
             ),
             5,
-            chance_multiplier = 0.9
+            chance_multiplier = 0.9,
+            after_effects = (DipOnBeat, Blurr)
         )
 
 class BeatAndZip(EffectSet):
@@ -225,7 +242,8 @@ class Snakes(EffectSet):
                 35
             ),
             15,
-            chance_multiplier = 3
+            chance_multiplier = 3,
+            after_effects = (BoostColor, Blurr)
         )
 
 class UpUp(EffectSet):
@@ -245,7 +263,8 @@ class UpUp(EffectSet):
                 3
             ),
             10,
-            chance_multiplier = 2.5
+            chance_multiplier = 2.5,
+            after_effects = (BoostColor, DipOnBeat, Blurr)
         )
 
 class CirclesAndShower(EffectSet):
@@ -265,7 +284,8 @@ class CirclesAndShower(EffectSet):
                 3
             ),
             3,
-            chance_multiplier = 2
+            chance_multiplier = 2,
+            after_effects = (BoostColor, Blurr)
         )
 
 class Test(EffectSet):
