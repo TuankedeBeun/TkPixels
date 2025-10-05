@@ -66,7 +66,7 @@ class DipOnBeat(AfterEffect):
         brightness = max(0, brightness)
 
         # dip the brightness of the pixels
-        pixels = np.uint8(pixels * brightness)
+        pixels = np.int64(pixels * brightness)
 
         return pixels
     
