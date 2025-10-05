@@ -26,9 +26,14 @@ sudo pip install numpy
 ```
 
 # Run
+To start both input and the led show, run:
+```bash
+sudo /home/tuanke/Programming/TkPixels/start_project.sh
+```
+
 To start the input, run:
 ```bash
-source myenv/activate/bin
+source myenv/bin/activate
 cd Programming/TkPixels
 python start_input.py
 ```
