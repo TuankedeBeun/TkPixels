@@ -31,6 +31,8 @@ if __name__ == '__main__':
 				Settings.TIME_LAST_SETTING_PRESS, Settings.TIME_LAST_MEASUREMENT_PRESS,
 				Settings.TIME_LAST_SETTING_CHANGED
 			)
+			
+			time.sleep(0.001)
 	
 	except KeyboardInterrupt:
 		print('')

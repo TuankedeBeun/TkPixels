@@ -10,6 +10,7 @@ CMD_MODE = 0x0000 # Work on 8-bit mode
 TIME_LAST_CHANGED = 0
 SWIPE_STATE = 0
 BLINK_STATE = 0
+LAST_BAR_STATE = 0
 
 def setup_pins(data_pin, clk_pin):
 	global DATA_PIN, CLK_PIN
@@ -42,7 +43,7 @@ def send_16bit_data(data):
 			
 		GPIO.output(CLK_PIN, clk_state)
 		
-		time.sleep(0.0001)
+		time.sleep(0.0003)
 		data <<= 1
   
 def latch_data():
@@ -66,9 +67,15 @@ def send_bar_data(bar_state, brightness, background):
 		bar_state >>= 1
 		
 def set_bar_state(bar_state, brightness=255, background=0):
+	global LAST_BAR_STATE
+	# skip if the bar state hasn't changed
+	if bar_state == LAST_BAR_STATE:
+		return
+	
 	send_16bit_data(CMD_MODE)
 	send_bar_data(bar_state, brightness, background)
 	latch_data()
+	LAST_BAR_STATE = bar_state
 
 # used for selecting kind of setting
 def set_single_led(led, brightness=255, background=0):
